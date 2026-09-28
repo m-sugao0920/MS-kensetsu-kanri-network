@@ -187,6 +187,19 @@ if(x){
    const salesInvShown=liveSalesInvoices.length?salesInvoiceTotal:Number(f.invoiceAmount||0);
    const salesRecShown=liveSalesReceipts.length?salesReceiptTotal:Number(f.paymentAmount||0);
    const canBill=Math.max(0,Number(contractNow||0)-salesInvShown);
+   // 下請未発注：工種予算＋実際に充当した予備費－発注済
+   let orderableBudgetTotal=budgetTotal;
+   try{
+     const br=(MSData.all('budgets')||[]).filter(b=>String(b.projectId)===String(id)&&b.status!=='inactive').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')))[0]||null;
+     if(br){
+       const reserveUsed=Array.isArray(br.items)?br.items.reduce((s,it)=>s+(Number(it&&it.reserveUsed)||0),0):0;
+       if(br.baseBudgetAmount!==undefined&&br.baseBudgetAmount!==null){
+         orderableBudgetTotal=Number(br.baseBudgetAmount)+reserveUsed;
+       }else if(Array.isArray(br.items)){
+         orderableBudgetTotal=br.items.reduce((s,it)=>s+(Number(it&&it.amount)||0)+(Number(it&&it.reserveUsed)||0),0);
+       }
+     }
+   }catch(e){}
    const canOrder=orderableBudgetTotal!==null?Math.max(0,orderableBudgetTotal-orderShown):null;
    const supplierWaiting=Math.max(0,orderShown-supplierShown);
    const unpaid=Math.max(0,salesInvShown-salesRecShown);
