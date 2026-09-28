@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工事カルテ｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+
+/* 残額カード：見出しを金額と一緒に瞬時に読める大きさへ */
+.dashboard .metric .label{font-size:15px!important;font-weight:800!important;line-height:1.35;color:#334f60!important;letter-spacing:.01em}
+.dashboard .metric-sub{font-size:11px!important;line-height:1.35;margin-top:5px;color:#71818c}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+:root{--blue:#176fa8;--deep:#173f6b;--line:#c9dbe8;--text:#243746;--muted:#6a7d89;--bg:#f3f8fc}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#fff,#edf6fc);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;min-height:100vh}
+.top{background:linear-gradient(135deg,#173f6b,#245b86);color:#fff}
+.top-inner{max-width:1440px;margin:auto;padding:15px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-size:24px;font-weight:950}.sub{font-size:12px;opacity:.9;margin-top:3px}
+.top-actions{display:flex;gap:8px}.top-actions button{border:1px solid rgba(255,255,255,.65);background:rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:8px 14px;font-weight:900;cursor:pointer}
+main{max-width:1440px;margin:auto;padding:16px 24px 28px}
+.project-head{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 7px 18px rgba(23,63,107,.08);padding:13px 15px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.project-no{font-size:11px;color:#60798a;font-weight:900}.project-name{font-size:25px;color:var(--deep);font-weight:950;margin-top:2px}
+.project-meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;color:#526b7a;font-size:12px}.project-meta b{color:#294d64}
+.state{display:inline-flex;border-radius:999px;padding:6px 13px;background:#e7f5ec;color:#2e704b;border:1px solid #b9ddc6;font-size:11px;font-weight:950}
+.dashboard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:11px 0}
+.metric{background:#fff;border:1px solid #d4e1ea;border-radius:10px;padding:10px 12px;min-height:72px;box-shadow:0 4px 11px rgba(23,63,107,.05)}
+.metric .label{font-size:10px;font-weight:900;color:#5e7381}.metric .value{font-size:20px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums;white-space:nowrap}.metric-sub{margin-top:4px;font-size:10px;color:#71818c;font-weight:600}
+.contract{border-top:3px solid #176fa8}.budget{border-top:3px solid #7957ad}.order{border-top:3px solid #df7b28}.invoice{border-top:3px solid #348c7d}.payment{border-top:3px solid #4d89b4}.remain{border-top:3px solid #a96528}.profit{border-top:3px solid #628a49}.future{border-top:3px solid #9aa7af;background:#fafbfc}
+.future .value{font-size:13px;color:#7b8991;margin-top:9px}
+.content{display:block}
+.work-overview{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:stretch}
+.work-overview .panel{margin-bottom:12px;height:calc(100% - 12px)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 5px 14px rgba(23,63,107,.06);overflow:hidden;margin-bottom:12px}
+.panel-head{padding:10px 13px;background:#f2f8fc;border-bottom:1px solid #d9e6ef;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-head b{color:var(--deep);font-size:17px}.panel-head button{border:1px solid #9eb9ca;background:#fff;color:#315d78;border-radius:6px;height:29px;padding:0 10px;font-size:11px;font-weight:900;cursor:pointer}
+.info-grid{display:grid;grid-template-columns:125px 1fr 125px 1fr;gap:0;padding:3px 12px 10px}
+.info-grid dt,.info-grid dd{margin:0;padding:9px 7px;border-bottom:1px solid #edf2f5;font-size:15px;line-height:1.45}
+.info-grid dt{color:#657986;font-weight:900}.info-grid dd{font-weight:750;color:#263f50}.map-slot{display:inline-block;margin-left:8px;border:1px dashed #b9cad5;border-radius:5px;padding:2px 7px;color:#8a9aa4;font-size:10px;font-weight:800;vertical-align:middle}
+.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:10px}
+.action{border:0;border-radius:8px;padding:13px 12px;min-height:76px;text-align:left;cursor:pointer;color:#fff}
+.action b{display:block;font-size:15px;margin-bottom:5px}.action span{font-size:11px;opacity:.94;line-height:1.3}
+.a-contract{background:linear-gradient(135deg,#2a74a5,#185a86)}.a-budget{background:linear-gradient(135deg,#8a67bd,#6d4da2)}.a-order{background:linear-gradient(135deg,#e28b3e,#c56d20)}.a-invoice{background:linear-gradient(135deg,#43a18f,#2c7c6d)}.a-info{background:linear-gradient(135deg,#657d8c,#4e6573)}.a-doc{background:linear-gradient(135deg,#587da1,#3e6489)}
+.notice{padding:7px 10px;border-bottom:1px solid #e7edf1;font-size:10px;line-height:1.4}.notice:last-child{border-bottom:0}.notice b{display:inline;color:#334f61;margin-right:7px}.warn{background:#fff8ee}.normal{background:#fff}
+.memo{padding:12px;color:#607481;font-size:11px;line-height:1.65}
+.progress-list{padding:5px 12px 11px}.progress-row{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 5px;border-bottom:1px solid #edf2f5;font-size:13px;line-height:1.25;white-space:nowrap}
+.progress-row>span:nth-child(2){min-width:0;font-size:13px;white-space:nowrap}
+.progress-row b{font-size:13px;white-space:nowrap}.progress-row:last-child{border-bottom:0}.progress-row b{color:#34566c}.progress-status{font-size:12px;font-weight:900;padding:5px 9px;border-radius:999px;background:#edf7f1;color:#367253;white-space:nowrap}.progress-status.attn{background:#fff3df;color:#9a611d}
+footer{max-width:1440px;margin:auto;padding:0 24px 18px;color:#728490;font-size:11px}
+@media(max-width:1050px){.dashboard{grid-template-columns:repeat(2,1fr)}.work-overview{grid-template-columns:1fr}}
+@media(max-width:700px){.top-inner,main{padding-left:13px;padding-right:13px}.project-head{grid-template-columns:1fr}.dashboard{grid-template-columns:1fr 1fr}.info-grid{grid-template-columns:105px 1fr}.actions{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.dashboard,.actions{grid-template-columns:1fr}.project-name{font-size:21px}}
+</style>
+<script src="shared_storage.js"></script></head>
+<body>
+<header class="top"><div class="top-inner">
+ <div><div class="brand">MS建設管理システム</div><div class="sub">工事一覧 ＞ 工事カルテ　｜　選択中の1工事を管理</div></div>
+ <div class="top-actions"><button onclick="location.href='kouji_list.html'">工事一覧へ</button><button onclick="location.href='index.html'">メイン画面へ</button></div>
+</div></header>
+
+<main>
+<section class="project-head">
+ <div>
+  <div class="project-no">工事番号　26-001</div>
+  <div class="project-name">○○邸 外構工事</div>
+  <div class="project-meta"><span><b>発注者：</b>○○建設株式会社</span><span><b>工事場所：</b>伊豆の国市○○</span><span><b>工期：</b>2026/09/01 ～ 2026/10/15</span><span><b>担当：</b>菅尾</span></div>
+ </div>
+ <span class="state">施工中</span>
+</section>
+
+<section class="dashboard">
+ <div class="metric contract"><div class="label">元請未請求</div><div class="value">—</div><div class="metric-sub">受注 − 元請請求</div></div>
+ <div class="metric budget"><div class="label">下請未発注</div><div class="value">—</div><div class="metric-sub">実行予算 − 発注済</div></div>
+ <div class="metric invoice"><div class="label">下請未請求</div><div class="value">—</div><div class="metric-sub">発注済 − 下請請求</div></div>
+ <div class="metric payment"><div class="label">元請未収金</div><div class="value">—</div><div class="metric-sub">元請請求 − 入金</div></div>
+ <div class="metric contract"><div class="label">受注金額</div><div class="value">—</div></div>
+ <div class="metric order"><div class="label">発注済</div><div class="value">—</div></div>
+ <div class="metric payment"><div class="label">元請請求済</div><div class="value">—</div></div>
+ <div class="metric profit"><div class="label">予定利益 / 利益率</div><div class="value">—</div></div>
+</section>
+
+<div class="content">
+ <div>
+  <section class="panel">
+   <div class="panel-head"><b>工事基本情報</b><button data-href="kouji_edit.html">工事情報を編集</button></div>
+   <dl class="info-grid">
+    <dt>工事番号</dt><dd>26-001</dd><dt>登録日</dt><dd>2026/08/25</dd>
+    <dt>工事名</dt><dd>○○邸 外構工事</dd><dt>工事区分</dt><dd>外構工事</dd>
+    <dt>発注者</dt><dd>○○建設株式会社</dd><dt>発注担当者</dt><dd>○○ 様</dd>
+    <dt>施主名</dt><dd>○○ ○○ 様</dd><dt>施工者</dt><dd>MSランドスケープ</dd>
+    <dt>施主住所</dt><dd>静岡県三島市○○ <span class="map-slot">地図（後日）</span></dd><dt>工事場所</dt><dd>静岡県伊豆の国市○○ <span class="map-slot">地図（後日）</span></dd>
+    <dt>工期</dt><dd>2026/09/01 ～ 2026/10/15</dd><dt>営業担当</dt><dd>菅尾</dd>
+    <dt>工事担当</dt><dd>菅尾</dd><dt>現場担当</dt><dd>菅尾</dd>
+    <dt>積算担当</dt><dd>山田</dd><dt>設計担当</dt><dd>佐藤</dd>
+   </dl>
+  </section>
+
+  <div class="work-overview">
+   <section class="panel">
+    <div class="panel-head"><b>この工事の進行状況</b><span style="font-size:12px;color:#6a7d89">各専用画面の状況をここで確認</span></div>
+    <div class="progress-list">
+     <div class="progress-row"><b>受注・契約</b><span>受注金額 1,250,000円</span><span class="progress-status">登録済</span></div>
+     <div class="progress-row"><b>実行予算</b><span>900,000円　予算残 280,000円</span><span class="progress-status">作成済</span></div>
+     <div class="progress-row"><b>発注・下請請求（支払側）</b><span>発注 620,000円　請求累計 480,000円</span><span class="progress-status attn">未請求 140,000円</span></div>
+     <div class="progress-row"><b>元請請求・入金（売上側）</b><span>請求 600,000円　入金 600,000円</span><span class="progress-status">未収 0円</span></div>
+    </div>
+   </section>
+
+   <section class="panel">
+    <div class="panel-head"><b>この工事メニュー</b><span style="font-size:10px;color:#6a7d89">各画面へ</span></div>
+    <div class="actions">
+     <button class="action a-contract" data-href="juchu_keiyaku.html"><b>受注・契約</b><span>受注金額・増減・契約内容</span></button>
+     <button class="action a-budget" data-href="jikko_yosan.html"><b>実行予算</b><span>工種別の予算を作成・確認</span></button>
+     <button class="action a-order" data-href="hacchu_seikyu_kanri.html"><b>発注・下請請求</b><span>下請・仕入先から来る請求を管理</span></button>
+     <button class="action a-invoice" data-href="seikyu_nyukin.html"><b>元請請求・入金</b><span>元請・お客様へ出す請求と入金を管理</span></button>
+     <button class="action a-info" data-href="kouji_edit.html"><b>工事情報</b><span>住所・担当者・工期など</span></button>
+     <button class="action a-doc" data-demo="関連資料"><b>関連資料</b><span>契約書・リンク・工事資料</span></button>
+    </div>
+   </section>
+  </div>
+
+  <section class="panel">
+   <div class="panel-head"><b>要確認</b><span style="font-size:10px;color:#6a7d89">問題がある項目だけ確認</span></div>
+   <div class="notice warn"><b>未請求があります</b>受注金額に対して、元請への未請求が 650,000円 あります。</div>
+   <div class="notice normal"><b>下請請求</b>発注済 620,000円 に対し、下請請求累計は 480,000円 です。</div>
+   <div class="notice normal"><b>入金状況</b>元請請求 600,000円 は入金済みです。未収入金はありません。</div>
+  </section>
+
+  <section class="panel">
+   <div class="panel-head"><b>メモ・今後の機能</b></div>
+   <div class="memo">地図ボタンは工事住所データ確定後に追加します。<br><br>実原価は今回入力せず、将来の原価管理アプリから受け取れる構造を想定します。</div>
+  </section>
+ </div>
+</div>
+</main>
+<footer>MSランドスケープ　｜　MS建設管理システム</footer>
+<script src="ms_data.js"></script>
+<script>
+(function(){
+const params=new URLSearchParams(location.search);
+const id=params.get('id')||'';
+const x=id&&window.MSData?MSData.get('projects',id):null;
+if(!x){ location.replace('kouji_list.html'); return; }
+sessionStorage.setItem('mscm:selectedProjectId',id);
+function fmtDate(v){if(!v)return '—';const m=String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?`${m[1]}/${m[2]}/${m[3]}`:String(v);}
+function val(v){return (v===undefined||v===null||v==='')?'—':String(v);}
+if(x){
+ const no=x.legacyProjectNo||x.no||'—'; const term=(x.startDate||x.endDate)?`${fmtDate(x.startDate)} ～ ${fmtDate(x.endDate)}`:'—';
+ document.querySelector('.project-no').textContent='工事番号　'+no; document.querySelector('.project-name').textContent=val(x.name);
+ document.querySelector('.project-meta').innerHTML=`<span><b>発注者：</b>${val(x.clientName)}</span><span><b>工事場所：</b>${val(x.address)}</span><span><b>工期：</b>${term}</span><span><b>担当：</b>${val(x.projectPerson||x.sitePerson)}</span>`;
+ document.querySelector('.state').textContent=x.completedDate?'完成':'登録済';
+ const dd=document.querySelectorAll('.info-grid dd'); const vals=[no,fmtDate(x.registeredDate),val(x.name),val(x.workCategory),val(x.clientName),val(x.clientContact),'—',val(x.contractorName),'—',val(x.address),term,val(x.salesPerson),val(x.projectPerson),val(x.sitePerson),val(x.estimatePerson),val(x.designPerson)]; dd.forEach((e,i)=>{if(i<vals.length)e.textContent=vals[i]});
+ const f=x.legacyFinancials||{};
+ const oc=x.orderContract||{};
+ const eb=x.executionBudget||{};
+ const liveOrders=(MSData.all('orders')||[]).filter(o=>String(o.projectId)===String(id)&&o.status!=='inactive');
+ const liveSupplierInvoices=(MSData.all('supplierInvoices')||[]).filter(i=>String(i.projectId)===String(id)&&i.status!=='inactive');
+ let salesBilling={};
+ try{salesBilling=JSON.parse(MSShared.getItem('mscm:salesBilling:v1')||'{}')}catch(e){salesBilling={}}
+ const salesProject=salesBilling[String(id)]||{invoices:[],receipts:[]};
+ const liveSalesInvoices=(salesProject.invoices||[]).filter(i=>i&&i.status!=='inactive');
+ const liveSalesReceipts=(salesProject.receipts||[]).filter(r=>r&&r.status!=='inactive');
+ const orderTotal=liveOrders.reduce((s,o)=>s+(Number(o.amount)||0),0);
+ const supplierInvoiceTotal=liveSupplierInvoices.reduce((s,i)=>s+(Number(i.amount)||0),0);
+ const salesInvoiceTotal=liveSalesInvoices.reduce((s,i)=>s+(Number(i.amount)||0),0);
+ const salesReceiptTotal=liveSalesReceipts.reduce((s,r)=>s+(Number(r.amount)||0),0);
+
+ const contractNow=(oc.currentContractAmount!==undefined&&oc.currentContractAmount!==null&&oc.currentContractAmount!=='')?oc.currentContractAmount:(f.finalContractAmount??f.contractAmount??x.contractAmount);
+ function yenOr(v,empty='未登録'){if(v===undefined||v===null||v==='')return empty;const n=Number(v);return Number.isFinite(n)?n.toLocaleString('ja-JP')+'円':empty;}
+ const metrics=document.querySelectorAll('.metric .value');
+ if(metrics.length>=8){
+   const budgetTotal=(eb.totalAmount!==undefined&&eb.totalAmount!==null)?Number(eb.totalAmount):null;
+   const budgetRemain=budgetTotal!==null?budgetTotal-orderTotal:null;
+   const orderShown=liveOrders.length?orderTotal:Number(f.budgetOrderAmount||0);
+   const supplierShown=liveSupplierInvoices.length?supplierInvoiceTotal:0;
+   const salesInvShown=liveSalesInvoices.length?salesInvoiceTotal:Number(f.invoiceAmount||0);
+   const salesRecShown=liveSalesReceipts.length?salesReceiptTotal:Number(f.paymentAmount||0);
+   const canBill=Math.max(0,Number(contractNow||0)-salesInvShown);
+   const canOrder=budgetTotal!==null?Math.max(0,budgetTotal-orderShown):null;
+   const supplierWaiting=Math.max(0,orderShown-supplierShown);
+   const unpaid=Math.max(0,salesInvShown-salesRecShown);
+   metrics[0].textContent=yenOr(canBill);
+   metrics[1].textContent=canOrder!==null?yenOr(canOrder):'未作成';
+   metrics[2].textContent=yenOr(supplierWaiting);
+   metrics[3].textContent=yenOr(unpaid);
+   metrics[4].textContent=yenOr(contractNow);
+   metrics[5].textContent=yenOr(orderShown);
+   metrics[6].textContent=yenOr(salesInvShown);
+   metrics[7].textContent=(eb.profitAmount!==undefined&&eb.profitAmount!==null)?(yenOr(eb.profitAmount)+' / '+Number(eb.profitRate||0).toFixed(1)+'%'):'未作成';
+ }
+ const rows=document.querySelectorAll('.progress-row');
+ if(rows.length>=4){
+   rows[0].children[1].textContent='受注金額 '+yenOr(contractNow); rows[0].children[2].textContent=(x.legacyFinancials&&!x.orderContract?'旧データ':(x.orderContract?'登録済':'未登録'));
+   if(eb.totalAmount!==undefined&&eb.totalAmount!==null){rows[1].children[1].textContent='実行予算 '+yenOr(eb.totalAmount)+'　予定利益 '+yenOr(eb.profitAmount);rows[1].children[2].textContent='作成済';}else{rows[1].children[1].textContent='旧システムには実行予算なし';rows[1].children[2].textContent='未作成';}
+   rows[2].children[1].textContent='発注金額 '+(liveOrders.length?yenOr(orderTotal):yenOr(f.budgetOrderAmount))+'　下請請求 '+(liveSupplierInvoices.length?yenOr(supplierInvoiceTotal):'未登録');
+   rows[2].children[2].textContent=liveOrders.length?'登録済':(x.legacyFinancials?'旧データ':'未登録');
+   const clientInvText=liveSalesInvoices.length?yenOr(salesInvoiceTotal):yenOr(f.invoiceAmount);
+   const clientRecText=liveSalesReceipts.length?yenOr(salesReceiptTotal):yenOr(f.paymentAmount);
+   rows[3].children[1].textContent='元請請求 '+clientInvText+'　入金 '+clientRecText;
+   rows[3].children[2].textContent=(liveSalesInvoices.length||liveSalesReceipts.length)?'登録済':(x.legacyFinancials?'旧データ':'未登録');
+ }
+ const notices=document.querySelectorAll('.notice');
+ if(notices.length>=3){
+   notices[0].innerHTML='<b>旧データ移行</b>受注・発注・請求・入金は旧工事データを表示します。実行予算は新システムで新規作成する項目です。';
+   notices[1].innerHTML='<b>発注金額</b>旧データの「予算発注金額」を暫定的に発注金額として表示しています。意味を確認後に正式確定します。';
+   notices[2].innerHTML='<b>請求・入金</b>旧データに値がない場合は「未登録」と表示し、0円とは扱いません。';
+ }
+ document.title=val(x.name)+'｜工事カルテ｜MS建設管理システム';
+}
+function go(href){if(id) sessionStorage.setItem('mscm:selectedProjectId',id);const sep=href.includes('?')?'&':'?';location.href=href+sep+'id='+encodeURIComponent(id);}
+document.querySelectorAll('[data-href]').forEach(function(b){b.addEventListener('click',function(){go(b.dataset.href);});});
+document.querySelectorAll('[data-demo]').forEach(function(b){b.addEventListener('click',function(){alert(b.dataset.demo+'画面は次の段階で接続します。');});});
+})();
+</script>
+</body>
+</html>

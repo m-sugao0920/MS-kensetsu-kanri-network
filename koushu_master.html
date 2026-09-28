@@ -1,0 +1,87 @@
+<!doctype html><html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工種マスター（経審・建設業許可）</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+<style>
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",sans-serif;margin:0;background:#f4f7f8;color:#24333d}
+header{background:#284b5b;color:white;padding:16px 20px}h1{font-size:22px;margin:0}.wrap{max-width:1000px;margin:18px auto;padding:0 14px}
+.card{background:white;border:1px solid #d7e0e4;border-radius:10px;overflow:hidden;margin-bottom:14px}.hd{background:#eaf0f2;padding:10px 14px;font-weight:800}.bd{padding:14px}
+.note{font-size:13px;color:#60727c;line-height:1.7}.mode{font-size:12px;background:#fff1c9;color:#765700;border-radius:12px;padding:3px 8px;margin-left:8px}
+button{border:0;border-radius:6px;padding:9px 15px;background:#315d70;color:white;font-weight:800;cursor:pointer;margin-right:6px}button.sub{background:#6e7e86}button.danger{background:#8d4b43}.amend{display:none;margin-top:12px;padding:12px;background:#fff7e8;border:1px solid #e4c78d;border-radius:8px}.amend input,.amend select{padding:8px;border:1px solid #b9c6cc;border-radius:6px;margin:3px}
+table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid #e0e6e9;text-align:left}th{background:#f2f5f6}
+.center{text-align:center}.ok{background:#eaf6ed;padding:10px;border-radius:7px;margin:10px 0}
+</style></head><body>
+<header><h1>工種マスター（経審・建設業許可）<span id="mode" class="mode"></span></h1></header>
+<div class="wrap"><div class="card"><div class="hd">工種について</div><div class="bd">
+<div class="ok"><b>通常時は工種名をロックします。</b>　会社独自の工事分類は「工事区分マスター」で管理します。</div>
+<p class="note">建設業法上の29種類（2種類の一式工事＋27種類の専門工事）を基準にしています。通常は名称を変更せず、使用する工種だけチェックします。制度改正時のみ専用モードで改定できます。</p>
+<div><button onclick="saveSelection()">選択内容を保存</button><button class="sub" onclick="toggleAmend()">制度改正モード</button><button class="sub" onclick="location.href='kanri_settei.html'">管理・設定へ戻る</button></div>
+<div id="amendBox" class="amend">
+<b>制度改正時のみ使用</b>
+<p class="note">通常運用では使用しません。法令改正等で工種の追加・名称変更・廃止が必要になった場合に、履歴を残して改定します。過去の工種は削除しません。</p>
+<input id="amendNo" placeholder="対象番号（名称変更・廃止時）" style="width:190px">
+<input id="amendName" placeholder="新しい工種名" style="width:320px">
+<select id="amendAction"><option value="add">新設</option><option value="rename">名称変更</option><option value="retire">廃止</option></select>
+<input id="effectiveDate" type="date">
+<button class="danger" onclick="applyAmendment()">改定を登録</button>
+</div>
+</div></div>
+<div class="card"><div class="hd">工種一覧</div><div class="bd"><table><thead><tr><th style="width:70px">番号</th><th>工種名</th><th class="center" style="width:110px">使用する</th></tr></thead><tbody id="rows"></tbody></table></div></div></div>
+<script src="shared_storage.js"></script>
+<script src="ms_data.js"></script><script>
+const OFFICIAL=["土木一式工事","建築一式工事","大工工事","左官工事","とび・土工・コンクリート工事","石工事","屋根工事","電気工事","管工事","タイル・れんが・ブロック工事","鋼構造物工事","鉄筋工事","舗装工事","しゅんせつ工事","板金工事","ガラス工事","塗装工事","防水工事","内装仕上工事","機械器具設置工事","熱絶縁工事","電気通信工事","造園工事","さく井工事","建具工事","水道施設工事","消防施設工事","清掃施設工事","解体工事"];
+function customRecords(){return MSData.all('workTypes').filter(x=>x.legalAmendment===true)}
+function currentTypes(){
+ let list=OFFICIAL.map((name,i)=>({baseNo:i+1,name,status:'active',source:'standard'}));
+ const changes=customRecords().sort((a,b)=>(a.effectiveDate||'').localeCompare(b.effectiveDate||'')||(a.createdAt||'').localeCompare(b.createdAt||''));
+ changes.forEach(c=>{
+   if(c.action==='add') list.push({baseNo:c.legalNo||('追加-'+c.no),name:c.name,status:c.status||'active',source:'amendment'});
+   if(c.action==='rename'){const t=list.find(x=>String(x.baseNo)===String(c.legalNo));if(t){t.name=c.name;t.source='amendment'}}
+   if(c.action==='retire'){const t=list.find(x=>String(x.baseNo)===String(c.legalNo));if(t){t.status='retired';t.source='amendment'}}
+ });
+ return list;
+}
+function render(){
+ const saved=MSData.all('workTypes').filter(x=>!x.legalAmendment);
+ const active=new Set(saved.filter(x=>x.status!=='inactive').map(x=>x.legalNo||x.name));
+ const list=currentTypes();
+ rows.innerHTML=list.map((t,i)=>`<tr><td>${t.baseNo}</td><td><b>${t.name}</b>${t.status==='retired'?' <span style="color:#9a4a42">（廃止）</span>':''}</td><td class="center">${t.status==='retired'?'—':`<input type="checkbox" data-key="${t.baseNo}" ${active.has(t.baseNo)||active.has(t.name)?'checked':''} style="width:20px;height:20px">`}</td></tr>`).join('');
+}
+function saveSelection(){
+ const existing=MSData.all('workTypes').filter(x=>!x.legalAmendment);
+ currentTypes().filter(t=>t.status!=='retired').forEach((t,i)=>{
+   const found=existing.find(x=>String(x.legalNo)===String(t.baseNo))||existing.find(x=>x.name===t.name);
+   const el=document.querySelector(`input[data-key="${t.baseNo}"]`);
+   MSData.save('workTypes',{id:found?.id,no:found?.no,name:t.name,legalNo:t.baseNo,sortOrder:i+1,status:el&&el.checked?'active':'inactive'});
+ });
+ alert('工種の選択内容を保存しました。'); render();
+}
+function toggleAmend(){
+ if(amendBox.style.display==='block'){amendBox.style.display='none';return}
+ if(!confirm('制度改正モードは、法令等で工種区分が変更された場合だけ使用します。\n通常の工種選択では使用しません。\n\n開きますか？'))return;
+ amendBox.style.display='block';
+}
+function applyAmendment(){
+ const action=amendAction.value, nm=amendName.value.trim(), ln=amendNo.value.trim(), dt=effectiveDate.value;
+ if(action==='add'&&!nm){alert('新しい工種名を入力してください。');return}
+ if((action==='rename'||action==='retire')&&!ln){alert('対象番号を入力してください。');return}
+ if(action==='rename'&&!nm){alert('変更後の工種名を入力してください。');return}
+ if(!dt){alert('施行日を入力してください。');return}
+ const label=action==='add'?'新設':action==='rename'?'名称変更':'廃止';
+ if(!confirm(label+'を制度改正履歴として登録します。よろしいですか？'))return;
+ MSData.save('workTypes',{name:nm||('廃止:'+ln),legalNo:ln||('NEW-'+Date.now()),legalAmendment:true,action,effectiveDate:dt,status:action==='retire'?'retired':'active',sortOrder:999});
+ amendNo.value='';amendName.value='';effectiveDate.value='';render();alert('制度改正履歴を登録しました。過去データは削除していません。');
+}
+window.addEventListener('load',()=>{mode.textContent=MSData.getMode()==='production'?'本番運用':'試作モード';render()});
+</script></body></html>

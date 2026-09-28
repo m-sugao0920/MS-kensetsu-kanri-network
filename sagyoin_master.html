@@ -1,0 +1,219 @@
+<!doctype html><html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>作業員マスター｜MS建設管理システム</title>
+<style>
+:root{--deep:#284b5b;--line:#cdd9de;--bg:#f4f7f8;--blue:#eef9ff;--green:#eef8ee;--wine:#7b3346}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#263740;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif}
+header{background:var(--deep);color:#fff}.head{max-width:1500px;margin:auto;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}.head h1{font-size:22px;margin:0}
+.wrap{max-width:1500px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}.hd{background:#e8eff2;color:#294e5e;font-weight:900;padding:9px 13px}.bd{padding:12px}
+.companybar{display:grid;grid-template-columns:120px minmax(300px,1fr) auto;gap:8px;align-items:center}.note{font-size:12px;color:#687b84;line-height:1.55;margin:7px 0}
+button{border:0;border-radius:6px;background:#315d70;color:#fff;padding:8px 12px;font-weight:800;cursor:pointer}button.sub{background:#6f7e85}button.light{background:#e8eef1;color:#31505f}button.warn{background:#966b25}
+input,select,textarea{border:1px solid #b8c7cd;border-radius:5px;padding:5px 6px;font:inherit;font-size:12px;width:100%;height:31px}textarea{height:55px;resize:vertical}.green{background:var(--green)}.blue{background:var(--blue)}
+.btns{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}.badge{display:inline-block;background:#fff;border-radius:12px;padding:2px 8px;font-size:11px;margin-left:5px}
+.worker{border:1px solid #cbd9de;border-radius:8px;margin:8px 0;overflow:hidden;background:#fff}.worker.selected{outline:2px solid #568397}.worker.inactive{opacity:.55}.row{display:grid;gap:6px;align-items:center;padding:6px 8px;border-top:1px solid #e5ecef}.row:first-child{border-top:0}.r1{grid-template-columns:30px 72px 1.25fr 1.15fr .75fr .9fr 58px 62px 1fr 68px}.r2{grid-template-columns:72px 1fr .85fr .85fr .85fr .75fr 1.35fr 1fr 68px}.qualList{margin-top:8px;border:1px solid #d7e2e6;border-radius:6px;overflow:hidden}.qualRow{display:grid;grid-template-columns:95px 1.7fr 110px 1fr 58px;gap:6px;padding:5px;border-top:1px solid #e5ecef;align-items:center}.qualRow:first-child{border-top:0}.qualHead{background:#edf3f5;font-size:11px;font-weight:900}.qualRow button{padding:5px 7px}.danger{background:#9a3d3d!important}.lab{font-size:10px;color:#647780;font-weight:800}.field{min-width:0}.field b{display:block;font-size:10px;color:#617680;margin:0 0 2px}.no{font-weight:900;text-align:center;color:#315d70}.sel{text-align:center}
+.import{background:#fff9e8;border:1px solid #ead9a8;border-radius:8px;padding:10px;margin-top:8px}.importgrid{display:grid;grid-template-columns:auto minmax(260px,1fr) auto auto;gap:8px;align-items:center}
+.preview{margin-top:8px;padding:8px;background:#fff;border:1px solid #e1d7b8;border-radius:6px;font-size:12px;display:none}.ok{color:#27663a;font-weight:900}.err{color:#a13a3a;font-weight:900}.upd{color:#8a671a;font-weight:900}
+.more{display:none;padding:10px;background:#f8fbfc;border-top:1px solid #dce6ea}.more.open{display:block}.grid{display:grid;grid-template-columns:145px 1fr 145px 1fr;gap:7px 9px;align-items:center}.grid label{font-size:11px;font-weight:900}.wide{grid-column:2/5}.small{font-size:11px;color:#6d7f87}
+@media(max-width:900px){.companybar,.importgrid,.grid,.r1,.r2,.r3{grid-template-columns:1fr}.wide{grid-column:auto}}
+</style></head><body>
+<header><div class="head"><h1>作業員マスター</h1><button class="light" onclick="location.href='kanri_settei.html'">管理・設定へ戻る</button></div></header>
+<div class="wrap">
+<div class="card"><div class="hd">1. 所属会社</div><div class="bd"><div class="companybar"><b>会社を選択</b><select id="company" class="green"><option value="">会社を選択してください</option></select><button id="selfBtn" class="light">自社を選択</button></div><p class="note">会社を先に選択します。この会社の作業員だけを表示・登録します。管理番号は新規保存時に A000001～を自動採番します。</p></div></div>
+
+<div class="card"><div class="hd">2. Excel一括取込</div><div class="bd"><div class="import">
+<div class="importgrid"><select id="excelType" class="green"><option value="A">タイプA（26.7作業員名簿【最新】）</option><option value="B">タイプB（鶴よし建設 作業員名簿）</option><option value="MS">MS標準</option></select><input id="xlsxFile" type="file" accept=".xlsx,.xls"><button id="readExcel">内容を確認</button><button id="commitExcel" class="warn" disabled>確認した内容を登録</button></div>
+<p class="note">タイプA・タイプBは、元のExcelを編集せずそのまま選択して取り込めます。その他の形式は「MS標準」を選び、同梱テンプレートへコピー＆ペーストしてから取り込みます。</p>
+<div id="preview" class="preview"></div></div></div></div>
+
+<div class="card"><div class="hd">3. 作業員一覧・2行コンパクト編集 <span id="count" class="badge"></span></div><div class="bd">
+<div class="btns"><button id="add">＋ 作業員追加</button><button id="copySel" class="sub">選択した人をコピーして追加</button><button id="saveAll">入力分をまとめて保存</button><button id="printRoster" class="sub">作業員名簿を印刷</button><button id="stop" class="warn">使用／停止</button><button id="deleteWorker" class="danger">選択した作業員を削除</button></div>
+<div id="workers"></div><p class="small">通常は1人2行で確認・編集できます。家族連絡先・健康診断・保険番号・資格／教育の複数登録は「詳細」で管理します。</p>
+</div></div></div>
+
+<script src="shared_storage.js"></script><script src="ms_data.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script>
+(()=>{const $=id=>document.getElementById(id),selfKey='__SELF__';let selected=null,importRows=[];
+const H=["氏名","フリガナ","職種","職務他","特労","雇入年月日","経験年数","生年月日","技能者ID","健康保険","健康保険番号","年金保険","年金番号","雇用保険","雇用保険番号","建退共","中退共","現住所","本人TEL","家族氏名","続柄","家族住所","家族TEL","最近の健康診断日","特殊健康診断日","血液型","雇入・職長等特別教育","技能講習","免許・資格","入場年月日","受入教育実施年月日","備考"];
+const M={"氏名":"name","フリガナ":"kana","職種":"occupation","職務他":"roleMark","特労":"specialLabor","雇入年月日":"companyHireDate","経験年数":"experienceYears","生年月日":"birthDate","技能者ID":"skillWorkerId","健康保険":"healthInsurance","健康保険番号":"healthInsuranceNo","年金保険":"pensionInsurance","年金番号":"pensionInsuranceNo","雇用保険":"employmentInsurance","雇用保険番号":"employmentInsuranceNo","建退共":"kentaikyo","中退共":"chutaikyo","現住所":"address","本人TEL":"tel","家族氏名":"familyName","続柄":"familyRelation","家族住所":"familyAddress","家族TEL":"familyTel","最近の健康診断日":"healthCheckDate","特殊健康診断日":"specialHealthDate","血液型":"bloodType","雇入・職長等特別教育":"specialEducation","技能講習":"skillTraining","免許・資格":"licenses","入場年月日":"entryDate","受入教育実施年月日":"acceptEducationDate","備考":"notes"};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').replace(/[\s　]/g,'').toLowerCase();
+function own(){try{const a=MSData.all('companySettings')||[],c=a.find(x=>x.status!=='inactive')||a[0];return c?.companyName||'自社'}catch(e){return'自社'}}
+function companyInfo(){const v=$('company').value;if(v===selfKey)return{id:selfKey,name:own(),type:'自社'};const p=MSData.get('partners',v);return p?{id:p.id,name:p.name,type:'協力会社'}:null}
+function loadCompanies(){const ps=MSData.all('partners').filter(x=>x.status!=='inactive').sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));$('company').innerHTML=`<option value="">会社を選択してください</option><option value="${selfKey}">【自社】${esc(own())}</option>`+ps.map(p=>`<option value="${esc(p.id)}">${esc(p.name||'')}</option>`).join('')}
+function age(v){if(!v)return'';const b=new Date(v+'T00:00:00'),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a>=0?a+'歳':''}
+function blank(x={}){return Object.assign({id:'',no:'',status:'active',name:'',kana:'',occupation:'',birthDate:'',experienceYears:'',skillWorkerId:''},x)}
+function inp(k,v='',type='text',ph=''){return `<input data-k="${k}" type="${type}" value="${esc(v||'')}" placeholder="${esc(ph)}">`}
+function qArr(o){
+ if(Array.isArray(o.qualifications))return o.qualifications;
+ const a=[];
+ const pushLines=(type,s)=>String(s||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).forEach(name=>a.push({type,name,date:'',no:''}));
+ pushLines('特別教育',o.specialEducation);pushLines('技能講習',o.skillTraining);pushLines('免許・資格',o.licenses);
+ return a;
+}
+function qualSummary(o){const a=qArr(o).map(x=>x.name).filter(Boolean);return a.length?a.slice(0,3).join('／')+(a.length>3?' 他'+(a.length-3)+'件':''):'未登録'}
+function qualHtml(q={}){return `<div class="qualRow"><select data-q="type"><option ${q.type==='特別教育'?'selected':''}>特別教育</option><option ${q.type==='技能講習'?'selected':''}>技能講習</option><option ${q.type==='免許・資格'?'selected':''}>免許・資格</option></select><input data-q="name" value="${esc(q.name||'')}" placeholder="名称"><input data-q="date" type="date" value="${esc(q.date||'')}"><input data-q="no" value="${esc(q.no||'')}" placeholder="番号・備考"><button type="button" class="danger" data-qdel>削除</button></div>`}
+function workerHtml(o){const qa=qArr(o);return `<div class="worker ${o.status==='inactive'?'inactive':''}" data-id="${esc(o.id||'')}">
+<div class="row r1"><div class="sel"><input type="radio" name="pick"></div><div class="no">${esc(o.no||'自動')}</div><div class="field"><b>氏名 *</b>${inp('name',o.name)}</div><div class="field"><b>フリガナ</b>${inp('kana',o.kana)}</div><div class="field"><b>職種</b>${inp('occupation',o.occupation)}</div><div class="field"><b>生年月日</b>${inp('birthDate',o.birthDate,'date')}</div><div class="field"><b>年齢</b><input data-age readonly value="${esc(age(o.birthDate))}"></div><div class="field"><b>経験</b>${inp('experienceYears',o.experienceYears,'number')}</div><div class="field"><b>技能者ID</b>${inp('skillWorkerId',o.skillWorkerId)}</div><button data-more class="light">詳細</button></div>
+<div class="row r2"><div class="lab">保険・連絡</div><div class="field"><b>健康保険</b>${inp('healthInsurance',o.healthInsurance)}</div><div class="field"><b>年金</b>${inp('pensionInsurance',o.pensionInsurance)}</div><div class="field"><b>雇用</b>${inp('employmentInsurance',o.employmentInsurance)}</div><div class="field"><b>建退共</b>${inp('kentaikyo',o.kentaikyo)}</div><div class="field"><b>中退共</b>${inp('chutaikyo',o.chutaikyo)}</div><div class="field"><b>現住所</b>${inp('address',o.address)}</div><div class="field"><b>TEL</b>${inp('tel',o.tel)}</div><div class="field"><b>資格</b><input readonly value="${esc(qualSummary(o))}"></div></div>
+<div class="more"><div class="grid">
+<label>職務他</label>${inp('roleMark',o.roleMark)}<label>特労</label>${inp('specialLabor',o.specialLabor)}
+<label>所属会社雇用年月日</label>${inp('companyHireDate',o.companyHireDate,'date')}<label>血液型</label>${inp('bloodType',o.bloodType)}
+<label>健康保険番号</label>${inp('healthInsuranceNo',o.healthInsuranceNo)}<label>年金番号</label>${inp('pensionInsuranceNo',o.pensionInsuranceNo)}
+<label>雇用保険番号</label>${inp('employmentInsuranceNo',o.employmentInsuranceNo)}<label>家族氏名</label>${inp('familyName',o.familyName)}
+<label>続柄</label>${inp('familyRelation',o.familyRelation)}<label>家族TEL</label>${inp('familyTel',o.familyTel)}
+<label>家族住所</label><input class="wide" data-k="familyAddress" value="${esc(o.familyAddress||'')}">
+<label>最近の健康診断日</label>${inp('healthCheckDate',o.healthCheckDate,'date')}<label>特殊健康診断日</label>${inp('specialHealthDate',o.specialHealthDate,'date')}
+<label>入場年月日</label>${inp('entryDate',o.entryDate,'date')}<label>受入教育実施年月日</label>${inp('acceptEducationDate',o.acceptEducationDate,'date')}
+<label>備考</label><textarea data-k="notes">${esc(o.notes||'')}</textarea>
+</div>
+<div style="margin-top:10px;font-weight:900;color:#315d70">資格・教育一覧 <button type="button" class="light" data-qadd>＋追加</button></div>
+<div class="qualList"><div class="qualRow qualHead"><span>区分</span><span>資格・講習名</span><span>取得日</span><span>番号・備考</span><span></span></div><div data-qlines>${qa.map(qualHtml).join('')}</div></div>
+</div></div>`}
+function wire(el,o){
+ el._data=Object.assign({},o);el._data.qualifications=qArr(o);
+ el.querySelector('input[type=radio]').onchange=()=>select(el);
+ el.querySelector('[data-more]').onclick=()=>el.querySelector('.more').classList.toggle('open');
+ el.querySelectorAll('[data-k]').forEach(e=>e.oninput=()=>{el._data[e.dataset.k]=e.value;el.dataset.dirty='1';if(e.dataset.k==='birthDate')el.querySelector('[data-age]').value=age(e.value)});
+ const bindQ=()=>{el.querySelectorAll('[data-q]').forEach(e=>e.oninput=()=>el.dataset.dirty='1');el.querySelectorAll('[data-qdel]').forEach(b=>b.onclick=()=>{b.closest('.qualRow').remove();el.dataset.dirty='1'})};
+ el.querySelector('[data-qadd]').onclick=()=>{const box=document.createElement('div');box.innerHTML=qualHtml({});el.querySelector('[data-qlines]').appendChild(box.firstElementChild);bindQ();el.dataset.dirty='1'};bindQ();
+ if(!selected)select(el)
+}
+function addWorker(o=blank({_new:true})){const box=document.createElement('div');box.innerHTML=workerHtml(o);const el=box.firstElementChild;$('workers').appendChild(el);wire(el,o);select(el);return el}
+function select(el){document.querySelectorAll('.worker').forEach(x=>x.classList.remove('selected'));selected=el;el.classList.add('selected');el.querySelector('input[type=radio]').checked=true}
+function read(el){const o=Object.assign({},el._data||{});el.querySelectorAll('[data-k]').forEach(e=>o[e.dataset.k]=e.value.trim());o.experienceYears=Number(o.experienceYears||0);o.qualifications=[...el.querySelectorAll('[data-qlines] .qualRow')].map(r=>{const z={};r.querySelectorAll('[data-q]').forEach(e=>z[e.dataset.q]=e.value.trim());return z}).filter(x=>x.name);o.specialEducation=o.qualifications.filter(x=>x.type==='特別教育').map(x=>x.name).join('\n');o.skillTraining=o.qualifications.filter(x=>x.type==='技能講習').map(x=>x.name).join('\n');o.licenses=o.qualifications.filter(x=>x.type==='免許・資格').map(x=>x.name).join('\n');return o}
+function refresh(){selected=null;$('workers').innerHTML='';const c=companyInfo();if(!c){$('count').textContent='';return}const a=MSData.all('workers').filter(w=>(w.companyId||'')===c.id||(!w.companyId&&w.companyName===c.name)).sort((a,b)=>(a.no||'').localeCompare(b.no||''));a.forEach(addWorker);$('count').textContent=a.length+'名';if(!a.length)addWorker()}
+function saveAll(){const c=companyInfo();if(!c){alert('会社を選択してください。');return}const els=[...document.querySelectorAll('.worker')].filter(el=>(el.dataset.dirty==='1'||el._data?._new)&&read(el).name);if(!els.length){alert('保存する入力がありません。');return}let n=0;els.forEach(el=>{const o=read(el);o.id=el.dataset.id||undefined;o.no=el.dataset.id?o.no:undefined;o.companyId=c.id;o.companyName=c.name;o.companyType=c.type;delete o._new;MSData.save('workers',o);n++});alert(n+'名を保存しました。\\n新規作業員は管理番号を自動採番しました。');refresh()}
+function copySel(){if(!selected){alert('コピーする作業員を選択してください。');return}const o=read(selected);delete o.id;delete o.no;o.name='';o.kana='';o.birthDate='';o.skillWorkerId='';o.tel='';o.familyName='';o.familyRelation='';o.familyAddress='';o.familyTel='';o._new=true;addWorker(o)}
+function toggle(){if(!selected){alert('作業員を選択してください。');return}const o=read(selected);o.status=o.status==='inactive'?'active':'inactive';selected._data.status=o.status;selected.dataset.dirty='1';selected.classList.toggle('inactive',o.status==='inactive')}
+function deleteWorker(){
+ if(!selected){alert('削除する作業員を選択してください。');return}
+ const o=read(selected);
+ if(!selected.dataset.id){selected.remove();selected=null;if(!document.querySelector('.worker'))addWorker();return}
+ if(!confirm(`「${o.name||'この作業員'}」を削除しますか？\nこの操作は元に戻せません。`))return;
+ if(!confirm('本当に削除してよろしいですか？'))return;
+ try{MSData.remove('workers',selected.dataset.id);alert('作業員を削除しました。');refresh()}catch(e){alert('削除できませんでした。\n'+(e.message||e))}
+}
+function excelDate(v){if(v==null||v==='')return'';if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='number'&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`}const s=String(v).trim();const m=s.match(/^(\\d{4})[\\/-](\\d{1,2})[\\/-](\\d{1,2})$/);return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`:s}
+
+function txt(v){return String(v??'').replace(/\u3000/g,' ').trim()}
+function splitItems(v){return txt(v).split(/\r?\n| {2,}|　+/).map(x=>x.trim()).filter(Boolean)}
+function ymd(y,m,d){y=Number(y);m=Number(m);d=Number(d);if(!y||!m||!d)return'';return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function eraDate(e,y,m,d){
+ e=txt(e).toUpperCase(); y=Number(y);m=Number(m);d=Number(d);
+ if(!e||!y||!m||!d)return'';
+ let base=e.startsWith('R')?2018:e.startsWith('H')?1988:e.startsWith('S')?1925:e.startsWith('T')?1911:0;
+ return base?ymd(base+y,m,d):'';
+}
+function cellDate(v){
+ if(v==null||v==='')return'';
+ if(v instanceof Date)return v.toISOString().slice(0,10);
+ if(typeof v==='number'&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return ymd(d.y,d.m,d.d)}
+ const z=txt(v),m=z.match(/^(\d{4})[\/\-年](\d{1,2})[\/\-月](\d{1,2})/);return m?ymd(m[1],m[2],m[3]):'';
+}
+function quals(type,v){return splitItems(v).map(name=>({type,name,date:'',no:''}))}
+function parseTypeA(wb){
+ const sn=wb.SheetNames.find(n=>n.includes('全員用'))||wb.SheetNames.find(n=>n.includes('現場用'))||wb.SheetNames[0];
+ const a=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:'',raw:true});
+ const out=[];
+ for(let i=0;i<a.length;i++){
+   const r=a[i]||[]; if(!(typeof r[1]==='number'||/^\d+$/.test(txt(r[1]))))continue;
+   const r1=a[i+1]||[],r2=a[i+2]||[],r3=a[i+3]||[];
+   const name=txt(r1[2]); if(!name)continue;
+   const o={
+     name,kana:txt(r[2]),occupation:txt(r[4]),roleMark:txt(r[5]),birthDate:cellDate(r[6]),
+     skillWorkerId:txt(r3[2]),healthInsurance:txt(r[7]),healthInsuranceNo:txt(r[8]),
+     pensionInsurance:txt(r1[7]),pensionInsuranceNo:'',employmentInsurance:txt(r3[7]),employmentInsuranceNo:txt(r3[8]),
+     kentaikyo:txt(r[9]),chutaikyo:txt(r2[9]),entryDate:cellDate(r[14]),acceptEducationDate:cellDate(r2[14]),
+     address:txt(r[15]),tel:txt(r[18]),familyAddress:txt(r2[15]),familyTel:txt(r2[18]),
+     healthCheckDate:cellDate(r[19]),specialHealthDate:cellDate(r2[19]),bloodType:txt(r[20]),
+     notes:txt(r[21]),companyHireDate:cellDate(r[23]),experienceYears:parseInt(txt(r[25]))||0
+   };
+   o.qualifications=[...quals('特別教育',r[10]),...quals('技能講習',r[11]),...quals('免許・資格',r[13])];
+   o.specialEducation=o.qualifications.filter(x=>x.type==='特別教育').map(x=>x.name).join('\n');
+   o.skillTraining=o.qualifications.filter(x=>x.type==='技能講習').map(x=>x.name).join('\n');
+   o.licenses=o.qualifications.filter(x=>x.type==='免許・資格').map(x=>x.name).join('\n');
+   out.push(o);
+ }
+ return out;
+}
+function parseTypeB(wb){
+ const sn=wb.SheetNames.find(n=>n.includes('作業員名簿'))||wb.SheetNames[0];
+ const a=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:'',raw:true});
+ const out=[];
+ for(let i=0;i<a.length;i++){
+   const r=a[i]||[];
+   if(!(typeof r[2]==='number'||/^\d+$/.test(txt(r[2]))))continue;
+   const r1=a[i+1]||[],r2=a[i+2]||[];
+   const name=txt(r1[3]); if(!name)continue;
+
+   // Bタイプは1人3行。Q～V=雇入、W～AB=生年月日
+   const hire=eraDate(r[16],r[18],r[20],r[21]);
+   const birth=eraDate(r[22],r[24],r[26],r[27]);
+   const exp=parseInt(txt(r1[18]))||0;
+
+   // BL～BQ=保険種類等、BR～BW=番号欄
+   const healthType=txt(r[63]), healthNo=txt(r[69]);
+   const pensionType=txt(r1[63]), pensionNo=txt(r1[69]);
+   const employmentType=txt(r2[63]), employmentNo=txt(r2[69]);
+
+   // BX=特別教育、CD=技能講習、CJ=免許
+   const special=txt(r[75]), skill=txt(r[81]), license=txt(r[87]);
+   const qa=[
+     ...quals('特別教育',special),
+     ...quals('技能講習',skill),
+     ...quals('免許・資格',license)
+   ];
+
+   const o={
+     name,kana:txt(r[3]),occupation:txt(r[9]),roleMark:txt(r[14]),specialLabor:txt(r[15]),
+     companyHireDate:hire,birthDate:birth,experienceYears:exp,skillWorkerId:'',
+     healthInsurance:healthType,healthInsuranceNo:healthNo,
+     pensionInsurance:pensionType,pensionInsuranceNo:pensionNo,
+     employmentInsurance:employmentType,employmentInsuranceNo:employmentNo,
+     kentaikyo:'',chutaikyo:'',
+     address:txt(r[28]),tel:txt(r[43]),
+     familyAddress:txt(r1[28]),familyTel:txt(r1[43]),
+     healthCheckDate:eraDate(r[49],r[51],r[53],r[54]),
+     bloodPressure:[txt(r1[49]),txt(r1[51]),txt(r1[53])].filter(Boolean).join(' '),
+     specialHealthDate:eraDate(r[57],r[59],r[61],r[62]),
+     qualifications:qa,
+     specialEducation:qa.filter(x=>x.type==='特別教育').map(x=>x.name).join('\n'),
+     skillTraining:qa.filter(x=>x.type==='技能講習').map(x=>x.name).join('\n'),
+     licenses:qa.filter(x=>x.type==='免許・資格').map(x=>x.name).join('\n')
+   };
+   out.push(o);
+ }
+ return out;
+}
+function parseMS(wb){
+ const ws=wb.Sheets['作業員取込']||wb.Sheets[wb.SheetNames[0]];
+ const rows=XLSX.utils.sheet_to_json(ws,{defval:'',raw:true}); if(!rows.length)return[];
+ const keys=Object.keys(rows[0]),missing=H.filter(h=>!keys.includes(h));if(missing.length)throw new Error('MS標準Excelの見出しが不足しています。\\n不足: '+missing.join('、'));
+ return rows.filter(r=>txt(r['氏名'])).map(r=>{const o={};H.forEach(h=>{let v=r[h];if(['雇入年月日','生年月日','最近の健康診断日','特殊健康診断日','入場年月日','受入教育実施年月日'].includes(h))v=excelDate(v);o[M[h]]=txt(v)});o.experienceYears=Number(o.experienceYears||0);o.qualifications=[...quals('特別教育',o.specialEducation),...quals('技能講習',o.skillTraining),...quals('免許・資格',o.licenses)];return o});
+}
+function prepareImport(rows,c){
+ const existing=MSData.all('workers').filter(w=>(w.companyId||'')===c.id||(!w.companyId&&w.companyName===c.name));
+ importRows=[];let add=0,upd=0,err=0;
+ rows.forEach(o=>{if(!txt(o.name)){o._kind='error';err++}
+ else{const hit=existing.find(x=>norm(x.name)===norm(o.name)&&((x.birthDate||'')===(o.birthDate||'')));if(hit){o._kind='update';o.id=hit.id;o.no=hit.no;upd++}else{o._kind='new';add++}}importRows.push(o)});
+ return {add,upd,err};
+}
+async function readExcel(){
+ const c=companyInfo();if(!c){alert('先に所属会社を選択してください。');return}
+ const f=$('xlsxFile').files[0];if(!f){alert('Excelファイルを選択してください。');return}
+ if(!window.XLSX){alert('Excel読込機能を読み込めませんでした。\nインターネット接続を確認してください。');return}
+ try{
+   const ab=await f.arrayBuffer(),wb=XLSX.read(ab,{cellDates:true}),type=$('excelType').value;
+   let rows=type==='A'?parseTypeA(wb):type==='B'?parseTypeB(wb):parseMS(wb);
+   if(!rows.length)throw new Error('選択した形式で作業員データを見つけられませんでした。Excel形式の選択を確認してください。');
+   const z=prepareImport(rows,c),label=type==='A'?'タイプA':type==='B'?'タイプB':'MS標準';
+   $('preview').style.display='block';
+   $('preview').innerHTML=`${label}：取込候補 <b>${importRows.length}名</b>　<span class="ok">新規 ${z.add}名</span>　<span class="upd">更新候補 ${z.upd}名</span>　<span class="err">エラー ${z.err}名</span><br><span class="small">会社：${esc(c.name)}。登録ボタンを押すまでは保存されません。</span>`;
+   $('commitExcel').disabled=!importRows.length;
+ }catch(e){console.error(e);alert('Excelを読み込めませんでした。\n'+(e.message||e))}
+}
+function commitExcel(){const c=companyInfo();if(!c||!importRows.length)return;if(!confirm(`${c.name} に ${importRows.length}名を登録・更新します。よろしいですか？`))return;let n=0,u=0;importRows.forEach(o=>{if(o._kind==='error')return;const x=Object.assign({},o);delete x._kind;x.companyId=c.id;x.companyName=c.name;x.companyType=c.type;if(o._kind==='new'){delete x.id;delete x.no;n++}else u++;MSData.save('workers',x)});alert(`Excel取込が完了しました。\\n新規 ${n}名／更新 ${u}名`);importRows=[];$('commitExcel').disabled=true;$('preview').style.display='none';$('xlsxFile').value='';refresh()}
+$('company').onchange=refresh;$('selfBtn').onclick=()=>{$('company').value=selfKey;refresh()};$('add').onclick=()=>{if(!companyInfo()){alert('先に会社を選択してください。');return}addWorker()};$('copySel').onclick=copySel;$('saveAll').onclick=saveAll;$('stop').onclick=toggle;$('deleteWorker').onclick=deleteWorker;$('printRoster').onclick=()=>{const c=companyInfo();if(!c){alert('先に会社を選択してください。');return}sessionStorage.setItem('ms_worker_print_company',JSON.stringify(c));location.href='sagyoin_print.html'};$('readExcel').onclick=readExcel;$('commitExcel').onclick=commitExcel;window.addEventListener('load',()=>{loadCompanies();refresh()});
+})();
+</script></body></html>

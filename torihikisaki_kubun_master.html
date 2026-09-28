@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>取引先区分マスター</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",sans-serif;margin:0;background:#f4f7f8;color:#24333d}
+header{background:#284b5b;color:#fff;padding:16px 20px}header h1{font-size:22px;margin:0}.wrap{max-width:1100px;margin:18px auto;padding:0 14px}
+.card{background:#fff;border:1px solid #d7e0e4;border-radius:10px;margin-bottom:14px;overflow:hidden}.hd{background:#eaf0f2;padding:10px 14px;font-weight:800}.bd{padding:14px}
+.grid{display:grid;grid-template-columns:170px 1fr 170px 1fr;gap:10px 12px;align-items:center}label{font-weight:700}
+input,select{width:100%;padding:9px;border:1px solid #b9c6cc;border-radius:6px;font-size:15px}input[readonly]{background:#eef3f5}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}button{border:0;border-radius:6px;padding:9px 15px;background:#315d70;color:#fff;font-weight:800;cursor:pointer}button.sub{background:#6e7e86}button.warn{background:#946b25}
+table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #dfe6e9;padding:9px;text-align:left}th{background:#f2f5f6}tr:hover{background:#f8fbfc}
+.note{font-size:13px;color:#657780}.mode{font-weight:800;margin-left:10px;padding:3px 8px;border-radius:12px;background:#fff1c9;color:#765700;font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style></head>
+<body><header><h1>取引先区分マスター<span id="mode" class="mode"></span></h1></header>
+<div class="wrap">
+<div class="card"><div class="hd">登録・編集</div><div class="bd">
+<p class="note">取引先に設定する区分を自由に登録します。1社に複数区分を設定できる構造へつなげます。　試作中に登録したこの基本マスターは、本番開始時にも残します。</p>
+<div class="grid">
+<label>管理番号</label><input id="no" readonly>
+<label>取引先区分名 <span style="color:#a33">*</span></label><input id="name" maxlength="80">
+<label>表示順</label><input id="sortOrder" type="number" min="0" step="1" value="10">
+<label>状態</label><select id="status"><option value="active">使用中</option><option value="inactive">無効</option></select>
+
+</div>
+<div class="actions"><button onclick="saveRec()">保存</button><button class="sub" onclick="newRec()">新規入力</button><button class="warn" onclick="toggleActive()">使用／無効を切替</button><button class="sub" onclick="location.href='kanri_settei.html'">管理・設定へ戻る</button></div>
+</div></div>
+<div class="card"><div class="hd">検索・一覧</div><div class="bd">
+<div class="grid"><label>検索</label><input id="q" placeholder="番号・名称で検索" oninput="render()"><label>表示</label><select id="filter" onchange="render()"><option value="all">すべて</option><option value="active">使用中</option><option value="inactive">無効</option></select></div>
+<div style="overflow:auto;margin-top:12px"><table><thead><tr><th>番号</th><th>取引先区分名</th><th>表示順</th><th>状態</th><th>更新日時</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div></div></div>
+<script src="shared_storage.js"></script>
+<script src="ms_data.js"></script><script>
+let editingId=null;
+const elNo=document.getElementById('no');
+const elName=document.getElementById('name');
+const elSort=document.getElementById('sortOrder');
+const elStatus=document.getElementById('status');
+const elQ=document.getElementById('q');
+const elFilter=document.getElementById('filter');
+const elRows=document.getElementById('rows');
+const elMode=document.getElementById('mode');
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function norm(s){return String(s||'').replace(/[\s　]/g,'').toLowerCase()}
+
+function newRec(){
+  editingId=null;
+  elNo.value=MSData.peekNo('partnerTypes');
+  elName.value='';
+  const used=MSData.all('partnerTypes').map(x=>Number(x.sortOrder)||0);
+  elSort.value=used.length?Math.ceil((Math.max(...used)+1)/10)*10:10;
+  elStatus.value='active';
+  elName.focus();
+}
+
+function saveRec(){
+  try {
+    const nm=elName.value.trim();
+    if(!nm){alert('取引先区分名を入力してください。');elName.focus();return;}
+    const dup=MSData.all('partnerTypes').find(x=>x.id!==editingId && norm(x.name)===norm(nm));
+    if(dup && !confirm('同じ名称「'+dup.name+'」が登録されています。\nそれでも保存しますか？')) return;
+    const obj={id:editingId||undefined,no:editingId?elNo.value:undefined,name:nm,sortOrder:Number(elSort.value||0),status:elStatus.value};
+    const saved=MSData.save('partnerTypes',obj);
+    editingId=saved.id;
+    elNo.value=saved.no;
+    render();
+    alert('保存しました。');
+  } catch(e) {
+    console.error(e);
+    alert('保存できませんでした。\n'+(e && e.message ? e.message : e));
+  }
+}
+
+function editRec(id){
+  const r=MSData.get('partnerTypes',id); if(!r)return;
+  editingId=id; elNo.value=r.no||''; elName.value=r.name||'';
+  elSort.value=r.sortOrder??10; elStatus.value=r.status||'active';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleActive(){
+  if(!editingId){alert('一覧から対象を選択してください。');return;}
+  const r=MSData.get('partnerTypes',editingId);
+  r.status=r.status==='inactive'?'active':'inactive';
+  MSData.save('partnerTypes',r); elStatus.value=r.status; render();
+}
+
+function render(){
+  const key=norm(elQ.value),f=elFilter.value;
+  const data=MSData.all('partnerTypes')
+    .filter(r=>(f==='all'||r.status===f)&&(!key||norm((r.no||'')+' '+(r.name||'')).includes(key)))
+    .sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0)||(a.no||'').localeCompare(b.no||''));
+  elRows.innerHTML=data.map(r=>`<tr onclick="editRec('${r.id}')" style="cursor:pointer"><td>${esc(r.no)}</td><td><b>${esc(r.name)}</b></td><td>${r.sortOrder??''}</td><td>${r.status==='inactive'?'無効':'使用中'}</td><td>${esc((r.updatedAt||'').replace('T',' ').slice(0,16))}</td></tr>`).join('');
+}
+
+window.addEventListener('load',()=>{
+  elMode.textContent=MSData.getMode()==='production'?'本番運用':'試作モード';
+  newRec(); render();
+});
+</script></body></html>

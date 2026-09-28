@@ -1,0 +1,220 @@
+<!doctype html><html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>取引先マスター｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+<style>
+:root{--blue:#174d78;--line:#cbdbe6;--bg:#f3f7fa;--text:#263f50;--soft:#edf5fa;--green:#eef8f1;--gift:#fff8e9}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:var(--bg)}header{background:#fff;border-bottom:1px solid var(--line)}.top{max-width:1500px;margin:auto;padding:12px 22px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:20px;font-weight:900;color:var(--blue)}button{border:0;border-radius:7px;background:var(--blue);color:#fff;padding:7px 13px;font-weight:800;cursor:pointer}.sub{background:#71818c}.danger{background:#a65353}main{max-width:1500px;margin:auto;padding:14px 22px}h1{margin:0;color:var(--blue);font-size:25px}.lead{margin:3px 0 10px;color:#71818c;font-size:12px}.toolbar{display:flex;gap:7px;justify-content:flex-end;margin-bottom:7px}.card,details{background:#fff;border:1px solid var(--line);border-radius:10px;margin-top:8px;overflow:hidden}.card h2,summary{margin:0;padding:8px 12px;background:var(--soft);color:var(--blue);font-size:15px;font-weight:900}summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}summary:before{content:'▶';display:inline-block;width:18px;font-size:11px}details[open] summary:before{content:'▼'}.body{padding:9px 11px}.grid{display:grid;grid-template-columns:minmax(105px,1.20fr) minmax(120px,1.35fr) minmax(145px,1.50fr) minmax(145px,1.50fr) minmax(105px,1.20fr) minmax(105px,1.20fr);gap:6px 8px;align-items:end}.span2{grid-column:span 2}.span3{grid-column:span 3}.span4{grid-column:span 4}.span6{grid-column:1/-1}.short{max-width:130px}.medium{max-width:220px}.ziprow{display:flex;gap:5px;align-items:center}.ziprow input{flex:1}.ziprow button{white-space:nowrap;padding:6px 9px}.readonly-note{font-size:11px;color:#71818c;margin:0 0 7px}.linkbar{display:flex;justify-content:flex-end;gap:6px;margin-bottom:7px}.linkbar button{font-size:12px;padding:6px 10px}label{display:block;font-size:11px;font-weight:800;color:#607583;margin-bottom:2px}input,select,textarea{width:100%;border:1px solid #b8cbd8;border-radius:6px;padding:6px 7px;font:inherit;font-size:13px;background:#fff}textarea{min-height:48px;resize:vertical}.checks{display:flex;flex-wrap:wrap;gap:12px;padding:5px 0}.checks label{display:flex;align-items:center;gap:4px;margin:0;color:var(--text)}.checks input{width:auto}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px;min-width:1080px}th,td{border-bottom:1px solid #e2ebf1;padding:5px;text-align:left}th{background:#f8fbfd;color:#607583;font-size:11px;white-space:nowrap}td input,td select{min-width:80px;padding:5px}.add{margin-top:7px}.gift .body{background:var(--gift)}.workers .body{background:var(--green)}.hint{font-size:11px;color:#71818c;line-height:1.5;margin-top:5px}.actions{display:flex;justify-content:center;gap:9px;margin:12px 0}.actions button{min-width:120px}.permit-grid{display:grid;grid-template-columns:140px 140px 160px 1fr;gap:6px 8px;align-items:end}@media(max-width:950px){.grid{grid-template-columns:repeat(3,1fr)}.span2,.span3,.span4{grid-column:span 1}.span6{grid-column:1/-1}.permit-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.grid,.permit-grid{grid-template-columns:1fr}.span6{grid-column:1}.toolbar{justify-content:flex-start;flex-wrap:wrap}}</style></head><body>
+<header><div class="top"><div class="brand">MS建設管理システム　／　取引先マスター</div><button id="backPartnerBtn" onclick="location.href='torihikisaki.html'">取引先へ戻る</button></div></header><main>
+<h1>取引先マスター <small style="font-size:14px;font-weight:normal">Ver.2.7</small></h1><div class="lead">普段使う項目を一画面に集約し、許可・担当者・作業員名簿・年賀贈答などは必要なときだけ展開します。</div>
+<div class="toolbar"><button onclick="newEntry()">＋ 新規登録</button><button class="sub" onclick="location.href='torihikisaki.html'">取引先一覧</button><button class="sub" type="button" onclick="$('partnerImportFile').click()">取引先データ取込</button><input id="partnerImportFile" type="file" accept=".json,application/json" style="display:none"></div>
+<section class="card"><h2>基本情報・取引情報</h2><div class="body"><div class="grid">
+<div><label>取引先番号</label><input id="partnerNo" readonly title="登録時に自動採番します"></div><div><label>法人・個人</label><select id="entityType"><option>法人</option><option>個人</option></select></div><div><label>取引先種別</label><select id="partnerType"><option>法人顧客</option><option>個人顧客</option><option>協力会社</option><option>仕入先</option><option>その他</option></select></div><div><label>取引区分</label><select id="tradeType"><option>受注</option><option>発注</option><option>両方</option><option>工事取引なし</option></select></div><div><label>取引状態</label><select id="tradeStatus"><option>取引中</option><option>休止</option></select></div><div><label>取引開始年月</label><input id="tradeStart" type="month"></div>
+<div class="span2"><label>会社名・氏名</label><input id="partnerName"></div><div class="span2"><label>フリガナ</label><input id="partnerKana"></div><div><label>代表者名</label><input id="representative"></div><div><label>従業員数</label><input id="employeeCount" type="number" min="0"></div><div class="span2"><label>自社主担当者（社員台帳から参照）</label><select id="ourStaff"><option value="">未選択</option><option>社員マスター作成後に連携</option></select></div><div class="span2"><label>自社副担当者</label><select id="ourSubStaff"><option value="">未選択</option><option>社員マスター作成後に連携</option></select></div><div class="span2"><label>社内担当メモ</label><input placeholder="主な窓口・引継ぎ事項など"></div>
+<div><label>郵便番号</label><div class="ziprow"><input id="zipcode" inputmode="numeric" placeholder="410-0000"><button type="button" onclick="searchZip()">住所検索</button></div></div><div class="span3"><label>住所</label><div class="ziprow"><input id="address"><button type="button" class="sub" onclick="searchAddress()" style="background:#0b4f78 !important;color:#fff !important;font-weight:700 !important;opacity:1 !important;text-shadow:none !important;">検索</button></div></div><div><label>地域</label><input id="area"></div><div><label>主な施工業種</label><input id="mainTrade"></div>
+<div><label>TEL</label><input id="partnerTel"></div><div><label>FAX</label><input id="partnerFax"></div><div><label>携帯</label><input id="partnerMobile"></div><div class="span3"><label>メール</label><input id="partnerMail"></div>
+<div><label>インボイス登録番号</label><input placeholder="T1234567890123" maxlength="14"></div><div><label>支払条件</label><input id="paymentTerms" list="paymentTermsList" placeholder="選択または直接入力">
+<datalist id="paymentTermsList">
+<option value="現金"><option value="月末締め・翌月末払い"><option value="20日締め・翌月末払い">
+<option value="月末締め・翌々月末払い"><option value="請求書到着後払い"><option value="都度払い">
+</datalist></div><div><label>取引銀行</label><input id="bankName" placeholder="例：○○銀行"></div>
+<div><label>支店名</label><input id="bankBranch" placeholder="例：○○支店"></div>
+<div><label>口座番号</label><input id="accountNumber" inputmode="numeric"></div>
+<div><label>口座名義</label><input id="accountHolder"></div>
+<div class="span3"><label>主な業種・内容</label><input id="businessContent"></div><div class="span3"><label>備考</label><input id="partnerNote"></div>
+</div><div class="checks"><label><input type="checkbox"> 建協等</label><label><input type="checkbox" checked> 継続取引</label></div></div><div class="grid3" style="margin-top:12px">
+
+</div></section>
+<details><summary>建設業許可・保険等</summary><div class="body"><div class="permit-grid"><div><label>建設業許可</label><select><option>有</option><option>無</option></select></div><div><label>許可区分</label><select><option>一般</option><option>特定</option></select></div><div><label>許可年月日</label><input type="date"></div><div><label>許可番号</label><input placeholder="静岡県知事許可（般-○）第○○号"></div></div><div class="tablewrap" style="margin-top:7px"><table id="permits"><thead><tr><th>許可業種</th><th>区分</th><th>許可番号</th><th>許可年月日</th><th>更新日付</th><th></th></tr></thead><tbody><tr><td><input placeholder="土木工事業等"></td><td><select><option>一般</option><option>特定</option></select></td><td><input></td><td><input type="date"></td><td><input type="date"></td><td><button class="danger" onclick="removeRow(this)">削除</button></td></tr></tbody></table></div><button class="add" onclick="addPermit()">＋ 許可業種を追加</button><div class="permit-grid" style="margin-top:8px"><div><label>健康保険</label><input></div><div><label>厚生年金</label><input></div><div><label>雇用保険</label><input></div><div><label>労災保険・その他</label><input></div></div></div></details>
+<details><summary>担当者</summary><div class="body"><div class="tablewrap"><table id="persons"><thead><tr><th>氏名</th><th>フリガナ</th><th>部署</th><th>役職</th><th>担当区分</th><th>TEL</th><th>FAX</th><th>携帯</th><th>メール</th><th></th></tr></thead><tbody><tr><td><input data-k="name"></td><td><input data-k="kana"></td><td><input data-k="department"></td><td><input data-k="role"></td><td><select data-k="contactType"><option>工事担当</option><option>営業担当</option><option>請求担当</option><option>その他</option></select></td><td><input data-k="tel"></td><td><input data-k="fax"></td><td><input data-k="mobile"></td><td><input data-k="mail"></td><td><button class="danger" onclick="removeRow(this)">削除</button></td></tr></tbody></table></div><button class="add" onclick="addPerson()">＋ 担当者を追加</button></div></details>
+<details class="workers"><summary>作業員名簿（協力会社等）</summary><div class="body"><div class="linkbar"><button type="button" class="sub" onclick="alert('作業員名簿管理画面は次段階で作成し、ここへ自動反映します。')">作業員名簿管理へ</button></div><p class="readonly-note">将来は作業員名簿管理で一括登録し、この取引先に所属する作業員をここへ自動表示します。現在は画面確認用として直接入力も残しています。</p><div class="tablewrap"><table id="workers"><thead><tr><th>氏名</th><th>フリガナ</th><th>職種</th><th>生年月日</th><th>年齢</th><th>血液型</th><th>雇入年月日</th><th>連絡先</th><th>社会保険等</th><th>備考</th><th></th></tr></thead><tbody><tr><td><input></td><td><input></td><td><input></td><td><input type="date"></td><td><input type="number"></td><td><input></td><td><input type="date"></td><td><input></td><td><input></td><td><input></td><td><button class="danger" onclick="removeRow(this)">削除</button></td></tr></tbody></table></div><button class="add" onclick="addWorker()">＋ 作業員を追加</button><div class="hint">元請提出用の作業員名簿を想定。実際の提出様式に合わせて資格・保険番号等を追加できます。</div></div></details>
+<details class="gift"><summary>年賀・贈答履歴</summary><div class="body">
+<div class="linkbar"><button type="button" class="sub" onclick="location.href='nenga_zoutou.html'">年賀・贈答一括管理へ</button></div>
+<p class="readonly-note">年賀・贈答管理で登録した送付・受領履歴を、この取引先について自動表示します。ここでは直接入力しません。</p>
+<div class="tablewrap"><table id="giftHistoryTable"><thead><tr><th>年度</th><th>日付</th><th>区分</th><th>種類</th><th>品物</th><th>発注先</th><th>単価</th><th>対応</th><th>対応日</th><th>備考</th></tr></thead><tbody><tr><td colspan="10" style="color:#71818c">履歴なし</td></tr></tbody></table></div>
+</div></details>
+<details><summary>移行元データ（全項目保管）</summary><div class="body"><p class="readonly-note">旧システムから取り込んだ全項目を原文のまま保存しています。画面の通常項目に割り当てたデータも、移行元の値をここで確認できます。</p><div class="tablewrap"><table id="legacyRawTable" style="min-width:700px"><thead><tr><th style="width:38%">元データ項目</th><th>値</th></tr></thead><tbody><tr><td colspan="2" style="color:#71818c">移行元データなし</td></tr></tbody></table></div></div></details>
+<details><summary>注意事項・社内メモ</summary><div class="body"><textarea></textarea></div></details>
+<div class="actions"><button id="partnerSave">登録・更新</button><button class="sub" onclick="location.href='torihikisaki.html'">キャンセル</button></div>
+
+</main><script>window.__partnerOpenStarted=performance.now();</script><script src="shared_storage.js"></script>
+<script src="ms_data.js"></script><script>
+let editingId=null;
+const $=id=>document.getElementById(id);
+function removeRow(b){const tb=b.closest('tbody');if(tb.rows.length>1)b.closest('tr').remove();else b.closest('tr').querySelectorAll('input').forEach(x=>x.value='')}
+function cloneRow(id){const t=document.querySelector(id+' tbody'),r=t.rows[0].cloneNode(true);r.querySelectorAll('input').forEach(x=>x.value='');t.appendChild(r)}
+function addPerson(){cloneRow('#persons')}function addWorker(){cloneRow('#workers')}function addPermit(){cloneRow('#permits')}
+async function searchZip(){
+ const z=$('zipcode'),a=$('address'),ar=$('area'),code=z.value.replace(/\D/g,'');
+ if(code.length!==7){alert('郵便番号を7桁で入力してください。');z.focus();return}
+ try{const r=await fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode='+code),j=await r.json();
+ if(!j.results?.length){alert('住所が見つかりませんでした。');return}
+ const x=j.results[0];a.value=x.address1+x.address2+x.address3;ar.value=x.address2;z.value=code.slice(0,3)+'-'+code.slice(3);a.focus()
+ }catch(e){alert('住所検索に接続できませんでした。インターネット接続を確認してください。')}
+}
+async function searchAddress(){
+ const a=$('address'),z=$('zipcode'),q=a.value.trim();
+ if(!q){alert('住所を入力してください。');a.focus();return}
+ try{
+   const r=await fetch('https://postcode.teraren.com/postcodes.json?s='+encodeURIComponent(q)+'&per=10');
+   if(!r.ok)throw new Error('HTTP '+r.status);
+   const j=await r.json();
+   if(!Array.isArray(j)||!j.length){
+     alert('該当する郵便番号が見つかりませんでした。町名まで入力して検索してください。');
+     return;
+   }
+   const normalize=v=>String(v||'').replace(/[0-9０-９\-ー－丁目番地号\s].*$/,'');
+   const q2=normalize(q);
+   let x=j.find(v=>{
+     const full=(v.prefecture||'')+(v.city||'')+(v.suburb||'');
+     return q2.includes(full)||full.includes(q2);
+   })||j[0];
+   const code=String(x.new||x.postcode||'').replace(/\D/g,'');
+   if(code.length===7){
+     z.value=code.slice(0,3)+'-'+code.slice(3);
+     z.focus();
+   }else{
+     alert('郵便番号を取得できませんでした。');
+   }
+ }catch(e){
+   console.error(e);
+   alert('住所検索に接続できませんでした。インターネット接続を確認してください。');
+ }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='zipcode'){e.preventDefault();searchZip()}});
+
+function loadStaff(){
+ const staff=MSData.all('employees').filter(x=>x.status!=='inactive').sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0));
+ for(const id of ['ourStaff','ourSubStaff']){
+  const el=$(id),cur=el.value; el.innerHTML='<option value="">未選択</option>'+staff.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+  el.value=el.dataset.pendingValue||cur; delete el.dataset.pendingValue;
+ }
+}
+function newEntry(){
+ editingId=null;
+ document.querySelectorAll('input,textarea').forEach(x=>{if(x.type==='checkbox')x.checked=false;else x.value=''});
+ document.querySelectorAll('select').forEach(x=>x.selectedIndex=0);
+ document.querySelectorAll('details').forEach(x=>x.open=false);
+ $('partnerNo').value=MSData.peekNo('partners'); loadStaff(); loadContacts([]); showLegacyRaw({});
+ window.scrollTo({top:0,behavior:'smooth'});$('partnerName').focus();
+}
+async function importPartnerFile(file){
+ try{
+  const payload=JSON.parse(await file.text());
+  if(!["MS_PARTNER_IMPORT_V1","MS_PARTNER_IMPORT_V2_FULL"].includes(payload?.format) || !Array.isArray(payload.rows)) throw new Error("取引先取込用データではありません。");
+  const existing=MSData.all('partners');
+  let add=0,update=0,skip=0;
+  const preview=payload.rows.slice(0,5).map(x=>"・"+(x.legacyCategory?"["+x.legacyCategory+"] ":"")+x.name).join("\n");
+  if(!confirm("取引先データ "+payload.rows.length+"件を確認しました。\n\n先頭データ:\n"+preview+"\n\n既に取り込んだ同じ取引先は上書きせず、旧データ項目を追加・更新して統合します。\n全データの取り込みを実行しますか？")) return;
+  for(const src0 of payload.rows){
+   const src=Object.assign({},src0); delete src.id; delete src.no;
+   const legacy=String(src.legacyNo||'').trim();
+   const key=String(src.name||'').trim()+"|"+String(src.tel||'').trim();
+   let old=existing.find(x=>(legacy && String(x.legacyNo||'').trim()===legacy) || (key!=="|" && (String(x.name||'').trim()+"|"+String(x.tel||'').trim())===key));
+   if(old){
+    const merged=Object.assign({},old,src,{id:old.id,no:old.no});
+    MSData.save('partners',merged); Object.assign(old,merged); update++;
+   }else{
+    const r=MSData.save('partners',src); existing.push(r); add++;
+   }
+  }
+  alert("取引先データの取り込みが完了しました。\n\n新規登録: "+add+"件\n既存データへ統合: "+update+"件\n\n担当者を含む通常項目に加え、元データ全項目をそのまま保存しています。");
+  location.href='torihikisaki.html';
+ }catch(e){console.error(e);alert("取引先データを取り込めませんでした。\n"+(e?.message||e));}
+ finally{$('partnerImportFile').value='';}
+}
+function readContacts(){
+ return [...document.querySelectorAll('#persons tbody tr')].map(tr=>{
+  const o={}; tr.querySelectorAll('[data-k]').forEach(el=>o[el.dataset.k]=el.value.trim()); return o;
+ }).filter(o=>Object.values(o).some(Boolean));
+}
+function loadContacts(list){
+ const tb=document.querySelector('#persons tbody'); while(tb.rows.length>1)tb.deleteRow(1);
+ const vals=Array.isArray(list)&&list.length?list:[{}];
+ vals.forEach((o,i)=>{if(i>0)addPerson();const tr=tb.rows[i];tr.querySelectorAll('[data-k]').forEach(el=>{el.value=o[el.dataset.k]||''})});
+}
+function showLegacyRaw(raw){
+ const tb=$('legacyRawTable')?.querySelector('tbody'); if(!tb)return; tb.innerHTML='';
+ const entries=raw&&typeof raw==='object'?Object.entries(raw):[];
+ if(!entries.length){tb.innerHTML='<tr><td colspan="2" style="color:#71818c">移行元データなし</td></tr>';return}
+ entries.forEach(([k,v])=>{const tr=document.createElement('tr'),a=document.createElement('td'),b=document.createElement('td');a.textContent=k;b.textContent=v??'';tr.append(a,b);tb.appendChild(tr)});
+}
+
+
+function loadGiftHistory(partner){
+ const tb=document.querySelector('#giftHistoryTable tbody');if(!tb)return;
+ tb.innerHTML='';
+ if(!partner||!partner.name){tb.innerHTML='<tr><td colspan="10" style="color:#71818c">取引先を保存すると履歴を表示できます。</td></tr>';return}
+ try{
+  const raw=MSShared.getItem('mscm:gifts:v1'),d=raw?JSON.parse(raw):{},rows=(d.records||[]).filter(r=>r.partnerId===partner.id||r.company===partner.name)
+    .sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  if(!rows.length){tb.innerHTML='<tr><td colspan="10" style="color:#71818c">履歴なし</td></tr>';return}
+  rows.forEach(r=>{
+   const tr=document.createElement('tr');
+   const vals=[r.year||'',r.date||'',r.direction||'',r.type||'',r.item||'－',r.vendor||'－',r.price?Number(r.price).toLocaleString('ja-JP')+'円':'－',r.direction==='受領'?(r.done?'対応済':'未対応'):'－',r.doneDate||'－',r.memo||''];
+   vals.forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});tb.appendChild(tr);
+  });
+ }catch(e){console.error(e);tb.innerHTML='<tr><td colspan="10" style="color:#a65353">年賀・贈答履歴を読み込めませんでした。</td></tr>'}
+}
+
+function savePartner(){
+ try{
+  const name=$('partnerName').value.trim();
+  if(!name){alert('会社名・氏名を入力してください。');$('partnerName').focus();return}
+  const obj={id:editingId||undefined,no:editingId?$('partnerNo').value:undefined,
+   name,kana:$('partnerKana').value.trim(),representative:$('representative').value.trim(),employeeCount:$('employeeCount').value.trim(),contacts:readContacts(),
+   entityType:$('entityType').value,partnerType:$('partnerType').value,tradeType:$('tradeType').value,
+   tradeStatus:$('tradeStatus').value,tradeStart:$('tradeStart').value,
+   ourStaffId:$('ourStaff').value,ourSubStaffId:$('ourSubStaff').value,
+   zipcode:$('zipcode').value.trim(),address:$('address').value.trim(),area:$('area').value.trim(),
+   tel:$('partnerTel').value.trim(),fax:$('partnerFax').value.trim(),mobile:$('partnerMobile').value.trim(),
+   mail:$('partnerMail').value.trim(),businessContent:$('businessContent').value.trim(),mainTrade:$('mainTrade').value.trim(),
+   note:$('partnerNote').value.trim(),paymentTerms:$('paymentTerms').value.trim(),bankName:$('bankName').value.trim(),bankBranch:$('bankBranch').value.trim(),accountNumber:$('accountNumber').value.trim(),accountHolder:$('accountHolder').value.trim(),status:$('tradeStatus').value==='休止'?'inactive':'active'};
+  const r=MSData.save('partners',obj);
+  editingId=r.id;$('partnerNo').value=r.no;
+  loadGiftHistory(r);alert('取引先 '+r.no+' を保存しました。');
+ }catch(e){console.error(e);alert('保存できませんでした。\n'+(e?.message||e))}
+}
+function loadExisting(id){
+ const r=MSData.get('partners',id); if(!r)return;
+ editingId=id;$('partnerNo').value=r.no||'';$('partnerName').value=r.name||'';$('partnerKana').value=r.kana||'';
+ $('representative').value=r.representative||'';$('employeeCount').value=r.employeeCount||'';$('entityType').value=r.entityType||'法人';
+ $('partnerType').value=r.partnerType||'法人顧客';$('tradeType').value=r.tradeType||'受注';
+ $('tradeStatus').value=r.tradeStatus||(r.status==='inactive'?'休止':'取引中');$('tradeStart').value=r.tradeStart||'';
+ $('zipcode').value=r.zipcode||'';$('address').value=r.address||'';$('area').value=r.area||'';
+ $('partnerTel').value=r.tel||'';$('partnerFax').value=r.fax||'';$('partnerMobile').value=r.mobile||'';
+ $('partnerMail').value=r.mail||'';$('businessContent').value=r.businessContent||r.mainTrade||'';$('mainTrade').value=r.mainTrade||r.businessContent||'';$('partnerNote').value=r.note||'';if($('paymentTerms'))$('paymentTerms').value=r.paymentTerms||'';if($('bankName'))$('bankName').value=r.bankName||'';if($('bankBranch'))$('bankBranch').value=r.bankBranch||'';
+ loadContacts(r.contacts||[]); showLegacyRaw(r.legacyRaw||{});
+ $('ourStaff').dataset.pendingValue=r.ourStaffId||'';$('ourSubStaff').dataset.pendingValue=r.ourSubStaffId||'';
+ $('paymentTerms').value=r.paymentTerms||'';
+ $('bankName').value=r.bankName||'';
+ $('bankBranch').value=r.bankBranch||'';
+ $('accountNumber').value=r.accountNumber||'';
+ $('accountHolder').value=r.accountHolder||'';
+ if($('paymentTerms'))$('paymentTerms').value=r.paymentTerms||'';
+ if($('bankName'))$('bankName').value=r.bankName||'';
+ if($('bankBranch'))$('bankBranch').value=r.bankBranch||'';
+ if($('accountType'))$('accountType').value=r.accountType||'';
+ if($('accountNumber'))$('accountNumber').value=r.accountNumber||'';
+ if($('accountHolder'))$('accountHolder').value=r.accountHolder||'';
+ setTimeout(()=>loadGiftHistory(r),60);
+}
+$('partnerSave').addEventListener('click',savePartner);
+$('partnerImportFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importPartnerFile(f)});
+window.addEventListener('load',()=>{
+ const qs=new URLSearchParams(location.search);if(qs.get('from')==='nenga_zoutou'){const b=$('backPartnerBtn');if(b){b.textContent='年賀・贈答へ戻る';b.onclick=()=>location.href='nenga_zoutou.html';}}
+ // 取引先本体を最優先で表示し、社員候補などは画面表示後に読み込む
+ setTimeout(loadStaff,0);
+ const id=new URLSearchParams(location.search).get('id');
+ if(id)loadExisting(id); else newEntry();
+});
+</script></script></body></html>

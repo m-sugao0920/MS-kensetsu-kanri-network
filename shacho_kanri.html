@@ -1,0 +1,160 @@
+<!doctype html><html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>経営・管理資料｜MS建設管理システム</title>
+<style>
+:root{--deep:#173f6b;--line:#c9dbe8;--bg:#f3f7fa;--text:#18242d;--muted:#607481}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif}.top{background:#fff;border-bottom:1px solid var(--line)}.topin{max-width:1500px;margin:auto;padding:15px 22px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:22px;font-weight:900;color:var(--deep)}button{border:0;border-radius:7px;background:var(--deep);color:#fff;padding:8px 13px;font-weight:800;cursor:pointer}main{max-width:1500px;margin:auto;padding:16px 20px 30px}.controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}.field label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:3px}.field input,.field select{height:34px;border:1px solid #b8cad6;border-radius:6px;padding:0 8px;font:inherit}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{background:#e5edf2;color:#294e64}.tabs button.on{background:var(--deep);color:#fff}.page{display:none}.page.on{display:block}.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:12px}.card,.panel{background:#fff;border:1px solid var(--line);border-radius:10px}.card{padding:11px}.lab{font-size:10px;color:var(--muted);font-weight:800}.val{font-size:20px;font-weight:850;margin-top:5px;white-space:nowrap}.panel{overflow:hidden;margin-bottom:12px}.ph{padding:10px 12px;background:#edf4f8;font-weight:900;color:var(--deep);display:flex;justify-content:space-between;align-items:center}.note{font-size:11px;color:#667985;font-weight:500}.wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid #e3ebf0;padding:8px 9px;text-align:left;white-space:nowrap}th{background:#f8fafb;color:#4c6473;font-size:10px}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}.empty{text-align:center;color:#778995;padding:24px}.cash-note{padding:10px 12px;background:#fff9e9;border:1px solid #e5d39c;border-radius:8px;font-size:11px;line-height:1.6;margin-bottom:10px}@media(max-width:1000px){.cards{grid-template-columns:repeat(3,1fr)}}@media print{.top,.controls,.tabs,.no-print{display:none!important}body{background:#fff}main{max-width:none;padding:0}.page{display:none!important}.page.on{display:block!important}.panel,.card{box-shadow:none;break-inside:avoid}.cards{grid-template-columns:repeat(3,1fr)}@page{size:A4 landscape;margin:10mm}}
+
+.report-head{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end}
+.report-title{font-size:20px;font-weight:900;color:var(--deep)}
+.report-cond{font-size:12px;color:var(--muted);font-weight:700;text-align:right}
+.cards.report-cards{grid-template-columns:repeat(5,1fr)}
+.report-cards .card{border-top:4px solid #54788c}
+.report-cards .lab{font-size:11px}
+.report-cards .val{font-size:22px}
+.section-note{font-size:11px;color:#667985;font-weight:600}
+@media print{
+ .report-head{border:none;border-bottom:2px solid #526f7f;border-radius:0;padding:0 0 8px;margin-bottom:10px}
+ .report-title{font-size:18px}
+ .report-cards .card{border-radius:0}
+}
+
+.nav-group{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.nav-group .tabs{margin-bottom:0}
+.nav-label{font-size:11px;font-weight:900;color:#365f77;background:#dceaf1;padding:7px 9px;border-radius:7px}
+.current-label{margin-left:12px;background:#eee8dc;color:#6d6048}
+.current-tabs button{background:#eee9df;color:#5f5748}
+.current-tabs button.on{background:#6d6048;color:#fff}
+.staff-control{display:flex;align-items:end;gap:10px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:12px}
+.staff-control .field{min-width:150px}
+.asof{background:#f4f0e7;border:1px solid #ddd3c0;border-left:5px solid #786a50;border-radius:8px;padding:9px 13px;margin-bottom:12px;font-size:14px;font-weight:900;color:#5f5542}
+@media print{.nav-group{display:none!important}.asof{border:none;border-bottom:1px solid #aaa;border-radius:0;padding:0 0 7px}}
+</style></head><body><header class="top"><div class="topin"><div class="brand">MS建設管理システム　／　経営・管理資料</div><div><button onclick="location.href='kanri_settei.html'">管理・設定へ戻る</button> <button onclick="window.print()">印刷</button></div></div></header><main>
+<div class="controls"><div class="field"><label>対象月</label><input id="month" type="month"></div><button id="refresh">再集計</button><span class="note">既存データを集計します。順位付け・評価点は付けません。</span></div>
+<div id="aggStatus" style="margin:0 0 12px;padding:9px 12px;border:1px solid #ccd9e0;border-radius:8px;background:#f7fafb;color:#294e64;font-weight:800">条件を選び、「再集計」を押してください。</div><div class="report-head"><div><div id="reportTitle" class="report-title">月次経営・管理資料</div><div class="section-note">合計を先に確認し、下の表で内訳を確認できます。</div></div><div id="reportCond" class="report-cond">未集計</div></div>
+<div class="nav-group"><span class="nav-label">月次資料</span><div class="tabs monthly-tabs">
+<button class="on" data-tab="summary">月次経営概況</button><button data-tab="staff">担当者別</button><button data-tab="client">受注先別</button><button data-tab="cash">資金繰り</button>
+</div><span class="nav-label current-label">現在の管理状況</span><div class="tabs current-tabs">
+<button data-tab="profit">工事採算</button><button data-tab="collect">未請求・未入金</button>
+</div></div>
+<section id="summary" class="page on"><div class="cards" id="summaryCards"></div><div class="panel"><div class="ph">今月の受注明細<span class="note">登録日を基準</span></div><div class="wrap"><table><thead><tr><th>工事番号</th><th>工事名</th><th>発注者</th><th>営業担当</th><th class="num">受注額</th><th class="num">実行予算</th><th class="num">予定粗利</th><th class="num">粗利率</th></tr></thead><tbody id="monthOrders"></tbody></table></div></div></section>
+<section id="staff" class="page">
+<div class="staff-control no-print"><div class="field"><label>担当区分</label><select id="role"><option value="salesPerson">営業担当</option><option value="projectPerson">工事担当</option><option value="sitePerson">現場担当</option><option value="estimatePerson">積算担当</option><option value="designPerson">設計担当</option></select></div><span class="note">担当者別資料だけに使用します。変更後は「担当者別を更新」を押してください。</span><button id="staffRefresh" type="button">担当者別を更新</button></div><div class="panel"><div class="ph">担当者別実績<span class="note">社員評価の材料。単純な順位付けは行いません。</span></div><div class="wrap"><table><thead><tr><th>担当者</th><th class="num">受注件数</th><th class="num">受注額</th><th class="num">請求額</th><th class="num">入金額</th><th class="num">予定粗利</th><th class="num">粗利率</th></tr></thead><tbody id="staffBody"></tbody></table></div></div></section>
+<section id="client" class="page"><div class="cards report-cards" id="clientSummary"></div><div class="panel"><div class="ph">受注先別集計・内訳</div><div class="wrap"><table><thead><tr><th>受注先</th><th class="num">件数</th><th class="num">受注額</th><th class="num">請求額</th><th class="num">入金額</th><th>工事名</th></tr></thead><tbody id="clientBody"></tbody></table></div></div></section>
+<section id="profit" class="page"><div class="asof" id="profitAsOf"></div><div class="cards report-cards" id="profitSummary"></div><div class="panel"><div class="ph">工事採算　工事別内訳<span class="note">受注額－実行予算を予定粗利として表示</span></div><div class="wrap"><table><thead><tr><th>工事番号</th><th>工事名</th><th>発注者</th><th>営業担当</th><th class="num">受注額</th><th class="num">実行予算</th><th class="num">予定粗利</th><th class="num">粗利率</th><th class="num">発注済</th><th class="num">下請請求</th></tr></thead><tbody id="profitBody"></tbody></table></div></div></section>
+<section id="collect" class="page"><div class="asof" id="collectAsOf"></div><div class="cards report-cards" id="collectSummary"></div><div class="panel"><div class="ph">未請求・未入金　残高内訳</div><div class="wrap"><table><thead><tr><th>工事番号</th><th>工事名</th><th>発注者</th><th class="num">受注額</th><th class="num">請求累計</th><th class="num">未請求</th><th class="num">入金累計</th><th class="num">未入金</th><th>最終入金日</th></tr></thead><tbody id="collectBody"></tbody></table></div></div></section>
+<section id="cash" class="page"><div class="cash-note"><b>資金繰り資料（第1段階）</b>　入金は元請請求・入金管理の実績を使用します。出金側は現在「下請請求」を支払必要額の基礎として表示します。実際の支払日・出金実績を正確に管理するには、次段階で支払登録を接続します。</div><div class="cards" id="cashCards"></div><div class="panel"><div class="ph">対象月の入出金内訳</div><div class="wrap"><table><thead><tr><th>区分</th><th>日付</th><th>相手先</th><th>工事</th><th class="num">金額</th><th>備考</th></tr></thead><tbody id="cashBody"></tbody></table></div></div></section>
+</main><script src="shared_storage.js"></script><script src="ms_data.js"></script><script>
+(()=>{
+const $=id=>document.getElementById(id),
+ n=v=>Number(String(v??'').replace(/[^\d.-]/g,''))||0,
+ yen=v=>n(v).toLocaleString('ja-JP')+'円',
+ esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
+ active=x=>x&&x.status!=='inactive';
+let projects=[],budgets=[],orders=[],supplierInvoices=[],contracts=[],sales={};
+
+function load(){
+ projects=(MSData.all('projects')||[]).filter(active);
+ budgets=(MSData.all('budgets')||[]).filter(active);
+ orders=(MSData.all('orders')||[]).filter(active);
+ supplierInvoices=(MSData.all('supplierInvoices')||[]).filter(active);
+ contracts=(MSData.all('contracts')||[]).filter(active);
+ try{sales=JSON.parse(MSShared.getItem('mscm:salesBilling:v1')||'{}')||{}}catch(e){sales={}}
+}
+function pDate(p){return p.orderDate||p.contractDate||p.registerDate||p.registrationDate||p.createdAt||''}
+function rowEmpty(c){return `<tr><td colspan="${c}" class="empty">該当するデータがありません。</td></tr>`}
+function render(){
+ load();
+ const month=$('month').value, role=$('role').value;
+ // Build indexes once.
+ const contractMap=new Map(), budgetMap=new Map(), orderMap=new Map(), supplierMap=new Map(), projectMap=new Map();
+ for(const p of projects)projectMap.set(String(p.id),p);
+ for(const c of contracts){
+   const id=String(c.projectId);
+   const old=contractMap.get(id);
+   if(!old || String(c.updatedAt||'')>String(old.updatedAt||''))contractMap.set(id,c);
+ }
+ for(const b of budgets){
+   const id=String(b.projectId), old=budgetMap.get(id);
+   if(!old || String(b.updatedAt||'')>String(old.updatedAt||''))budgetMap.set(id,b);
+ }
+ for(const o of orders){const id=String(o.projectId);orderMap.set(id,(orderMap.get(id)||0)+n(o.amount))}
+ for(const x of supplierInvoices){const id=String(x.projectId);supplierMap.set(id,(supplierMap.get(id)||0)+n(x.amount))}
+ const contract=p=>{const c=contractMap.get(String(p.id));return c?n(c.currentAmount):n(p.finalContractAmount||p.contractAmount||p.orderAmount)};
+ const budget=p=>{const b=budgetMap.get(String(p.id));return b?(b.items||[]).reduce((a,x)=>a+n(x.amount),0):0};
+ const sale=p=>{const z=sales[String(p.id)]||{},iv=(z.invoices||[]).filter(active),rc=(z.receipts||[]).filter(active);return{invoices:iv,receipts:rc,billed:iv.reduce((a,x)=>a+n(x.amount),0),received:rc.reduce((a,x)=>a+n(x.amount),0),lastReceipt:rc.map(x=>x.date||'').sort().pop()||''}};
+ const inMonth=d=>String(d||'').slice(0,7)===month;
+ const mp=projects.filter(p=>inMonth(pDate(p)));
+ let orderTotal=0,bill=0,recv=0,bud=0,margin=0;
+ for(const p of mp){const c=contract(p),b=budget(p);orderTotal+=c;bud+=b;margin+=c-b}
+ for(const p of projects){const z=sale(p);for(const x of z.invoices)if(inMonth(x.date))bill+=n(x.amount);for(const x of z.receipts)if(inMonth(x.date))recv+=n(x.amount)}
+ let out=0;for(const x of supplierInvoices)if(inMonth(x.invoiceDate))out+=n(x.amount);
+
+ $('reportTitle').textContent='月次経営・管理資料';
+ $('reportCond').textContent=month.replace('-','年')+'月　／　会社全体';
+ const today=new Date(), asof=`${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日現在`;
+ if($('profitAsOf'))$('profitAsOf').textContent='工事採算　｜　'+asof;
+ if($('collectAsOf'))$('collectAsOf').textContent='未請求・未入金残高　｜　'+asof;
+ $('summaryCards').innerHTML=[['今月受注',orderTotal],['今月元請請求',bill],['今月入金',recv],['今月実行予算',bud],['予定粗利',margin],['入出金差額',recv-out]].map(x=>`<div class="card"><div class="lab">${x[0]}</div><div class="val">${yen(x[1])}</div></div>`).join('');
+ $('monthOrders').innerHTML=mp.map(p=>{const c=contract(p),b=budget(p),m=c-b,r=c?m/c*100:0;return `<tr><td>${esc(p.legacyProjectNo||p.no||'')}</td><td>${esc(p.name||'')}</td><td>${esc(p.clientName||'')}</td><td>${esc(p.salesPerson||'')}</td><td class="num">${yen(c)}</td><td class="num">${yen(b)}</td><td class="num">${yen(m)}</td><td class="num">${r.toFixed(1)}%</td></tr>`}).join('')||rowEmpty(8);
+
+ const sm={};for(const p of mp){const k=p[role]||'未設定',c=contract(p),b=budget(p),z=sale(p);if(!sm[k])sm[k]={count:0,c:0,bill:0,recv:0,m:0};sm[k].count++;sm[k].c+=c;sm[k].bill+=z.billed;sm[k].recv+=z.received;sm[k].m+=c-b}
+  const staffPanel=$('staffBody').closest('.panel');if(staffPanel){const ph=staffPanel.querySelector('.ph');if(ph)ph.firstChild.textContent=($('role').selectedOptions[0]?.textContent||'担当')+'別実績';}
+ $('staffBody').innerHTML=Object.entries(sm).map(([k,x])=>`<tr><td>${esc(k)}</td><td class="num">${x.count}</td><td class="num">${yen(x.c)}</td><td class="num">${yen(x.bill)}</td><td class="num">${yen(x.recv)}</td><td class="num">${yen(x.m)}</td><td class="num">${(x.c?x.m/x.c*100:0).toFixed(1)}%</td></tr>`).join('')||rowEmpty(7);
+
+ const cm={};for(const p of mp){const k=p.clientName||p.clientSnapshot?.name||'未設定',c=contract(p),z=sale(p);if(!cm[k])cm[k]={count:0,c:0,bill:0,recv:0,names:[]};cm[k].count++;cm[k].c+=c;cm[k].bill+=z.billed;cm[k].recv+=z.received;cm[k].names.push(p.name||'')}
+ $('clientBody').innerHTML=Object.entries(cm).map(([k,x])=>`<tr><td>${esc(k)}</td><td class="num">${x.count}</td><td class="num">${yen(x.c)}</td><td class="num">${yen(x.bill)}</td><td class="num">${yen(x.recv)}</td><td>${esc(x.names.join('／'))}</td></tr>`).join('')||rowEmpty(6);
+ const clientEntries=Object.entries(cm);
+ $('clientSummary').innerHTML=[
+ ['受注先数',clientEntries.length+'社'],
+ ['受注件数',mp.length+'件'],
+ ['受注額合計',mp.reduce((a,p)=>a+contract(p),0)],
+ ['請求額合計',clientEntries.reduce((a,[k,x])=>a+x.bill,0)],
+ ['入金額合計',clientEntries.reduce((a,[k,x])=>a+x.recv,0)]
+ ].map(x=>`<div class="card"><div class="lab">${x[0]}</div><div class="val">${typeof x[1]==='number'?yen(x[1]):x[1]}</div></div>`).join('');
+
+
+ 
+ const profitContract=projects.reduce((a,p)=>a+contract(p),0);
+ const profitBudget=projects.reduce((a,p)=>a+budget(p),0);
+ const profitValue=profitContract-profitBudget;
+ $('profitSummary').innerHTML=[
+ ['対象工事',projects.length+'件'],
+ ['受注総額',profitContract],
+ ['実行予算総額',profitBudget],
+ ['予定粗利',profitValue],
+ ['予定粗利率',profitContract?(profitValue/profitContract*100).toFixed(1)+'%':'0.0%']
+ ].map(x=>`<div class="card"><div class="lab">${x[0]}</div><div class="val">${typeof x[1]==='number'?yen(x[1]):x[1]}</div></div>`).join('');
+$('profitBody').innerHTML=projects.map(p=>{const c=contract(p),b=budget(p),m=c-b,r=c?m/c*100:0,id=String(p.id);return `<tr><td>${esc(p.legacyProjectNo||p.no||'')}</td><td>${esc(p.name||'')}</td><td>${esc(p.clientName||'')}</td><td>${esc(p.salesPerson||'')}</td><td class="num">${yen(c)}</td><td class="num">${yen(b)}</td><td class="num">${yen(m)}</td><td class="num">${r.toFixed(1)}%</td><td class="num">${yen(orderMap.get(id)||0)}</td><td class="num">${yen(supplierMap.get(id)||0)}</td></tr>`}).join('')||rowEmpty(10);
+
+ 
+ let unbilledTotal=0,unpaidTotal=0,unbilledCount=0,unpaidCount=0;
+ for(const p of projects){const c=contract(p),z=sale(p),ub=Math.max(0,c-z.billed),ur=Math.max(0,z.billed-z.received);if(ub){unbilledTotal+=ub;unbilledCount++}if(ur){unpaidTotal+=ur;unpaidCount++}}
+ $('collectSummary').innerHTML=[
+ ['未請求件数',unbilledCount+'件'],
+ ['未請求合計',unbilledTotal],
+ ['未入金件数',unpaidCount+'件'],
+ ['未入金合計',unpaidTotal],
+ ['要回収・請求合計',unbilledTotal+unpaidTotal]
+ ].map(x=>`<div class="card"><div class="lab">${x[0]}</div><div class="val">${typeof x[1]==='number'?yen(x[1]):x[1]}</div></div>`).join('');
+$('collectBody').innerHTML=projects.map(p=>{const c=contract(p),z=sale(p),ub=Math.max(0,c-z.billed),ur=Math.max(0,z.billed-z.received);if(!ub&&!ur)return'';return `<tr><td>${esc(p.legacyProjectNo||p.no||'')}</td><td>${esc(p.name||'')}</td><td>${esc(p.clientName||'')}</td><td class="num">${yen(c)}</td><td class="num">${yen(z.billed)}</td><td class="num">${yen(ub)}</td><td class="num">${yen(z.received)}</td><td class="num">${yen(ur)}</td><td>${esc(z.lastReceipt.replaceAll('-','/'))}</td></tr>`}).join('')||rowEmpty(9);
+
+ const cash=[];for(const p of projects){const z=sale(p);for(const x of z.receipts)if(inMonth(x.date))cash.push({kind:'入金',date:x.date,party:p.clientName||'',project:p.name||'',amount:n(x.amount),memo:x.memo||''})}
+ for(const x of supplierInvoices)if(inMonth(x.invoiceDate)){const p=projectMap.get(String(x.projectId));cash.push({kind:'出金基礎',date:x.invoiceDate,party:x.supplierName||'',project:p?.name||'',amount:-n(x.amount),memo:x.memo||''})}
+ cash.sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+ $('cashCards').innerHTML=[['入金実績',recv],['下請請求額',out],['差引',recv-out]].map(x=>`<div class="card"><div class="lab">${x[0]}</div><div class="val">${yen(x[1])}</div></div>`).join('');
+ $('cashBody').innerHTML=cash.map(x=>`<tr><td>${x.kind}</td><td>${esc((x.date||'').replaceAll('-','/'))}</td><td>${esc(x.party)}</td><td>${esc(x.project)}</td><td class="num">${yen(x.amount)}</td><td>${esc(x.memo)}</td></tr>`).join('')||rowEmpty(6);
+}
+const now=new Date();$('month').value=now.toISOString().slice(0,7);
+function pending(){$('aggStatus').textContent='条件が変更されています。「再集計」を押してください。';$('aggStatus').style.background='#fff9e9'}
+$('month').onchange=pending;
+$('refresh').onclick=()=>{const b=$('refresh');b.disabled=true;b.textContent='集計中…';$('aggStatus').textContent='集計中です…';$('aggStatus').style.background='#fff9e9';setTimeout(()=>{try{render();$('aggStatus').textContent='集計完了';$('aggStatus').style.background='#eef7ef'}catch(e){console.error(e);$('aggStatus').textContent='集計エラー：'+e.message;$('aggStatus').style.background='#fff0f0'}finally{b.disabled=false;b.textContent='再集計'}},30)};
+if($('staffRefresh'))$('staffRefresh').onclick=()=>{try{render();$('aggStatus').textContent='担当者別を更新しました。';$('aggStatus').style.background='#eef7ef'}catch(e){console.error(e);$('aggStatus').textContent='更新エラー：'+e.message;$('aggStatus').style.background='#fff0f0'}};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');$(b.dataset.tab).classList.add('on');
+ const current=['profit','collect'].includes(b.dataset.tab);
+ $('reportTitle').textContent=current?'現在の管理状況':'月次経営・管理資料';
+ $('reportCond').textContent=current?'基準日現在の残高・採算':$('month').value.replace('-','年')+'月　／　会社全体';
+});
+})();
+</script></body></html>

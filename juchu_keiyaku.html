@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<script src="ms_password.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>受注・契約｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+:root{--deep:#173f6b;--blue:#176fa8;--line:#c9dbe8;--text:#263f50;--muted:#657986;--input:#eef9ff;--select:#eef8ee;--money:#f8ecef}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#fff,#edf6fc);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif}
+header{background:linear-gradient(135deg,#173f6b,#245b86);color:#fff}
+.head{max-width:1440px;margin:auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:24px;font-weight:900}.sub{font-size:13px;opacity:.9}
+.nav{display:flex;gap:8px}.nav button{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;border-radius:7px;padding:8px 13px;font-weight:800;cursor:pointer}
+main{max-width:1440px;margin:auto;padding:12px 24px 28px}
+.project{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:15px;box-shadow:0 4px 12px rgba(23,63,107,.06)}
+.project h1{font-size:21px;margin:0;color:var(--deep)}.meta{font-size:13px;color:var(--muted);margin-top:3px}.state{font-size:12px;font-weight:900;background:#e7f5ec;color:#2e704b;border:1px solid #b9ddc6;border-radius:999px;padding:4px 10px}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px;margin-top:10px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:0 4px 12px rgba(23,63,107,.05);overflow:hidden}
+.pt{padding:7px 10px;background:#f2f8fc;border-bottom:1px solid #d9e6ef;color:var(--deep);font-size:15px;font-weight:900;display:flex;justify-content:space-between;align-items:center}
+.form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 8px;padding:9px}
+.field.span2{grid-column:span 2}.field.span4{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:900;color:#587080;margin-bottom:2px}
+input,select,textarea{width:100%;border:1px solid #b9cedc;border-radius:5px;padding:4px 7px;font:inherit;font-size:14px;color:#263f50}
+input,select{height:30px}.money{background:var(--money);text-align:right;font-variant-numeric:tabular-nums}.condition{background:var(--select)}.read{background:#f2f5f7;color:#526773;font-weight:700}.dimension{background:var(--input)}
+textarea{min-height:62px;resize:vertical}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:9px}
+.metric{border:1px solid #d5e1e9;border-radius:7px;padding:8px 9px;background:#fbfdfe}.metric .l{font-size:11px;font-weight:900;color:#687d89}.metric .v{font-size:19px;font-weight:700;margin-top:4px;text-align:right;white-space:nowrap}.metric.blue{border-top:3px solid #176fa8}.metric.purple{border-top:3px solid #7957ad}.metric.green{border-top:3px solid #628a49}
+table{width:100%;border-collapse:collapse}th{background:#edf4f8;color:#426278;font-size:12px;text-align:left;padding:7px;border-bottom:1px solid #c9dbe8}td{font-size:13px;padding:6px 7px;border-bottom:1px solid #e5edf2}td.num{text-align:right}.small-btn{border:1px solid #a9c1d0;background:#fff;color:#35627e;border-radius:5px;padding:4px 8px;font-size:12px;font-weight:900;cursor:pointer}
+.add{background:#176fa8;color:#fff;border:0}.change-editor{display:none;padding:10px;background:#f8fbfd;border-bottom:1px solid #d9e6ef}.change-editor.open{display:block}.change-form{display:grid;grid-template-columns:160px 150px 180px minmax(240px,1fr) auto;gap:8px;align-items:end}.change-form label{font-size:13px}.change-form input,.change-form select{height:34px;font-size:15px}.change-form .money{font-weight:800}.editor-actions{display:flex;gap:6px}.editor-actions button{height:34px;white-space:nowrap}@media(max-width:1000px){.change-form{grid-template-columns:1fr 1fr}.change-form .note-field{grid-column:1/-1}.editor-actions{grid-column:1/-1;justify-content:flex-end}}.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}.actions button{border:0;border-radius:7px;padding:8px 16px;font-weight:900;cursor:pointer}.save{background:#176fa8;color:#fff}.next{background:#7957ad;color:#fff}.cancel{background:#e8eef2;color:#425d6d}
+.note{padding:8px 10px;font-size:12px;line-height:1.55;color:#687d89;background:#fafcfd;border-top:1px solid #e3ebf0}
+.warn{margin-top:10px;background:#fff8ee;border:1px solid #ead4b7;border-radius:8px;padding:8px 10px;color:#805323;font-size:12px}
+footer{max-width:1440px;margin:auto;padding:0 24px 18px;color:#728490;font-size:12px}
+@media(max-width:950px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:600px){.head,main{padding-left:13px;padding-right:13px}.form{grid-template-columns:1fr 1fr}.field.span4{grid-column:1/-1}.metrics{grid-template-columns:1fr}.project{align-items:flex-start}.nav{flex-direction:column}}
+</style>
+<script src="shared_storage.js"></script>
+<script src="ms_data.js"></script>
+</head>
+<body>
+<header><div class="head"><div><div class="brand">MS建設管理システム</div><div class="sub">受注・契約</div></div><div class="nav"><button id="backCarte">工事カルテへ</button><button onclick="location.href='index.html'">メイン画面へ</button></div></div></header>
+<main>
+<section class="project"><div><h1 id="projectTitle">工事を読み込み中...</h1><div class="meta" id="projectMeta"></div></div><span class="state" id="projectState">―</span></section>
+
+<div class="grid">
+ <div>
+  <section class="panel">
+   <div class="pt">受注情報</div>
+   <div class="form">
+    <div class="field"><label>受注日</label><input id="orderDate" class="dimension" type="date"></div>
+    <div class="field"><label>契約区分</label><select id="contractCategory" class="condition"><option>通常契約</option><option>追加契約</option></select></div>
+    <div class="field"><label>見積番号</label><input id="estimateNo" class="read" readonly></div>
+    <div class="field"><label>見積時粗利率</label><input id="estimateMargin" class="read" readonly></div>
+    <div class="field span2"><label>当初請負金額（工事情報から）</label><input id="base" class="read" readonly></div>
+    <div class="field span2"><label>現在の請負金額</label><input id="final" class="read" readonly></div>
+    <div class="field span4"><label>契約・受注備考</label><textarea id="contractNote" placeholder="契約条件や特記事項など"></textarea></div>
+   </div>
+  </section>
+
+  <section class="panel" style="margin-top:10px">
+   <div class="pt"><span>増減履歴</span><button class="small-btn add" id="add">＋ 増減を追加</button></div>
+   <div class="change-editor" id="changeEditor">
+    <div class="change-form">
+     <div><label>変更日</label><input id="changeDate" class="dimension" type="date"></div>
+     <div><label>区分</label><select id="changeType" class="condition"><option>増額</option><option>減額</option></select></div>
+     <div><label>増減金額</label><input id="changeAmount" class="money" inputmode="numeric" placeholder="0"></div>
+     <div class="note-field"><label>内容・理由</label><input id="changeNote" placeholder="追加工事・数量変更など"></div>
+     <div class="editor-actions"><button class="small-btn add" id="changeSave" type="button">この増減を登録</button><button class="small-btn" id="changeCancel" type="button">キャンセル</button></div>
+    </div>
+   </div>
+   <table>
+    <thead><tr><th>日付</th><th>区分</th><th>内容・理由</th><th style="text-align:right">増減金額</th><th></th></tr></thead>
+    <tbody id="changes"></tbody>
+   </table>
+   <div id="emptyChanges" class="note">増減履歴はまだありません。当初請負金額は書き換えず、変更分だけを履歴として残します。</div>
+  </section>
+ </div>
+
+ <div>
+  <section class="panel">
+   <div class="pt">受注・予算確認</div>
+   <div class="metrics">
+    <div class="metric blue"><div class="l">現在の請負金額</div><div class="v" id="metricFinal">0円</div></div>
+    <div class="metric purple"><div class="l">実行予算</div><div class="v" id="metricBudget">未作成</div></div>
+    <div class="metric green"><div class="l">予定粗利率</div><div class="v" id="metricMargin">―</div></div>
+   </div>
+   <div class="note">実行予算を作成すると、現在の請負金額に対する予定粗利額・予定粗利率をここに表示します。</div>
+  </section>
+
+  <section class="panel" style="margin-top:10px">
+   <div class="pt">契約書</div>
+   <div class="form">
+    <div class="field span2"><label>契約書作成日</label><input id="contractDocDate" class="dimension" type="date"></div>
+    <div class="field span2"><label>契約書状態</label><select id="contractDocStatus" class="condition"><option>未作成</option><option>作成済</option><option>締結済</option></select></div>
+    <div class="field span4"><button class="small-btn" type="button" id="contract" style="width:100%;height:31px">工事契約書を作成・確認</button></div>
+   </div>
+   <div class="note">登録内容を保存して工事契約書を表示します。通常版から簡易版も選択できます。</div>
+  </section>
+ </div>
+</div>
+<div class="actions"><button class="cancel" id="cancel">工事カルテへ戻る</button><button class="save" id="save">受注・契約を保存</button><button class="next" id="budget">保存して実行予算へ</button></div>
+</main>
+<footer>MSランドスケープ　｜　MS建設管理システム</footer>
+<script>
+(function(){
+ const params=new URLSearchParams(location.search);
+ const id=params.get('id')||'';
+ let project=id&&window.MSData?MSData.get('projects',id):null;
+ let changes=[];
+ const $=id=>document.getElementById(id);
+ const num=v=>Number(String(v??'').replace(/[^0-9.-]/g,''))||0;
+ const yen=v=>Math.round(num(v)).toLocaleString('ja-JP')+'円';
+ const ymd=v=>v?String(v).replaceAll('-','/'):'';
+ function go(href){ if(id) sessionStorage.setItem('mscm:selectedProjectId',id); location.href=href+(id?'?id='+encodeURIComponent(id):''); }
+ function baseContractAmount(){
+   const f=project?.legacyFinancials||{};
+   const candidates=[project?.contractAmount,f.contractAmount,f.finalContractAmount];
+   for(const v of candidates){ if(v!==undefined&&v!==null&&String(v).trim()!==''&&num(v)!==0) return num(v); }
+   return 0;
+ }
+ function currentFinal(){return baseContractAmount()+changes.reduce((a,c)=>a+(c.type==='減額'?-Math.abs(num(c.amount)):Math.abs(num(c.amount))),0)}
+ function renderChanges(){
+   const tb=$('changes'); tb.innerHTML=''; $('emptyChanges').style.display=changes.length?'none':'block';
+   changes.forEach((c,i)=>{const tr=document.createElement('tr'); const signed=c.type==='減額'?-Math.abs(num(c.amount)):Math.abs(num(c.amount));
+     tr.innerHTML='<td>'+ymd(c.date)+'</td><td>'+c.type+'</td><td></td><td class="num">'+(signed>=0?'+':'−')+Math.abs(signed).toLocaleString('ja-JP')+'円</td><td><button class="small-btn" data-edit="'+i+'">編集</button> <button class="small-btn" data-del="'+i+'">削除</button></td>';
+     tr.children[2].textContent=c.note||''; tb.appendChild(tr);
+   });
+   tb.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editChange(Number(b.dataset.edit)));
+   tb.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('この増減履歴を削除しますか？')){changes.splice(Number(b.dataset.del),1);renderChanges();updateTotals();}});
+   updateTotals();
+ }
+ function updateTotals(){const f=currentFinal();$('final').value=yen(f);$('metricFinal').textContent=yen(f)}
+ let editingChangeIndex=-1;
+ function editChange(i){
+   editingChangeIndex=i;
+   const old=i>=0?changes[i]:{date:new Date().toISOString().slice(0,10),type:'増額',amount:'',note:''};
+   $('changeDate').value=old.date||new Date().toISOString().slice(0,10);
+   $('changeType').value=old.type||'増額';
+   $('changeAmount').value=old.amount?Math.abs(num(old.amount)).toLocaleString('ja-JP'):'';
+   $('changeNote').value=old.note||'';
+   $('changeSave').textContent=i>=0?'変更を保存':'この増減を登録';
+   $('changeEditor').classList.add('open');
+   setTimeout(()=>$('changeDate').focus(),0);
+ }
+ function closeChangeEditor(){editingChangeIndex=-1;$('changeEditor').classList.remove('open');}
+ function saveChangeEditor(){
+   const date=$('changeDate').value, type=$('changeType').value, amount=Math.abs(num($('changeAmount').value)), note=$('changeNote').value.trim();
+   if(!date){alert('変更日を入力してください。');$('changeDate').focus();return;}
+   if(amount<=0){alert('増減金額を入力してください。');$('changeAmount').focus();return;}
+   const rec={date,type,amount,note};
+   if(editingChangeIndex>=0)changes[editingChangeIndex]=rec;else changes.push(rec);
+   closeChangeEditor(); renderChanges();
+ }
+ function load(){
+   if(!project){alert('工事が選択されていません。工事一覧から工事を選択してください。');location.href='kouji_list.html';return;}
+   sessionStorage.setItem('mscm:selectedProjectId',project.id);
+   $('projectTitle').textContent=(project.legacyProjectNo||project.no||'')+'　'+(project.name||'');
+   $('projectMeta').textContent='発注者：'+(project.clientName||'未登録')+'　｜　工期：'+(ymd(project.startDate)||'未登録')+' ～ '+(ymd(project.endDate)||'未登録')+'　｜　担当：'+(project.projectPerson||project.sitePerson||'未登録');
+   $('projectState').textContent=project.completedDate?'完成':'施工中';
+   $('estimateNo').value=project.estimateNo||''; $('estimateMargin').value=project.estimateMargin!==''&&project.estimateMargin!=null?project.estimateMargin+' %':''; $('base').value=yen(baseContractAmount());
+   const o=project.orderContract||{}; const hasOrderDate=Object.prototype.hasOwnProperty.call(o,'orderDate'); $('orderDate').value=hasOrderDate?(o.orderDate||''):(project.registeredDate||''); $('contractCategory').value=o.contractCategory||'通常契約'; $('contractNote').value=o.note||''; $('contractDocDate').value=o.contractDocDate||''; $('contractDocStatus').value=o.contractDocStatus||'未作成'; changes=Array.isArray(o.changes)?o.changes.map(x=>({...x})):[];
+   renderChanges();
+   const budgets=MSData.all('budgets').filter(b=>b.projectId===project.id&&b.status!=='inactive');
+   if(budgets.length){const total=budgets.reduce((a,b)=>a+num(b.total??b.amount),0);$('metricBudget').textContent=yen(total); const f=currentFinal();$('metricMargin').textContent=f?(((f-total)/f)*100).toFixed(1)+'%':'―';}
+ }
+ function save(show=true){
+   project.orderContract={orderDate:$('orderDate').value,contractCategory:$('contractCategory').value,note:$('contractNote').value.trim(),contractDocDate:$('contractDocDate').value,contractDocStatus:$('contractDocStatus').value,changes:changes.map(x=>({...x})),currentContractAmount:currentFinal()};
+   project=MSData.save('projects',project); if(show)alert('受注・契約情報を保存しました。'); return project;
+ }
+ $('add').onclick=()=>editChange(-1); $('changeSave').onclick=saveChangeEditor; $('changeCancel').onclick=closeChangeEditor; $('changeAmount').addEventListener('blur',()=>{const v=num($('changeAmount').value);$('changeAmount').value=v?v.toLocaleString('ja-JP'):''}); $('save').onclick=()=>save(true); $('cancel').onclick=()=>go('kouji_carte.html'); $('backCarte').onclick=()=>go('kouji_carte.html');
+ $('budget').onclick=()=>{save(false);go('jikko_yosan.html')}; $('contract').onclick=()=>{save(false);go('kouji_keiyakusho.html')};
+ load();
+})();
+</script>
+</body></html>

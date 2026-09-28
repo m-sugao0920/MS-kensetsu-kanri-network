@@ -1,0 +1,216 @@
+<!doctype html><html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>年賀・贈答管理｜MS建設管理システム</title><style>
+:root{--b:#174d78;--l:#cbdbe6;--bg:#f3f7fa;--t:#263f50}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;color:var(--t);background:var(--bg)}
+header{background:#fff;border-bottom:1px solid var(--l)}.top{max-width:1380px;margin:auto;padding:16px 26px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:21px;font-weight:800;color:var(--b)}
+button{border:0;border-radius:8px;background:var(--b);color:#fff;padding:9px 15px;font-weight:700;cursor:pointer}.light{background:#e7f0f5;color:var(--b);border:1px solid var(--l)}
+main{max-width:1380px;margin:auto;padding:20px 26px 40px}h1{font-size:27px;color:var(--b);margin:0 0 5px}.lead,.note{font-size:12px;color:#71818c}.tabs{display:flex;gap:8px;margin:15px 0;flex-wrap:wrap}.tab{background:#dfeaf1;color:#31566d}.tab.active{background:var(--b);color:#fff}
+.panel{display:none}.panel.active{display:block}.box{background:#fff;border:1px solid var(--l);border-radius:12px;padding:15px;margin-bottom:14px}.box h2{font-size:18px;color:var(--b);margin:0 0 12px}
+.form{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;align-items:end}.field label{display:block;font-size:12px;font-weight:700;color:#617785;margin-bottom:4px}input,select{width:100%;padding:9px;border:1px solid #b9cbd7;border-radius:7px;font-size:14px}.money{text-align:right}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.summary{display:flex;gap:12px;margin-bottom:12px}.sum{background:#eef5f9;border:1px solid #d8e5ed;border-radius:9px;padding:9px 14px;min-width:145px}.sum b{display:block;font-size:19px;color:var(--b)}
+.wrap{overflow:auto;max-height:520px;border:1px solid var(--l);border-radius:9px}table{width:100%;border-collapse:collapse;background:#fff}th,td{border-bottom:1px solid #dbe5eb;padding:9px 8px;text-align:left;font-size:13px}th{background:#eef4f7;color:#36586c;position:sticky;top:0}.c{text-align:center}.r{text-align:right}.empty{text-align:center;color:#82939e;padding:25px}.badge{padding:3px 7px;border-radius:10px;background:#e7f0f5;font-size:11px}.partner-link{color:var(--b);font-weight:700;text-decoration:underline;cursor:pointer;background:none;border:0;padding:0}.mini{padding:5px 9px;font-size:11px;border-radius:6px}
+@media(max-width:900px){.form{grid-template-columns:repeat(2,1fr)}}@media print{header,.tabs,.actions{display:none!important}main{padding:0}.box{border:0}.wrap{max-height:none;overflow:visible}th{position:static}}
+</style></head><body>
+<header><div class="top"><div class="brand">MS建設管理システム　／　年賀・贈答管理</div><button onclick="location.href='kanri_settei.html'">管理・設定に戻る</button></div></header><main>
+<h1>年賀・贈答管理</h1><div class="lead">送付先の選定、贈答品の発注、受領記録、履歴をまとめて管理します。</div>
+<div class="tabs"><button class="tab active" data-tab="send">送付管理</button><button class="tab" data-tab="order">贈答品発注</button><button class="tab" data-tab="receive">受領管理</button><button class="tab" data-tab="history">履歴</button><button class="tab" data-tab="productMaster">贈答品マスター</button></div>
+
+<section id="send" class="panel active"><div class="box"><h2>送付内容</h2><div class="form">
+<div class="field"><label>年度</label><input id="sy" type="number"></div><div class="field"><label>種類</label><select id="st"><option>年賀状</option><option>暑中見舞い</option><option>お中元</option><option>お歳暮</option></select></div>
+<div class="field gift"><label>品物</label><input id="si" list="items" placeholder="選択または入力"></div><div class="field gift"><label>発注先</label><input id="sv" list="vendors" placeholder="選択または入力"></div>
+<div class="field gift"><label>単価</label><input id="sp" class="money" inputmode="numeric" placeholder="0"></div><div class="field"><label>発送予定日</label><input id="sd" type="date"></div></div>
+<div class="actions"><button class="light" id="prev">前年の送付先をコピー</button><button class="light" id="all">全て選択</button><button class="light" id="none">選択解除</button><button id="saveS">選択した取引先を登録</button></div>
+<p class="note">年賀状・暑中見舞いは品物不要です。お中元・お歳暮で入力した品物と発注先は、次回から候補に残ります。</p></div>
+<div class="box"><h2>取引先一覧</h2>
+<div class="form" style="grid-template-columns:2fr 1fr 1fr 1fr;margin-bottom:12px">
+<div class="field"><label>会社名・フリガナ検索</label><input id="pq" placeholder="会社名・フリガナの一部を入力"></div>
+<div class="field"><label>取引先種別</label><select id="ptype"><option value="">すべて</option><option>法人顧客</option><option>個人顧客</option><option>協力会社</option><option>仕入先</option><option>その他</option></select></div>
+<div class="field"><label>取引状態</label><select id="pstatus"><option value="active">取引中</option><option value="">すべて</option><option value="inactive">休止</option></select></div>
+<div class="field"><label>登録件数</label><input id="pcount" readonly></div>
+</div>
+<div class="summary"><div class="sum">選択件数<b id="cnt">0件</b></div><div class="sum gift">予定金額<b id="amt">0円</b></div></div>
+<div class="wrap"><table><thead><tr><th class="c">送る</th><th>取引先</th><th>担当者</th><th>郵便番号</th><th>住所</th><th>前年</th><th>備考</th></tr></thead><tbody id="rows"></tbody></table></div></div></section>
+
+<section id="order" class="panel"><div class="box"><h2>発注先別 発注書</h2><div class="form"><div class="field"><label>年度</label><input id="oy" type="number"></div><div class="field"><label>種類</label><select id="ot"><option>お中元</option><option>お歳暮</option></select></div><div class="field"><label>発注先</label><select id="ov"><option value="">すべて</option></select></div></div>
+<div class="actions"><button id="make">集計する</button><button class="light" onclick="print()">発注書を印刷</button></div></div><div class="box" id="orders"><div class="empty">送付管理で登録した内容を発注先別に集計します。</div></div></section>
+
+<section id="receive" class="panel"><div class="box"><h2>頂いた品物を登録</h2><div class="form">
+<div class="field"><label>受領日</label><input id="rd" type="date"></div><div class="field"><label>会社</label><input id="rc" list="companies" placeholder="会社名を検索・入力"></div><div class="field"><label>種類</label><select id="rt"><option>お中元</option><option>お歳暮</option><option>その他</option></select></div>
+<div class="field"><label>品物</label><input id="ri" list="items" placeholder="選択または入力"></div><div class="field"><label>備考</label><input id="rm"></div><div class="field"><label>お礼・対応</label><select id="rx"><option value="0">未対応</option><option value="1">対応済</option></select></div></div>
+<div class="actions"><button id="saveR">受領記録を登録</button><button class="light" id="openReceivePartner">選択した取引先を開く</button></div><p class="note">新しい品物は登録と同時に候補へ追加します。品物マスターを先に作る必要はありません。</p></div></section>
+
+<section id="history" class="panel"><div class="box"><h2>年賀・贈答履歴</h2><div class="form"><div class="field"><label>年度</label><input id="hy" type="number"></div><div class="field"><label>会社</label><input id="hc" placeholder="会社名で絞り込み"></div><div class="field"><label>区分</label><select id="hd"><option value="">すべて</option><option>送付</option><option>受領</option></select></div></div>
+<div class="actions"><button id="hist">表示更新</button></div><div class="wrap"><table><thead><tr><th>日付</th><th>会社</th><th>区分</th><th>種類</th><th>品物</th><th>発注先</th><th class="r">単価</th><th>対応</th><th>対応日</th><th>備考</th><th class="c">操作</th></tr></thead><tbody id="hrows"></tbody></table></div></div></section>
+
+<section id="productMaster" class="panel">
+ <div class="box"><h2>贈答品マスター</h2>
+  <p class="note">送付登録で使用した「品物・発注先・単価」を自動で候補に残します。価格変更は編集、使わなくなったものは削除できます。削除しても過去の履歴は残ります。</p>
+  <div class="form" style="grid-template-columns:2fr 2fr 1fr 140px">
+   <div class="field"><label>品物</label><input id="mi" placeholder="例：ビール"></div>
+   <div class="field"><label>発注先</label><input id="mv" placeholder="例：○○酒店"></div>
+   <div class="field"><label>単価</label><input id="mp" class="money" inputmode="numeric" placeholder="0"></div>
+   <div class="field"><label>&nbsp;</label><button id="mnew">新規登録</button></div>
+  </div>
+  <div class="wrap" style="margin-top:12px"><table><thead><tr><th>品物</th><th>発注先</th><th class="r">単価</th><th>更新日</th><th class="c">操作</th></tr></thead><tbody id="mrows"></tbody></table></div>
+ </div>
+</section>
+<datalist id="items"></datalist><datalist id="vendors"></datalist><datalist id="companies"></datalist>
+</main><script src="shared_storage.js"></script><script src="ms_data.js"></script><script>
+const KEY='mscm:gifts:v1',$=x=>document.getElementById(x),now=new Date(),CY=now.getFullYear();let ps=[],rs=[],its=[],vs=[],masters=[];
+['sy','oy','hy'].forEach(x=>$(x).value=CY);$('sd').value=$('rd').value=now.toISOString().slice(0,10);
+function e(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function m(n){return Number(n||0).toLocaleString('ja-JP')+'円'}
+function v(o,ks){for(const k of ks)if(o&&o[k]!=null&&String(o[k]).trim())return String(o[k]).trim();return''}
+function load(){try{let z=(window.MSShared&&MSShared.getItem)?MSShared.getItem(KEY):localStorage.getItem(KEY),d=z?JSON.parse(z):{};rs=d.records||[];its=d.items||[];vs=d.vendors||[];masters=d.masters||[]}catch(_){rs=[];its=[];vs=[]}}
+function save(){let z=JSON.stringify({records:rs,items:its,vendors:vs,masters,updatedAt:new Date().toISOString()});if(window.MSShared&&MSShared.setItem)MSShared.setItem(KEY,z);else localStorage.setItem(KEY,z)}
+function partners(){
+  // torihikisaki.html と同じ経路で読み込む
+  const a=MSData.all('partners').sort((a,b)=>(a.no||'').localeCompare(b.no||''));
+  ps=a.map((p,i)=>({
+    id:String(p.id||p.no||i),
+    no:String(p.no||''),
+    name:String(p.name||'').trim(),
+    kana:String(p.kana||'').trim(),
+    person:(Array.isArray(p.contacts)&&p.contacts.length&&p.contacts[0].name)
+      ? String(p.contacts[0].name)
+      : String(p.representative||''),
+    zip:String(p.zipcode||'').trim(),
+    address:String(p.address||'').trim(),
+    partnerType:String(p.partnerType||'').trim(),
+    tradeStatus:String(p.tradeStatus||(p.status==='inactive'?'休止':'取引中')).trim(),
+    status:String(p.status||'active')
+  })).filter(x=>x.name);
+}
+function filteredPartners(){
+  const q=($('pq')?.value||'').trim().toLowerCase();
+  const pt=$('ptype')?.value||'';
+  const st=$('pstatus')?.value||'active';
+  return ps.filter(p=>{
+    if(q && !(p.name.toLowerCase().includes(q)||p.kana.toLowerCase().includes(q)||p.no.toLowerCase().includes(q))) return false;
+    if(pt && p.partnerType!==pt) return false;
+    if(st==='active' && (p.status==='inactive'||p.tradeStatus==='休止')) return false;
+    if(st==='inactive' && !(p.status==='inactive'||p.tradeStatus==='休止')) return false;
+    return true;
+  });
+}
+function gift(){return ['お中元','お歳暮'].includes($('st').value)}function candidates(){ $('items').innerHTML=its.map(x=>`<option value="${e(x)}">`).join('');$('vendors').innerHTML=vs.map(x=>`<option value="${e(x)}">`).join('');$('companies').innerHTML=ps.map(x=>`<option value="${e(x.name)}">`).join('')}
+function add(a,x){x=String(x||'').trim();if(x&&!a.includes(x))a.push(x)}function upd(){let n=document.querySelectorAll('.ck:checked').length,p=Number($('sp').value.replace(/,/g,''))||0;$('cnt').textContent=n+'件';$('amt').textContent=m(n*p)}
+function showGift(){document.querySelectorAll('.gift').forEach(x=>x.style.display=gift()?'':'none');upd()}
+
+function openPartnerById(id){
+ if(!id)return alert('取引先を特定できませんでした。');
+ location.href='torihikisaki_master.html?id='+encodeURIComponent(id)+'&from=nenga_zoutou';
+}
+function findPartnerForRecord(r){
+ return ps.find(p=>(r.partnerId&&p.id===String(r.partnerId))||p.name===r.company);
+}
+function partnerCell(p){
+ return `<button type="button" class="partner-link" onclick="openPartnerById('${e(p.id)}')">${e(p.name)}</button>`;
+}
+function shouldShowPartnerList(){
+ const q=($('pq')?.value||'').trim();
+ const pt=$('ptype')?.value||'';
+ const st=$('pstatus')?.value||'active';
+ return !!q || !!pt || st==='inactive' || window.__showCopied===true || window.__showAllPartners===true;
+}
+
+function render(){
+  let y=+$('sy').value,t=$('st').value;
+  if($('pcount')) $('pcount').value=ps.length.toLocaleString('ja-JP')+'件';
+  if(!shouldShowPartnerList()){
+    $('rows').innerHTML='<tr><td colspan="7" class="empty">会社名・フリガナを入力して取引先を検索してください。<br>前年コピーを使う場合は「前年の送付先をコピー」を押してください。</td></tr>';
+    upd();return;
+  }
+  let list=filteredPartners();
+  if(window.__showCopied===true && window.__copiedNames) list=list.filter(p=>window.__copiedNames.has(p.name));
+  $('rows').innerHTML=list.length?list.map(p=>{
+    let prev=rs.some(r=>r.direction==='送付'&&r.year===y-1&&r.type===t&&r.company===p.name);
+    return `<tr><td class="c"><input type="checkbox" class="ck" data-id="${e(p.id)}" ${window.__showCopied&&window.__copiedNames?.has(p.name)?'checked':''}></td><td>${partnerCell(p)}</td><td>${e(p.person)}</td><td>${e(p.zip)}</td><td>${e(p.address)}</td><td>${prev?'<span class="badge">送付</span>':'－'}</td><td><input class="memo" data-id="${e(p.id)}"></td></tr>`
+  }).join(''):`<tr><td colspan="7" class="empty">検索条件に該当する取引先はありません。</td></tr>`;
+  document.querySelectorAll('.ck').forEach(x=>x.onchange=upd);upd()
+}
+function history(){
+ let y=+$('hy').value,q=$('hc').value.trim().toLowerCase(),d=$('hd').value;
+ let a=rs.filter(r=>(!y||r.year===y)&&(!q||r.company.toLowerCase().includes(q))&&(!d||r.direction===d))
+   .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ $('hrows').innerHTML=a.length?a.map(r=>{
+   let p=findPartnerForRecord(r), company=p?`<button type="button" class="partner-link" onclick="openPartnerById('${e(p.id)}')">${e(r.company)}</button>`:e(r.company);
+   let status=r.direction==='受領'?(r.done?'対応済':'未対応'):'－';
+   let action=r.direction==='受領'&&!r.done?`<button class="mini" onclick="markDone('${e(r.id)}')">対応済にする</button>`:'－';
+   return `<tr><td>${e(r.date)}</td><td>${company}</td><td>${e(r.direction)}</td><td>${e(r.type)}</td><td>${e(r.item||'－')}</td><td>${e(r.vendor||'－')}</td><td class="r">${r.price?m(r.price):'－'}</td><td>${status}</td><td>${e(r.doneDate||'－')}</td><td>${e(r.memo||'')}</td><td class="c">${action}</td></tr>`
+ }).join(''):'<tr><td colspan="11" class="empty">該当する履歴はありません。</td></tr>'
+}
+function markDone(id){
+ const r=rs.find(x=>String(x.id)===String(id));if(!r)return;
+ if(!confirm(`${r.company} の受領記録を「対応済」にしますか？`))return;
+ r.done=true;r.doneDate=new Date().toISOString().slice(0,10);save();history();alert('対応済にしました。');
+}
+
+function upsertMaster(item,vendor,price){
+ item=String(item||'').trim(); vendor=String(vendor||'').trim(); price=Number(price||0);
+ if(!item)return;
+ let x=masters.find(z=>z.item===item&&z.vendor===vendor);
+ if(x){x.price=price;x.updatedAt=new Date().toISOString()}
+ else masters.push({id:(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random()),item,vendor,price,updatedAt:new Date().toISOString()});
+}
+function renderMaster(){
+ const tb=$('mrows'); if(!tb)return;
+ tb.innerHTML=masters.length?masters.slice().sort((a,b)=>a.item.localeCompare(b.item,'ja')).map(x=>`<tr>
+  <td>${e(x.item)}</td><td>${e(x.vendor)}</td><td class="r">${m(x.price)}</td><td>${e((x.updatedAt||'').slice(0,10))}</td>
+  <td class="c"><button class="light" onclick="editMaster('${e(x.id)}')">編集</button> <button onclick="deleteMaster('${e(x.id)}')">削除</button></td></tr>`).join('')
+  :'<tr><td colspan="5" class="empty">まだ登録されていません。送付管理で贈答品を登録すると、ここにも自動で残ります。</td></tr>';
+}
+function editMaster(id){
+ const x=masters.find(z=>z.id===id);if(!x)return;
+ $('mi').value=x.item;$('mv').value=x.vendor;$('mp').value=x.price;
+ $('mnew').dataset.edit=id;$('mnew').textContent='更新';
+}
+function deleteMaster(id){
+ const x=masters.find(z=>z.id===id);if(!x)return;
+ if(!confirm(`「${x.item} / ${x.vendor}」をマスターから削除しますか？\n過去の年賀・贈答履歴は削除されません。`))return;
+ masters=masters.filter(z=>z.id!==id);save();renderMaster();candidates();
+}
+function saveMasterForm(){
+ const item=$('mi').value.trim(),vendor=$('mv').value.trim(),price=Number($('mp').value.replace(/,/g,''))||0;
+ if(!item)return alert('品物を入力してください。');
+ const id=$('mnew').dataset.edit;
+ if(id){
+  const x=masters.find(z=>z.id===id);if(x){x.item=item;x.vendor=vendor;x.price=price;x.updatedAt=new Date().toISOString()}
+ }else upsertMaster(item,vendor,price);
+ add(its,item);add(vs,vendor);save();renderMaster();candidates();
+ $('mi').value=$('mv').value=$('mp').value='';delete $('mnew').dataset.edit;$('mnew').textContent='新規登録';
+}
+function applyProductMaster(){
+ const item=$('si').value.trim();
+ const matches=masters.filter(x=>x.item===item);
+ if(!matches.length)return;
+ let x=matches[0];
+ // 同じ品物が複数発注先にある場合は、現在の発注先に合うものを優先
+ if($('sv').value.trim()) x=matches.find(z=>z.vendor===$('sv').value.trim())||x;
+ $('sv').value=x.vendor||'';$('sp').value=x.price||'';
+ upd();
+}
+
+$('saveS').onclick=()=>{let sel=[...document.querySelectorAll('.ck:checked')].map(c=>ps.find(p=>p.id===c.dataset.id)).filter(Boolean);if(!sel.length)return alert('送付する取引先を選択してください。');let item=gift()?$('si').value.trim():'',vendor=gift()?$('sv').value.trim():'',price=gift()?(Number($('sp').value.replace(/,/g,''))||0):0;if(gift()&&!item)return alert('品物を入力してください。');sel.forEach(p=>{let z=document.querySelector(`.memo[data-id="${CSS.escape(p.id)}"]`);rs.push({id:Date.now()+'-'+Math.random(),year:+$('sy').value,date:$('sd').value,direction:'送付',type:$('st').value,company:p.name,partnerId:p.id,item,vendor,price,memo:z?z.value:'',done:true})});add(its,item);add(vs,vendor);if(gift())upsertMaster(item,vendor,price);save();candidates();render();history();renderMaster();alert(sel.length+'件を登録しました。')}
+$('saveR').onclick=()=>{let c=$('rc').value.trim(),i=$('ri').value.trim();if(!c||!i)return alert('会社と品物を入力してください。');let d=$('rd').value;let p=ps.find(x=>x.name===c);let done=$('rx').value==='1';rs.push({id:Date.now()+'-'+Math.random(),year:+d.slice(0,4)||CY,date:d,direction:'受領',type:$('rt').value,company:c,partnerId:p?p.id:'',item:i,vendor:'',price:0,memo:$('rm').value.trim(),done,doneDate:done?d:''});add(its,i);save();candidates();history();$('ri').value='';$('rm').value='';alert('受領記録を登録しました。')}
+$('prev').onclick=()=>{let names=new Set(rs.filter(r=>r.direction==='送付'&&r.year===+$('sy').value-1&&r.type===$('st').value).map(r=>r.company));window.__copiedNames=names;window.__showCopied=true;render();upd()}
+$('all').onclick=()=>{window.__showAllPartners=true;window.__showCopied=false;render();document.querySelectorAll('.ck').forEach(x=>x.checked=true);upd()};$('none').onclick=()=>{document.querySelectorAll('.ck').forEach(x=>x.checked=false);upd()};$('st').onchange=()=>{showGift();render()};$('sy').onchange=render;$('sp').oninput=upd;$('hist').onclick=history;
+function orders(){let y=+$('oy').value,t=$('ot').value,sel=$('ov').value,a=rs.filter(r=>r.direction==='送付'&&r.year===y&&r.type===t&&r.vendor);let vendors=[...new Set(a.map(r=>r.vendor))];$('ov').innerHTML='<option value="">すべて</option>'+vendors.map(x=>`<option ${x===sel?'selected':''}>${e(x)}</option>`).join('');if(sel)a=a.filter(r=>r.vendor===sel);let g={};a.forEach(r=>(g[r.vendor]??=[]).push(r));let names=Object.keys(g);$('orders').innerHTML=names.length?names.map(name=>{let z=g[name],bi={};z.forEach(r=>(bi[r.item+'|'+r.price]??=[]).push(r));let ir=Object.values(bi).map(q=>`<tr><td>${e(q[0].item)}</td><td class="r">${q.length}</td><td class="r">${m(q[0].price)}</td><td class="r">${m(q.length*q[0].price)}</td></tr>`).join(''),total=z.reduce((s,r)=>s+Number(r.price||0),0),dr=z.map((r,i)=>{let p=ps.find(x=>x.name===r.company)||{};return `<tr><td>${i+1}</td><td>${e(r.company)}</td><td>${e(p.zip||'')}</td><td>${e(p.address||'')}</td><td>${e(r.memo||'')}</td></tr>`}).join('');return `<h2>${e(name)} 御中　贈答品発注書</h2><p>${y}年 ${e(t)}　発注合計：<b>${m(total)}</b></p><table><thead><tr><th>品物</th><th class="r">数量</th><th class="r">単価</th><th class="r">金額</th></tr></thead><tbody>${ir}</tbody></table><h3>配送先一覧</h3><table><thead><tr><th>No.</th><th>送付先</th><th>郵便番号</th><th>住所</th><th>備考</th></tr></thead><tbody>${dr}</tbody></table><hr>`}).join(''):'<div class="empty">該当する発注データはありません。</div>'}
+$('pq').oninput=()=>{window.__showCopied=false;render()};$('ptype').onchange=()=>{window.__showCopied=false;render()};$('pstatus').onchange=()=>{window.__showCopied=false;render()};$('si').onchange=applyProductMaster;$('mnew').onclick=saveMasterForm;
+$('openReceivePartner').onclick=()=>{let p=ps.find(x=>x.name===$('rc').value.trim());if(!p)return alert('取引先一覧から会社を選択してください。');openPartnerById(p.id)};
+$('make').onclick=orders;document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');if(b.dataset.tab==='history')history();if(b.dataset.tab==='order')orders();if(b.dataset.tab==='productMaster')renderMaster()});
+window.addEventListener('load',()=>{
+  try{
+    load();
+    partners();
+    candidates();
+    showGift();
+    render();
+    history();
+    renderMaster();
+  }catch(err){
+    console.error(err);
+    if($('pcount')) $('pcount').value='読込エラー';
+    if($('rows')) $('rows').innerHTML='<tr><td colspan="7" class="empty">共有データを読み込めませんでした。start_server.bat から起動しているか確認してください。<br>'+e(err.message||err)+'</td></tr>';
+  }
+});
+</script></body></html>

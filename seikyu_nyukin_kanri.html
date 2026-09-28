@@ -1,0 +1,63 @@
+<!doctype html><html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>請求・入金管理｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:"Yu Gothic","Meiryo",sans-serif;background:#f4f7f9;color:#24343f}
+header{background:#174f78;color:#fff}.top{max-width:1440px;margin:auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:22px;font-weight:900}.sub{font-size:12px;margin-top:3px;opacity:.9}
+button{font-family:inherit;cursor:pointer}.top button{border:1px solid #c8dbe7;background:#fff;color:#174f78;border-radius:7px;padding:7px 14px;font-weight:800}
+main{max-width:1440px;margin:auto;padding:16px 24px 28px}.notice{padding:9px 12px;border:1px solid #b9d7ea;background:#f2f9fd;border-radius:8px;font-size:12px;color:#315b72;font-weight:700;margin-bottom:12px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.card{background:#fff;border:1px solid #d8e3ea;border-radius:10px;padding:12px}.card .label{font-size:14px;color:#667985;font-weight:600}.card .value{font-size:24px;font-weight:700;color:#174f78;margin-top:5px}
+.panel{background:#fff;border:1px solid #d8e3ea;border-radius:10px;padding:12px}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.panel-head b{font-size:19px;color:#174f78}.filters{display:flex;gap:8px}.filters input,.filters select{height:38px;border:1px solid #b9cad5;border-radius:6px;padding:0 10px;font-size:14px}.filters input{width:300px}.filters select{width:150px;background:#fff}
+table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border-bottom:1px solid #e5edf2;padding:10px 7px;font-size:14px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}th{background:#f2f7fa;color:#365a70}.money{text-align:right;font-variant-numeric:tabular-nums}.status{text-align:center}.openbtn{border:1px solid #9eb9ca;background:#fff;color:#315d78;border-radius:6px;padding:5px 9px;font-weight:800}.empty{text-align:center;padding:30px;color:#7b8c96}
+@media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.filters input{width:180px}}
+</style><script src="shared_storage.js"></script></head><body>
+<header><div class="top"><div><div class="brand">MS建設管理システム</div><div class="sub">請求・入金管理 ｜ 現在の未処理を中心に表示</div></div><button onclick="location.href='index.html'">メイン画面へ</button></div></header>
+<main>
+<div class="notice">この画面は会社全体の <b>元請請求・入金（売上側）</b> の確認画面です。下請・仕入先から来る請求は含みません。登録・編集は各工事カルテの「元請請求・入金」から行います。</div>
+<section class="cards">
+ <div class="card"><div class="label">現在請負金額 合計</div><div class="value" id="contractTotal">0円</div></div>
+ <div class="card"><div class="label">元請請求累計</div><div class="value" id="invoiceTotal">0円</div></div>
+ <div class="card"><div class="label">未請求額</div><div class="value" id="unbilledTotal">0円</div></div>
+ <div class="card"><div class="label">未入金額</div><div class="value" id="unpaidTotal">0円</div></div>
+</section>
+<section class="panel"><div class="panel-head"><b>工事別 請求・入金状況</b><div class="filters"><select id="period"><option value="pending">未処理あり</option><option value="month">今月動きあり</option><option value="prev">先月動きあり</option><option value="fy">今年度</option><option value="all">すべて</option></select><input id="q" placeholder="工事番号・工事名・発注者で検索"></div></div>
+<table><thead><tr><th style="width:10%">工事番号</th><th style="width:25%">工事名</th><th style="width:15%">発注者</th><th class="money" style="width:12%">現在請負金額</th><th class="money" style="width:11%">元請請求</th><th class="money" style="width:11%">未請求</th><th class="money" style="width:11%">未入金</th><th style="width:5%">開く</th></tr></thead><tbody id="rows"></tbody></table>
+</section></main>
+<script src="ms_data.js"></script><script>
+(function(){
+const $=id=>document.getElementById(id),n=v=>Number(String(v??'').replace(/[^\d.-]/g,''))||0,yen=v=>n(v).toLocaleString('ja-JP')+'円',active=x=>x&&x.status!=='inactive';
+if(!window.MSData){alert('工事データを読み込めません。');return}
+let store={};try{store=JSON.parse(MSShared.getItem('mscm:salesBilling:v1')||'{}')}catch(e){store={}}
+const projects=(MSData.all('projects')||[]).filter(active);
+const contracts=(MSData.all('contracts')||[]).filter(active);
+function contractOf(p){const cs=contracts.filter(c=>String(c.projectId)===String(p.id)).sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));return cs.length?n(cs[0].currentAmount):n(p.finalContractAmount||p.contractAmount||p.orderAmount)}
+function dataOf(p){const d=store[String(p.id)]||{invoices:[],receipts:[]};const ins=(d.invoices||[]).filter(active),res=(d.receipts||[]).filter(active),inv=ins.reduce((s,x)=>s+n(x.amount),0),rec=res.reduce((s,x)=>s+n(x.amount),0);return{inv,rec,ins,res}}
+function render(){
+ const q=$('q').value.trim().toLowerCase();let ct=0,it=0,ub=0,up=0;
+ const all=projects.map(p=>{const c=contractOf(p),d=dataOf(p);return{p,c,inv:d.inv,rec:d.rec,ins:d.ins,res:d.res,unb:Math.max(0,c-d.inv),unp:Math.max(0,d.inv-d.rec)}});all.forEach(x=>{ct+=x.c;it+=x.inv;ub+=x.unb;up+=x.unp});
+ $('contractTotal').textContent=yen(ct);$('invoiceTotal').textContent=yen(it);$('unbilledTotal').textContent=yen(ub);$('unpaidTotal').textContent=yen(up);
+ const view=new URLSearchParams(location.search).get('view')||'';
+ const mode=$('period').value, now=new Date(), ym=now.toISOString().slice(0,7), prev=new Date(now.getFullYear(),now.getMonth()-1,1).toISOString().slice(0,7), fyStart=(now.getMonth()>=3?now.getFullYear():now.getFullYear()-1)+'-04-01', fyEnd=(now.getMonth()>=3?now.getFullYear()+1:now.getFullYear())+'-03-31';
+ const dated=(x,prefix)=>[...x.ins,...x.res].some(v=>String(v.date||v.invoiceDate||v.receiptDate||v.createdAt||'').slice(0,7)===prefix);
+ const inFY=x=>{const dates=[...x.ins,...x.res].map(v=>String(v.date||v.invoiceDate||v.receiptDate||v.createdAt||'').slice(0,10)).filter(Boolean);return dates.some(d=>d>=fyStart&&d<=fyEnd)};
+ const modeOk=x=>mode==='all'||(mode==='pending'&&(x.unb>0||x.unp>0))||(mode==='month'&&dated(x,ym))||(mode==='prev'&&dated(x,prev))||(mode==='fy'&&inFY(x));
+ const a=all.filter(x=>(!q||[x.p.no,x.p.legacyProjectNo,x.p.name,x.p.clientName].join(' ').toLowerCase().includes(q))&&modeOk(x)&&(!view||(view==='unbilled'&&x.unb>0)||(view==='unpaid'&&x.unp>0)));
+ $('rows').innerHTML=a.length?a.map(x=>`<tr><td>${x.p.legacyProjectNo||x.p.no||''}</td><td>${x.p.name||''}</td><td>${x.p.clientName||''}</td><td class="money">${yen(x.c)}</td><td class="money">${yen(x.inv)}</td><td class="money">${yen(x.unb)}</td><td class="money">${yen(x.unp)}</td><td class="status"><button class="openbtn" onclick="openProject('${x.p.id}')">開く</button></td></tr>`).join(''):`<tr><td colspan="8" class="empty">該当する工事がありません。</td></tr>`;
+}
+window.openProject=id=>{sessionStorage.setItem('mscm:selectedProjectId',String(id));location.href='seikyu_nyukin.html?id='+encodeURIComponent(id)}
+$('q').addEventListener('input',render);$('period').addEventListener('change',render);render();
+})();
+</script></body></html>

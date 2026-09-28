@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<script src="ms_password.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工事登録・工事情報 Ver.0.6｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+:root{--deep:#173f6b;--blue:#176fa8;--line:#c9dbe8;--text:#263f50;--muted:#657986;--input:#eef9ff;--select:#eef8ee;--money:#f8ecef}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#fff,#edf6fc);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif}
+header{background:linear-gradient(135deg,#173f6b,#245b86);color:#fff}
+.head{max-width:1440px;margin:auto;padding:15px 24px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{font-size:24px;font-weight:900}.sub{font-size:12px;opacity:.9}
+.nav{display:flex;gap:8px}.nav button{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;border-radius:7px;padding:8px 13px;font-weight:800;cursor:pointer}
+main{max-width:1440px;margin:auto;padding:17px 24px 28px}
+.title{display:flex;justify-content:space-between;align-items:end;margin-bottom:11px}.title h1{margin:0;color:var(--deep);font-size:26px}.title p{margin:4px 0 0;color:var(--muted);font-size:11px}
+.select-open{background:#fff!important;outline:1px solid #b8cbd8!important;height:auto!important}.new-client{margin-top:10px;padding:12px;background:#f7fbfd;border:1px solid #c9dbe6;border-radius:8px}.new-client.hidden{display:none}.new-client-note{font-size:12px;color:#516975;margin-bottom:8px}.checkline{display:flex;align-items:center;gap:8px;font-weight:700}.actions{display:flex;gap:8px}.actions button{border:0;border-radius:7px;padding:9px 17px;font-weight:900;cursor:pointer}.save{background:#176fa8;color:#fff}.cancel{background:#e8eef2;color:#425d6d}
+.panel{background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 5px 14px rgba(23,63,107,.06);overflow:hidden;margin-bottom:11px}
+.panel-title{padding:9px 13px;background:#f2f8fc;border-bottom:1px solid #d9e6ef;color:var(--deep);font-size:14px;font-weight:900}
+.form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 12px;padding:13px}
+.field.span2{grid-column:span 2}.field.span4{grid-column:1/-1}
+label{display:block;font-size:10px;font-weight:900;color:#587080;margin-bottom:4px}
+input,select,textarea{width:100%;border:1px solid #b9cedc;border-radius:6px;padding:7px 8px;font:inherit;font-size:12px;color:#263f50;outline:none}
+input{height:35px}.dimension{background:var(--input)}select,.condition{background:var(--select)}.money{background:var(--money);text-align:right}
+textarea{min-height:86px;resize:vertical;background:#fff}
+input:focus,select:focus,textarea:focus{border-color:#4388b5;box-shadow:0 0 0 2px rgba(67,136,181,.12)}
+.inline{display:flex;gap:6px}.inline>*:first-child{flex:1}.mini{width:auto;border:1px solid #a9c1d0;background:#fff;color:#35627e;border-radius:6px;font-weight:900;padding:0 10px;cursor:pointer}
+.tabs{display:flex;gap:5px;padding:8px 10px 0;background:#f7fafc;border-bottom:1px solid #dbe6ed;overflow:auto}
+.tab{border:1px solid #c7d7e2;border-bottom:0;background:#edf4f8;color:#526d7d;border-radius:7px 7px 0 0;padding:8px 14px;font-weight:900;font-size:11px;white-space:nowrap;cursor:pointer}
+.tab.active{background:#fff;color:#176fa8}
+.tabpane{display:none}.tabpane.active{display:block}
+.checks{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:13px}
+.check{border:1px solid #d7e3eb;border-radius:7px;padding:7px 9px;font-size:11px;background:#fafcfd}.check input{width:auto;height:auto;margin-right:5px}
+.help{padding:0 13px 12px;color:#748792;font-size:10px}
+footer{max-width:1440px;margin:auto;padding:0 24px 18px;color:#728490;font-size:11px}
+@media(max-width:900px){.form{grid-template-columns:repeat(2,1fr)}.field.span4{grid-column:1/-1}.checks{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.head,main{padding-left:13px;padding-right:13px}.form{grid-template-columns:1fr}.field.span2,.field.span4{grid-column:auto}.title{align-items:center}.actions{flex-direction:column}.checks{grid-template-columns:1fr}}
+
+/* compact layout */
+main{padding-top:12px}
+.title{margin-bottom:8px}
+.title h1{font-size:24px}
+.panel{margin-bottom:8px;border-radius:9px}
+.panel-title{padding:6px 11px;font-size:13px}
+.form{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:5px 8px;
+  padding:7px 9px;
+}
+.field.span2{grid-column:span 2}
+.field.span3{grid-column:span 3}
+.field.span4{grid-column:span 4}
+.field.span6{grid-column:1/-1}
+label{font-size:10px;margin-bottom:2px}
+input{height:29px}
+input,select,textarea{padding:4px 7px;font-size:12px;border-radius:5px}
+select{height:29px}
+textarea{min-height:68px}
+.tabs{padding:5px 8px 0}
+.tab{padding:6px 12px}
+.checks{padding:8px 10px;gap:5px}
+.check{padding:5px 7px}
+.help{padding:0 10px 8px}
+.actions button{padding:7px 14px}
+.mini{height:29px;padding:0 8px}
+@media(max-width:1050px){
+ .form{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .field.span6{grid-column:1/-1}
+}
+@media(max-width:760px){
+ .form{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .field.span2,.field.span3,.field.span4{grid-column:span 2}
+}
+@media(max-width:520px){
+ .form{grid-template-columns:1fr}
+ .field.span2,.field.span3,.field.span4,.field.span6{grid-column:auto}
+}
+
+
+/* v12 keyboard picker / client search */
+.select-open{background:var(--select)!important;outline:1px solid #4388b5!important}
+.kb-menu{position:absolute;z-index:9999;background:var(--select);border:1px solid #b9cedc;border-radius:6px;box-shadow:0 5px 14px rgba(0,0,0,.16);max-height:260px;overflow:auto;font-size:12px}.kb-menu .kb-item{padding:7px 9px;cursor:pointer;white-space:nowrap;color:var(--text)}.kb-menu .kb-item.active,.kb-menu .kb-item:hover{background:#dcefdc}
+.client-picker-wrap{position:relative}.client-menu{position:absolute;left:0;top:100%;z-index:10000;width:min(760px,calc(100vw - 60px));background:var(--input);border:1px solid #b9cedc;border-radius:6px;box-shadow:0 5px 14px rgba(0,0,0,.16);max-height:300px;overflow:auto;margin-top:2px}.client-menu.hidden{display:none}.client-item{display:grid;grid-template-columns:minmax(190px,2fr) 90px minmax(150px,1.3fr) 140px;gap:10px;padding:7px 9px;border-bottom:1px solid #d8e6ee;font-size:12px;align-items:center;cursor:pointer}.client-item:last-child{border-bottom:0}.client-item.active,.client-item:hover{background:#dceff8}.client-item .name{font-weight:800}.client-item .meta{color:#607583}.client-empty{padding:8px 10px;color:#607583;font-size:12px}
+
+/* v14 aligned daily-entry layout */
+.form.clean-layout{display:block;padding:8px 9px}
+.entry-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px 8px;align-items:end;margin-bottom:6px}
+.entry-row:last-child{margin-bottom:0}
+.entry-row .field{min-width:0}
+.entry-row .c1{grid-column:span 1}.entry-row .c2{grid-column:span 2}.entry-row .c3{grid-column:span 3}.entry-row .c4{grid-column:span 4}.entry-row .c5{grid-column:span 5}.entry-row .c6{grid-column:1/-1}
+.entry-row.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+.entry-row.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.postal-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center}
+.postal-line .mini{white-space:nowrap}
+.address-search-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center}.address-search-line .mini{white-space:nowrap}
+.new-client{margin:0 0 6px}
+.entry-row.newclientline{grid-template-columns:minmax(180px,1fr) 150px 150px 185px minmax(420px,2fr)}
+@media(max-width:900px){.entry-row,.entry-row.five{grid-template-columns:repeat(2,minmax(0,1fr))}.entry-row .c1,.entry-row .c2,.entry-row .c3,.entry-row .c4,.entry-row .c5,.entry-row .c6{grid-column:auto}.entry-row .wide-mobile{grid-column:1/-1}}
+@media(max-width:560px){.entry-row,.entry-row.five,.entry-row.two{grid-template-columns:1fr}.entry-row .wide-mobile{grid-column:auto}}
+
+/* v15 compact row-specific layout */
+.form.clean-layout{padding:7px 9px}
+.entry-row{margin-bottom:5px}
+.entry-row.topline{grid-template-columns:140px 160px minmax(320px,1fr)}
+.entry-row.locationline{grid-template-columns:185px minmax(520px,1fr)}
+.entry-row.contractline{grid-template-columns:125px 165px 165px 140px 140px 140px}
+.entry-row.clientline{grid-template-columns:minmax(380px,1.7fr) minmax(220px,1fr)}
+.entry-row.ownerline{grid-template-columns:minmax(190px,1.2fr) minmax(190px,1.2fr) 150px 150px}
+.entry-row.owneraddressline{grid-template-columns:185px minmax(520px,1fr) 150px}
+.entry-row.estimateline{grid-template-columns:190px 180px 145px}
+.entry-row.staffline{grid-template-columns:repeat(5,minmax(150px,1fr))}
+.entry-row .field{grid-column:auto!important}
+.owner-same{height:29px;display:flex;align-items:center;padding:0 6px;white-space:nowrap}
+.owner-same label{display:flex;align-items:center;gap:6px;margin:0;font-size:11px;color:var(--text);cursor:pointer}
+.owner-same input{width:auto;height:auto;margin:0}
+@media(max-width:1100px){.entry-row.topline,.entry-row.locationline,.entry-row.contractline,.entry-row.clientline,.entry-row.ownerline,.entry-row.owneraddressline,.entry-row.estimateline,.entry-row.staffline,.entry-row.newclientline{grid-template-columns:repeat(2,minmax(0,1fr))}.entry-row .wide-mobile{grid-column:1/-1!important}}
+@media(max-width:600px){.entry-row.topline,.entry-row.locationline,.entry-row.contractline,.entry-row.clientline,.entry-row.ownerline,.entry-row.owneraddressline,.entry-row.estimateline,.entry-row.staffline,.entry-row.newclientline{grid-template-columns:1fr}}
+</style>
+
+<style id="font-enlarge-v1">
+/* 工事カルテに合わせた読みやすさ調整。行・列寸法は極力維持 */
+label{font-size:12px}
+input,select,textarea{font-size:14px}
+.panel-title{font-size:15px}
+.tab{font-size:13px}
+.check{font-size:13px}
+.help{font-size:12px}
+.new-client-note,.checkline{font-size:13px}
+.kb-menu,.client-item,.client-empty{font-size:14px}
+.actions button,.mini{font-size:13px}
+</style>
+</head>
+<body>
+<header><div class="head"><div><div class="brand">MS建設管理システム</div><div class="sub">工事一覧 ＞ 工事登録・工事情報</div></div><div class="nav"><button onclick="location.href='kouji_list.html'">工事一覧へ</button><button onclick="location.href='index.html'">メイン画面へ</button></div></div></header>
+<main>
+<div class="title"><div><h1>工事情報</h1><p>日常の工事登録・工事情報の入力画面です。</p></div><div class="actions"><button class="cancel" id="cancel">編集キャンセル</button><button class="save" id="save">工事情報を保存</button></div></div>
+
+<section class="panel"><div class="panel-title">工事基本情報</div><div class="form clean-layout">
+ <div class="entry-row topline">
+  <div class="field"><label>工事番号</label><input id="projectNo" class="dimension" readonly title="登録時に自動採番します"></div>
+  <div class="field"><label>登録日付</label><input id="registeredDate" class="dimension" type="date"></div>
+  <div class="field wide-mobile"><label>工事名</label><input id="projectName" class="dimension"></div>
+ </div>
+ <div class="entry-row locationline">
+  <div class="field"><label>工事場所郵便番号</label><div class="postal-line"><input id="projectPostal" class="dimension" placeholder="000-0000"><button class="mini postal-search" type="button" data-postal="projectPostal" data-address="projectAddress">検索</button></div></div>
+  <div class="field wide-mobile"><label>工事場所</label><div class="address-search-line"><input id="projectAddress" class="dimension"><button class="mini address-search" type="button" data-postal="projectPostal" data-address="projectAddress">〒検索</button></div></div>
+ </div>
+ <div class="entry-row contractline">
+  <div class="field"><label>請負区分</label><select id="contractType"><option>元請け</option><option>下請け</option></select></div>
+  <div class="field"><label>工種区分</label><select id="workCategory"><option value="">選択してください</option></select></div>
+  <div class="field"><label>工事分類</label><select id="projectClass"><option value="">選択してください</option></select></div>
+  <div class="field"><label>工期開始</label><input id="startDate" class="dimension" type="date"></div>
+  <div class="field"><label>工期終了</label><input id="endDate" class="dimension" type="date"></div>
+  <div class="field"><label>完工日</label><input id="completedDate" class="dimension" type="date"></div>
+ </div>
+ <div class="entry-row clientline">
+  <div class="field"><label>発注者（既存取引先の選択／新規顧客は直接入力）</label><div class="client-picker-wrap"><input id="clientName" class="dimension" autocomplete="off" placeholder="名称を入力して検索／スペースで一覧"><div id="clientMenu" class="client-menu hidden"></div></div></div>
+  <div class="field"><label>発注担当者</label><select id="clientContact"><option value="">選択してください</option></select></div>
+ </div>
+ <div id="newClientBox" class="new-client hidden">
+  <div class="new-client-note">新規顧客として登録できます。ここで入力した内容は施主情報にも自動反映します。</div>
+  <div class="entry-row newclientline">
+   <div class="field"><label>新規顧客ふりがな</label><input id="newClientKana" class="dimension"></div>
+   <div class="field"><label>電話番号</label><input id="newClientTel" class="dimension"></div>
+   <div class="field"><label>携帯番号</label><input id="newClientMobile" class="dimension"></div>
+   <div class="field"><label>郵便番号</label><div class="postal-line"><input id="newClientPostal" class="dimension" placeholder="000-0000"><button class="mini postal-search" type="button" data-postal="newClientPostal" data-address="newClientAddress">検索</button></div></div>
+   <div class="field wide-mobile"><label>住所</label><div class="address-search-line"><input id="newClientAddress" class="dimension"><button class="mini address-search" type="button" data-postal="newClientPostal" data-address="newClientAddress">〒検索</button></div></div>
+  </div>
+  <label class="checkline"><input type="checkbox" id="addClientMaster" checked>この発注者を取引先マスターにも登録する</label>
+ </div>
+ <div class="entry-row ownerline">
+  <div class="field"><label>施主名</label><input id="ownerName" class="dimension"></div>
+  <div class="field"><label>ふりがな</label><input id="ownerKana" class="dimension"></div>
+  <div class="field"><label>施主電話</label><input id="ownerTel" class="dimension"></div>
+  <div class="field"><label>施主携帯</label><input id="ownerMobile" class="dimension"></div>
+ </div>
+ <div class="entry-row owneraddressline">
+  <div class="field"><label>施主住所郵便番号</label><div class="postal-line"><input id="ownerPostal" class="dimension" placeholder="000-0000"><button class="mini postal-search" type="button" data-postal="ownerPostal" data-address="ownerAddress">検索</button></div></div>
+  <div class="field wide-mobile"><label>施主住所</label><div class="address-search-line"><input id="ownerAddress" class="dimension"><button class="mini address-search" type="button" data-postal="ownerPostal" data-address="ownerAddress">〒検索</button></div></div>
+  <div class="owner-same"><label><input type="checkbox" id="copyProjectAddress">工事場所と同じ</label></div>
+ </div>
+ <div class="entry-row estimateline">
+  <div class="field"><label>請負金額</label><input id="contractAmount" class="money" inputmode="numeric" placeholder="0"></div>
+  <div class="field"><label>見積番号</label><input id="estimateNo" class="dimension"></div>
+  <div class="field"><label>見積時粗利率</label><input id="estimateMargin" class="money" inputmode="decimal" placeholder="0.0 %"></div>
+ </div>
+ <div class="entry-row staffline">
+  <div class="field"><label>営業担当</label><select id="salesPerson"><option value="">選択してください</option></select></div>
+  <div class="field"><label>工事担当</label><select id="projectPerson"><option value="">選択してください</option></select></div>
+  <div class="field"><label>設計担当</label><select id="designPerson"><option value="">選択してください</option></select></div>
+  <div class="field"><label>積算担当</label><select id="estimatePerson"><option value="">選択してください</option></select></div>
+  <div class="field"><label>現場担当</label><select id="sitePerson"><option value="">選択してください</option></select></div>
+ </div>
+</div></section>
+
+<section class="panel">
+ <div class="tabs">
+  <button class="tab active" data-tab="content">工事内容</button>
+  <button class="tab" data-tab="law">法規制</button>
+  <button class="tab" data-tab="environment">環境側面</button>
+  <button class="tab" data-tab="comment">社長コメント</button>
+ </div>
+ <div id="content" class="tabpane active"><div class="form"><div class="field span6"><label>工事内容</label><textarea id="projectContent" placeholder="工事内容を入力"></textarea></div></div></div>
+ <div id="law" class="tabpane"><div class="checks" id="lawChecks">
+  <label class="check"><input type="checkbox" value="交通規制">交通規制</label>
+  <label class="check"><input type="checkbox" value="景観上考慮">景観上考慮</label>
+  <label class="check"><input type="checkbox" value="解体工事届出書">解体工事届出書</label>
+  <label class="check"><input type="checkbox" value="建設廃棄物処理委託契約書">建設廃棄物処理委託契約書</label>
+  <label class="check"><input type="checkbox" value="特定建設作業（振動・騒音）">特定建設作業（振動・騒音）</label>
+  <label class="check"><input type="checkbox" value="道路使用許可">道路使用許可</label>
+  <label class="check"><input type="checkbox" value="道路占用許可">道路占用許可</label>
+  <label class="check"><input type="checkbox" value="河川占用許可">河川占用許可</label>
+  <label class="check"><input type="checkbox" value="確認申請等">確認申請等</label>
+  <label class="check"><input type="checkbox" value="その他">その他</label>
+ </div><div class="help">旧工事登録の法規制欄を基準に、該当項目を複数選択できます。</div></div>
+ <div id="environment" class="tabpane"><div class="form"><div class="field span6"><label>その他の要求事項・環境側面</label><textarea id="environmentText"></textarea></div></div></div>
+ <div id="comment" class="tabpane"><div class="form"><div class="field span6"><label>社長コメント</label><textarea id="presidentComment"></textarea></div></div></div>
+</section>
+
+</main>
+<footer>MSランドスケープ　｜　MS建設管理システム</footer>
+<script src="shared_storage.js"></script>
+<script src="ms_data.js"></script><script>
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tab,.tabpane').forEach(x=>x.classList.remove('active'));
+ b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+});
+async function searchPostal(postalId,addressId){
+ const z=document.getElementById(postalId),a=document.getElementById(addressId),code=String(z.value||'').replace(/\D/g,'');
+ if(code.length!==7){alert('郵便番号を7桁で入力してください。');z.focus();return;}
+ try{const r=await fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode='+code),j=await r.json();if(!j.results?.length){alert('住所が見つかりませんでした。');return;}const x=j.results[0];z.value=code.slice(0,3)+'-'+code.slice(3);a.value=(x.address1||'')+(x.address2||'')+(x.address3||'');a.focus();}catch(e){alert('住所検索に接続できませんでした。インターネット接続を確認してください。');}
+}
+document.querySelectorAll('.postal-search').forEach(b=>b.addEventListener('click',()=>searchPostal(b.dataset.postal,b.dataset.address)));
+async function searchAddress(postalId,addressId){
+ const z=document.getElementById(postalId),a=document.getElementById(addressId),q=String(a.value||'').trim();
+ if(!q){alert('住所を入力してください。');a.focus();return;}
+ try{
+  const r=await fetch('https://postcode.teraren.com/postcodes.json?s='+encodeURIComponent(q)+'&per=10');
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  if(!Array.isArray(j)||!j.length){alert('該当する郵便番号が見つかりませんでした。町名まで入力して検索してください。');return;}
+  const normalize=v=>String(v||'').replace(/[0-9０-９\-ー－丁目番地号\s].*$/,'');
+  const q2=normalize(q);
+  const x=j.find(v=>{const full=(v.prefecture||'')+(v.city||'')+(v.suburb||'');return q2.includes(full)||full.includes(q2);})||j[0];
+  const code=String(x.new||x.postcode||'').replace(/\D/g,'');
+  if(code.length!==7){alert('郵便番号を取得できませんでした。');return;}
+  z.value=code.slice(0,3)+'-'+code.slice(3);z.focus();
+ }catch(e){console.error(e);alert('住所から郵便番号を検索できませんでした。インターネット接続を確認してください。');}
+}
+document.querySelectorAll('.address-search').forEach(b=>b.addEventListener('click',()=>searchAddress(b.dataset.postal,b.dataset.address)));
+document.getElementById('copyProjectAddress').addEventListener('change',e=>{if(e.target.checked){ownerPostal.value=projectPostal.value;ownerAddress.value=projectAddress.value;}ownerPostal.readOnly=e.target.checked;ownerAddress.readOnly=e.target.checked;});
+function ensureOption(sel,value){if(!value)return;let o=[...sel.options].find(x=>x.value===value||x.textContent===value);if(!o){o=document.createElement('option');o.value=value;o.textContent=value;sel.appendChild(o)}sel.value=value;}
+function addOption(sel,value,label){
+ if(!value)return; const o=document.createElement('option');o.value=value;o.textContent=label||value;sel.appendChild(o);
+}
+const OFFICIAL_WORK_TYPES=["土木一式工事","建築一式工事","大工工事","左官工事","とび・土工・コンクリート工事","石工事","屋根工事","電気工事","管工事","タイル・れんが・ブロック工事","鋼構造物工事","鉄筋工事","舗装工事","しゅんせつ工事","板金工事","ガラス工事","塗装工事","防水工事","内装仕上工事","機械器具設置工事","熱絶縁工事","電気通信工事","造園工事","さく井工事","建具工事","水道施設工事","消防施設工事","清掃施設工事","解体工事"];
+let eligiblePartners=[];
+function loadMasterOptions(){
+ try{
+  const partners=MSData.all('partners').filter(x=>{
+    const type=String(x.partnerType||'').trim();
+    const trade=String(x.tradeType||'').trim();
+    const state=String(x.tradeStatus||(x.status==='inactive'?'休止':'取引中')).trim();
+    return (type==='法人顧客'||type==='個人顧客') && (trade==='受注'||trade==='両方') && state==='取引中' && x.status!=='inactive';
+   }).sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
+  eligiblePartners=partners;
+  const savedWorkTypes=MSData.all('workTypes').filter(x=>!x.legalAmendment);
+  const workTypes=savedWorkTypes.length
+    ? savedWorkTypes.filter(x=>x.status==='active').sort((a,b)=>(a.sortOrder||999)-(b.sortOrder||999)).map(x=>x.name)
+    : OFFICIAL_WORK_TYPES;
+  workTypes.forEach(name=>addOption(workCategory,name,name));
+  const projectTypes=MSData.all('projectTypes').filter(x=>x.status!=='inactive').sort((a,b)=>(a.sortOrder||999)-(b.sortOrder||999));
+  projectTypes.forEach(x=>addOption(projectClass,x.name,x.name));
+  const emps=MSData.all('employees').filter(x=>x.status!=='inactive');
+  [salesPerson,projectPerson,sitePerson,estimatePerson,designPerson].forEach(sel=>emps.forEach(x=>ensureOption(sel,x.name||x.no||'')));
+ }catch(e){console.warn(e);}
+}
+function findPartnerByName(name){return MSData.all('partners').find(x=>(x.name||x.companyName||'')===String(name||'').trim())||null;}
+function isIndividualPartner(partner){return !!partner&&(partner.entityType==='個人'||partner.partnerType==='個人顧客');}
+function fillOwnerFromPartner(partner){
+ if(!isIndividualPartner(partner))return;
+ ownerName.value=partner.name||partner.companyName||'';ownerKana.value=partner.kana||'';ownerTel.value=partner.tel||'';ownerMobile.value=partner.mobile||'';ownerPostal.value=partner.zipcode||'';ownerAddress.value=partner.address||'';
+}
+function syncNewClientToOwner(){
+ if(newClientBox.classList.contains('hidden'))return;
+ ownerName.value=clientName.value.trim();ownerKana.value=newClientKana.value.trim();ownerTel.value=newClientTel.value.trim();ownerMobile.value=newClientMobile.value.trim();ownerPostal.value=newClientPostal.value.trim();ownerAddress.value=newClientAddress.value.trim();
+}
+function loadClientContacts(){
+ const partner=findPartnerByName(clientName.value); clientContact.innerHTML='<option value="">選択してください</option>';
+ const isNew=clientName.value.trim()&&!partner; newClientBox.classList.toggle('hidden',!isNew);
+ if(!partner){if(isNew)syncNewClientToOwner();return;}
+ (partner.contacts||[]).forEach(c=>{if(c.name)addOption(clientContact,c.name,c.department?c.name+'（'+c.department+'）':c.name)});
+ fillOwnerFromPartner(partner);
+}
+function clientDisplayArea(p){const a=String(p.area||p.address||'').trim();return a.length>20?a.slice(0,20)+'…':a;}
+let clientActiveIndex=-1,clientShown=[];
+function filteredPartners(){const q=clientName.value.trim().toLowerCase();if(!q)return eligiblePartners;return eligiblePartners.filter(p=>[p.name,p.companyName,p.kana,p.no,p.area,p.address,p.tel].some(v=>String(v||'').toLowerCase().includes(q)));}
+function renderClientMenu(forceAll=false){clientShown=forceAll?eligiblePartners:filteredPartners();clientMenu.innerHTML='';clientActiveIndex=-1;if(!clientShown.length){clientMenu.innerHTML='<div class="client-empty">該当する既存取引先はありません。このまま新規顧客名として入力できます。</div>';clientMenu.classList.remove('hidden');return;}clientShown.slice(0,80).forEach((p,i)=>{const d=document.createElement('div');d.className='client-item';const vals=[p.name||p.companyName||p.no||'',p.partnerType||'',clientDisplayArea(p),p.tel||p.mobile||''];d.innerHTML='<span class="name"></span><span class="meta"></span><span class="meta"></span><span class="meta"></span>';d.querySelectorAll('span').forEach((x,j)=>x.textContent=vals[j]);d.addEventListener('mousedown',e=>{e.preventDefault();chooseClient(p)});clientMenu.appendChild(d)});clientMenu.classList.remove('hidden');}
+function chooseClient(p){clientName.value=p.name||p.companyName||p.no||'';clientMenu.classList.add('hidden');loadClientContacts();moveFocus(clientName,1)}
+function setClientActive(next){const items=[...clientMenu.querySelectorAll('.client-item')];if(!items.length)return;items.forEach(x=>x.classList.remove('active'));clientActiveIndex=Math.max(0,Math.min(items.length-1,next));items[clientActiveIndex].classList.add('active');items[clientActiveIndex].scrollIntoView({block:'nearest'});}
+clientName.addEventListener('input',()=>{loadClientContacts();renderClientMenu(false)});clientName.addEventListener('focus',()=>{if(clientName.value.trim())renderClientMenu(false)});
+[newClientKana,newClientTel,newClientMobile,newClientPostal,newClientAddress].forEach(el=>el.addEventListener('input',syncNewClientToOwner));
+clientName.addEventListener('keydown',e=>{if(e.key===' '&&!clientName.value.trim()){e.preventDefault();renderClientMenu(true);setClientActive(0);return;}if(e.key==='ArrowDown'){e.preventDefault();if(clientMenu.classList.contains('hidden'))renderClientMenu(false);setClientActive(clientActiveIndex+1);return;}if(e.key==='ArrowUp'){e.preventDefault();if(clientMenu.classList.contains('hidden'))renderClientMenu(false);setClientActive(clientActiveIndex-1);return;}if(e.key==='Enter'&&!clientMenu.classList.contains('hidden')&&clientActiveIndex>=0){e.preventDefault();const p=clientShown[clientActiveIndex];if(p)chooseClient(p);return;}if(e.key==='Escape'){clientMenu.classList.add('hidden');return;}});
+document.addEventListener('mousedown',e=>{if(!e.target.closest('.client-picker-wrap'))clientMenu.classList.add('hidden')});
+function selectable(el){return el && !el.disabled && el.tabIndex!==-1 && el.offsetParent!==null && !el.readOnly}
+function focusables(){return [...document.querySelectorAll('input,select,textarea,button')].filter(selectable)}
+function moveFocus(el,dir){const a=focusables(),i=a.indexOf(el);if(i<0)return;const n=a[i+dir];if(n){n.focus();if(n.select&&n.tagName==='INPUT'&&n.type==='text')n.select();}}
+let kbMenu=null,kbSelect=null,kbIndex=-1;
+function closeKbMenu(move=false){if(kbMenu){kbMenu.remove();kbMenu=null}if(kbSelect){kbSelect.classList.remove('select-open');const old=kbSelect;kbSelect=null;if(move)moveFocus(old,1)}kbIndex=-1;}
+function paintKbActive(){if(!kbMenu)return;const a=[...kbMenu.querySelectorAll('.kb-item')];a.forEach(x=>x.classList.remove('active'));if(a[kbIndex]){a[kbIndex].classList.add('active');a[kbIndex].scrollIntoView({block:'nearest'})}}
+function openSelect(el){closeKbMenu(false);kbSelect=el;el.classList.add('select-open');const r=el.getBoundingClientRect();kbMenu=document.createElement('div');kbMenu.className='kb-menu';kbMenu.style.left=(r.left+window.scrollX)+'px';kbMenu.style.top=(r.bottom+window.scrollY+2)+'px';kbMenu.style.width=Math.max(r.width,180)+'px';[...el.options].forEach((o,i)=>{const d=document.createElement('div');d.className='kb-item';d.textContent=o.textContent;d.addEventListener('mousedown',e=>{e.preventDefault();el.selectedIndex=i;el.dispatchEvent(new Event('change',{bubbles:true}));closeKbMenu(true)});kbMenu.appendChild(d)});document.body.appendChild(kbMenu);kbIndex=Math.max(0,el.selectedIndex);paintKbActive();}
+document.addEventListener('mousedown',e=>{if(kbMenu&&!e.target.closest('.kb-menu')&&e.target!==kbSelect)closeKbMenu(false)});
+document.addEventListener('keydown',e=>{const el=e.target;if(!/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(el.tagName))return;if(el.tagName==='SELECT'){if(e.key===' '||e.code==='Space'){e.preventDefault();openSelect(el);return;}if(kbSelect===el&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();const n=el.options.length;if(n){kbIndex=Math.max(0,Math.min(n-1,kbIndex+(e.key==='ArrowDown'?1:-1)));paintKbActive()}return;}if(kbSelect===el&&e.key==='Enter'){e.preventDefault();if(kbIndex>=0){el.selectedIndex=kbIndex;el.dispatchEvent(new Event('change',{bubbles:true}))}closeKbMenu(true);return;}if(kbSelect===el&&e.key==='Escape'){e.preventDefault();closeKbMenu(false);return;}}if(el===clientName&&[' ','ArrowDown','ArrowUp','Enter','Escape'].includes(e.key))return;if(e.key==='Enter'&&el.tagName!=='TEXTAREA'&&el.type!=='button'&&el.type!=='submit'){e.preventDefault();moveFocus(el,e.shiftKey?-1:1);return;}});
+function moneyNumber(v){const n=Number(String(v||'').replace(/,/g,'').replace(/[^0-9+\-.]/g,''));return Number.isFinite(n)?n:0;}
+function moneyText(n){return Math.round(Number(n)||0).toLocaleString('ja-JP');}
+contractAmount.addEventListener('focus',()=>{const n=moneyNumber(contractAmount.value);contractAmount.value=n===0&&contractAmount.value.trim()===''?'':String(n);});
+contractAmount.addEventListener('blur',()=>{if(contractAmount.value.trim()!=='')contractAmount.value=moneyText(moneyNumber(contractAmount.value));});
+let editingProject=null;
+function isNewProjectMode(){
+ const p=new URLSearchParams(location.search);
+ return p.get('new')==='1';
+}
+function selectedProjectId(){
+ const p=new URLSearchParams(location.search);
+ if(p.get('new')==='1') return '';
+ return p.get('id')||'';
+}
+function setValue(id,v){const el=document.getElementById(id);if(el)el.value=(v??'');}
+function loadExistingProject(){
+ const id=selectedProjectId();
+ if(!id||!window.MSData) return false;
+ const x=MSData.get('projects',id);
+ if(!x) return false;
+ editingProject=x;
+ sessionStorage.setItem('mscm:selectedProjectId',x.id);
+ setValue('projectNo',x.legacyProjectNo||x.no||'');
+ setValue('registeredDate',x.registeredDate||''); setValue('completedDate',x.completedDate||''); setValue('projectName',x.name||'');
+ setValue('contractType',x.contractType||''); setValue('workCategory',x.workCategory||''); setValue('projectClass',x.projectClass||'');
+ setValue('clientName',x.clientName||x.clientSnapshot?.name||'');
+ const partner=(x.clientId&&MSData.get('partners',x.clientId))||findPartnerByName(x.clientName||'');
+ if(partner){ fillClientContacts(partner); setValue('clientContact',x.clientContact||''); }
+ else { clientContact.innerHTML='<option value="">選択してください</option>'; }
+ setValue('estimateNo',x.estimateNo||''); setValue('estimateMargin',x.estimateMargin??'');
+ const ca=x.contractAmount ?? x.legacyFinancials?.contractAmount ?? x.legacyFinancials?.finalContractAmount ?? '';
+ setValue('contractAmount',ca===''?'':moneyText(ca));
+ setValue('startDate',x.startDate||''); setValue('endDate',x.endDate||'');
+ setValue('ownerName',x.ownerName||''); setValue('ownerKana',x.ownerKana||''); setValue('ownerTel',x.ownerTel||''); setValue('ownerMobile',x.ownerMobile||'');
+ setValue('ownerPostal',x.ownerPostal||''); setValue('ownerAddress',x.ownerAddress||''); setValue('projectPostal',x.projectPostal||''); setValue('projectAddress',x.address||x.projectAddress||'');
+ setValue('salesPerson',x.salesPerson||''); setValue('projectPerson',x.projectPerson||''); setValue('sitePerson',x.sitePerson||''); setValue('estimatePerson',x.estimatePerson||''); setValue('designPerson',x.designPerson||'');
+ setValue('projectContent',x.projectContent||''); setValue('environmentText',x.environmentText||''); setValue('presidentComment',x.presidentComment||'');
+ const laws=new Set(x.lawRegulations||[]); document.querySelectorAll('#lawChecks input').forEach(c=>c.checked=laws.has(c.value));
+ document.querySelector('h1').textContent='工事情報を編集';
+ document.querySelector('.title p').textContent='選択中の工事情報を修正します。保存後は工事カルテへ戻ります。';
+ document.getElementById('save').textContent='変更を保存';
+ return true;
+}
+function clearForm(){
+ projectNo.value=MSData.peekNo('projects');registeredDate.value=new Date().toISOString().slice(0,10);completedDate.value='';projectName.value='';
+ contractType.value='元請け';workCategory.value='';projectClass.value='';clientName.value='';newClientBox.classList.add('hidden');newClientKana.value='';newClientTel.value='';newClientMobile.value='';newClientPostal.value='';newClientAddress.value='';addClientMaster.checked=true;clientContact.innerHTML='<option value="">選択してください</option>';estimateNo.value='';estimateMargin.value='';contractAmount.value='';startDate.value='';endDate.value='';
+ ownerName.value='';ownerKana.value='';ownerTel.value='';ownerMobile.value='';ownerPostal.value='';ownerAddress.value='';projectPostal.value='';projectAddress.value='';copyProjectAddress.checked=false;ownerPostal.readOnly=false;ownerAddress.readOnly=false;
+ salesPerson.value='';projectPerson.value='';sitePerson.value='';estimatePerson.value='';designPerson.value='';projectContent.value='';document.querySelectorAll('#lawChecks input').forEach(x=>x.checked=false);environmentText.value='';presidentComment.value='';
+ registeredDate.focus();
+}
+document.getElementById('save').onclick=()=>{
+ if(!projectName.value.trim()){alert('工事名を入力してください。');projectName.focus();return;}
+ let partner=findPartnerByName(clientName.value);
+ if(clientName.value.trim() && !partner && addClientMaster.checked){
+   partner=MSData.save('partners',{name:clientName.value.trim(),kana:newClientKana.value.trim(),entityType:'個人',partnerType:'個人顧客',tradeType:'受注',tradeStatus:'取引中',zipcode:newClientPostal.value.trim(),address:newClientAddress.value.trim(),tel:newClientTel.value.trim(),mobile:newClientMobile.value.trim(),contacts:[],status:'active'});
+ }
+ const clientSnapshot={name:clientName.value.trim(),kana:partner?.kana||newClientKana.value.trim(),zipcode:partner?.zipcode||newClientPostal.value.trim(),address:partner?.address||newClientAddress.value.trim(),tel:partner?.tel||newClientTel.value.trim(),mobile:partner?.mobile||newClientMobile.value.trim()};
+ const rec={id:editingProject?.id||undefined,no:editingProject?.no||undefined,name:projectName.value.trim(),registeredDate:registeredDate.value,completedDate:completedDate.value,status:completedDate.value?'completed':'active',
+ contractType:contractType.value,workCategory:workCategory.value,projectClass:projectClass.value,clientId:partner?.id||'',clientName:clientName.value.trim(),clientSnapshot,clientContact:clientContact.value,contractorName:'',
+ estimateNo:estimateNo.value,estimateMargin:estimateMargin.value,contractAmount:moneyNumber(contractAmount.value),startDate:startDate.value,endDate:endDate.value,
+ ownerName:ownerName.value,ownerKana:ownerKana.value,ownerTel:ownerTel.value,ownerMobile:ownerMobile.value,ownerPostal:ownerPostal.value,ownerAddress:ownerAddress.value,
+ projectPostal:projectPostal.value,address:projectAddress.value,salesPerson:salesPerson.value,projectPerson:projectPerson.value,sitePerson:sitePerson.value,estimatePerson:estimatePerson.value,designPerson:designPerson.value,
+ projectContent:projectContent.value,lawRegulations:[...document.querySelectorAll('#lawChecks input:checked')].map(x=>x.value),environmentText:environmentText.value,presidentComment:presidentComment.value};
+ const r=MSData.save('projects',rec);
+ if(r&&r.id) sessionStorage.setItem('mscm:selectedProjectId',r.id);
+ alert(editingProject?'工事情報を更新しました。':'工事 '+(r.no||projectNo.value)+' を登録しました。');
+ location.href='kouji_carte.html?id='+encodeURIComponent(r.id);
+};
+document.getElementById('cancel').onclick=()=>{const id=selectedProjectId();location.href=editingProject&&id?'kouji_carte.html?id='+encodeURIComponent(id):'kouji_list.html';};
+window.addEventListener('load',()=>{loadMasterOptions();if(isNewProjectMode()){editingProject=null;sessionStorage.removeItem('mscm:selectedProjectId');clearForm();return;}if(!loadExistingProject())clearForm();});
+</script>
+</body></html>

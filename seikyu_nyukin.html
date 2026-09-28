@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>元請請求・入金管理（売上側）｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+:root{--deep:#173f6b;--line:#c9dbe8;--text:#243746;--muted:#6a7d89;--blue:#2f74a6;--green:#3b8b67;--warn:#b86c24;--red:#a94343}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#fff,#edf6fc);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;min-height:100vh}
+.top{background:linear-gradient(135deg,#173f6b,#245b86);color:#fff}.top-inner{max-width:1440px;margin:auto;padding:15px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:24px;font-weight:950}.sub{font-size:12px;opacity:.9;margin-top:3px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.top-actions button{border:1px solid rgba(255,255,255,.65);background:rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:8px 14px;font-weight:900;cursor:pointer}
+main{max-width:1440px;margin:auto;padding:16px 24px 30px}.project{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;box-shadow:0 7px 18px rgba(23,63,107,.08);display:flex;justify-content:space-between;gap:15px;align-items:center}.no{font-size:11px;color:#60798a;font-weight:900}.name{font-size:24px;color:var(--deep);font-weight:950;margin-top:2px}.meta{font-size:12px;color:#5c7180;margin-top:6px}.state{border:1px solid #b9ddc6;background:#e7f5ec;color:#2e704b;border-radius:999px;padding:6px 13px;font-size:11px;font-weight:950}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:11px 0}.metric{background:#fff;border:1px solid #d4e1ea;border-radius:10px;padding:11px 12px;min-height:76px;box-shadow:0 4px 11px rgba(23,63,107,.05);border-top:3px solid var(--blue)}.metric:nth-child(3){border-top-color:var(--warn)}.metric:nth-child(4){border-top-color:var(--green)}.metric:nth-child(5){border-top-color:var(--red)}.label{font-size:10px;font-weight:900;color:#5e7381}.value{font-size:21px;font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums;white-space:nowrap}.metric small{display:block;margin-top:3px;font-size:10px;color:#7a8a94}
+.role-note{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px}.role{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;line-height:1.55}.role b{display:block;font-size:13px;margin-bottom:2px}.role.invoice b{color:var(--blue)}.role.receipt b{color:var(--green)}
+.entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel{background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 5px 14px rgba(23,63,107,.06);overflow:hidden}.panel-head{padding:10px 13px;background:#f2f8fc;border-bottom:1px solid #d9e6ef;display:flex;align-items:center;justify-content:space-between;gap:10px}.panel-head b{color:var(--deep);font-size:15px}.who{font-size:10px;color:#71818c;font-weight:800}.form{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{min-width:0}.field.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:900;color:#607481;margin-bottom:4px}.field input{width:100%;height:38px;border:1px solid #b8cad6;border-radius:7px;padding:0 10px;font-size:15px;background:#fff}.field input[type=number]{text-align:right}.save{grid-column:1/-1;border:0;border-radius:8px;height:39px;color:#fff;font-weight:950;cursor:pointer}.invoice-panel .save{background:var(--blue)}.receipt-panel .save{background:var(--green)}.hint{grid-column:1/-1;font-size:10px;color:#72838d;line-height:1.45}.warning{display:none;grid-column:1/-1;border:1px solid #e1b28c;background:#fff5eb;color:#8d4d1c;border-radius:7px;padding:7px 9px;font-size:11px;font-weight:800}
+.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 10px;border-bottom:1px solid #e4edf2;text-align:left;white-space:nowrap}th{background:#f7fafc;color:#526b7a;font-size:10px}td.money,th.money{text-align:right;font-variant-numeric:tabular-nums}tfoot td{font-weight:950;background:#fafcfd}.empty{padding:16px;color:#788a95;font-size:11px;text-align:center}.footnote{margin-top:12px;padding:10px 12px;border:1px dashed #b9cbd7;border-radius:9px;color:#657986;font-size:11px;line-height:1.6;background:#fbfdfe}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.entry-grid,.history-grid,.role-note{grid-template-columns:1fr}}@media(max-width:600px){main,.top-inner{padding-left:13px;padding-right:13px}.project{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr}.form{grid-template-columns:1fr}.field.full,.save,.hint,.warning{grid-column:auto}.name{font-size:21px}}
+.money-input{text-align:right;background:#fff7f7!important}.row-actions{display:flex;gap:4px;justify-content:center}.row-actions button{border:1px solid #b9cad5;background:#fff;border-radius:5px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer}.row-actions .delete{color:#9a4444;border-color:#d9b7b7}.history-grid td{font-size:13px}.history-grid td.money{font-weight:600}</style><script src="shared_storage.js"></script></head><body>
+<header class="top"><div class="top-inner"><div><div class="brand">MS建設管理システム</div><div class="sub">元請請求・入金管理（売上側）</div></div><div class="top-actions"><button onclick="location.href='kouji_carte.html'">工事カルテへ</button><button onclick="location.href='index.html'">メイン画面へ</button></div></div></header>
+<main>
+<div style="margin-bottom:10px;padding:9px 12px;border:1px solid #b9d7ea;background:#f2f9fd;border-radius:8px;font-size:12px;color:#315b72;font-weight:700">
+この画面は <b>売上側専用</b> です。元請請求データは下請請求とは別の専用保存領域に保存します。当社から元請・お客様へ出す請求と、その入金だけを管理します。下請・仕入先から来る請求はここには表示・保存しません。
+</div>
+<section class="project"><div><div class="no">工事番号　26-001</div><div class="name">○○邸 外構工事</div><div class="meta">発注者：○○建設株式会社　｜　工事担当：菅尾　｜　工期：2026/09/01 ～ 2026/10/15</div></div><span class="state">施工中</span></section>
+<section class="metrics"><div class="metric"><div class="label">受注金額</div><div class="value" id="contractValue">1,250,000円</div></div><div class="metric"><div class="label">元請請求累計</div><div class="value" id="invoiceTotal">600,000円</div></div><div class="metric"><div class="label">元請未請求額</div><div class="value" id="unbilled">650,000円</div><small>受注金額 − 請求累計</small></div><div class="metric"><div class="label">入金累計</div><div class="value" id="receiptTotal">600,000円</div></div><div class="metric"><div class="label">未入金額</div><div class="value" id="unpaid">0円</div><small>請求累計 − 入金累計</small></div></section>
+<section class="role-note"><div class="role invoice"><b>工事担当者：元請への請求を登録</b>元請・お客様へ請求書を作成・提出した時点で、請求日と請求金額を登録します。</div><div class="role receipt"><b>経理担当者：入金を登録</b>入金を確認した時点で、入金日と入金金額を登録します。</div></section>
+<div class="entry-grid">
+<section class="panel invoice-panel"><div class="panel-head"><b>元請請求を登録</b><span class="who">工事担当者</span></div><form class="form" id="invoiceForm"><div class="field"><label for="invoiceDate">元請請求日</label><input id="invoiceDate" type="date" required></div><div class="field"><label for="invoiceAmount">元請請求金額</label><input id="invoiceAmount" type="text" inputmode="numeric" class="money-input" placeholder="0" required></div><div class="field full"><label for="invoiceMemo">備考（任意）</label><input id="invoiceMemo" type="text" maxlength="80" placeholder="例：第2回請求"></div><div class="warning" id="invoiceWarning"></div><button class="save" id="invoiceSaveBtn" type="button">元請請求を登録</button><div class="hint">受注金額を超える請求になる場合は登録せず、受注金額・増減を確認します。</div></form></section>
+<section class="panel receipt-panel"><div class="panel-head"><b>入金を登録</b><span class="who">経理担当者</span></div><form class="form" id="receiptForm"><div class="field"><label for="receiptDate">入金日</label><input id="receiptDate" type="date" required></div><div class="field"><label for="receiptAmount">入金金額</label><input id="receiptAmount" type="text" inputmode="numeric" class="money-input" placeholder="0" required></div><div class="field full"><label for="receiptMemo">備考（任意）</label><input id="receiptMemo" type="text" maxlength="80" placeholder="例：振込入金"></div><div class="warning" id="receiptWarning"></div><button class="save" id="receiptSaveBtn" type="button">入金を登録</button><div class="hint">入金累計が請求累計を超える場合は登録せず、請求内容または入金内容を確認します。</div></form></section>
+</div>
+<div class="history-grid">
+<section class="panel"><div class="panel-head"><b>元請請求履歴</b><span class="who">元請・お客様へ請求した事実を記録</span></div><div class="table-wrap"><table><thead><tr><th>元請請求日</th><th class="money">元請請求金額</th><th>備考</th><th style="width:105px">操作</th></tr></thead><tbody id="invoiceHistory"></tbody><tfoot><tr><td>合計</td><td class="money" id="invoiceFoot"></td><td></td><td></td></tr></tfoot></table></div></section>
+<section class="panel"><div class="panel-head"><b>入金履歴</b><span class="who">入金確認を記録</span></div><div class="table-wrap"><table><thead><tr><th>入金日</th><th class="money">入金金額</th><th>備考</th><th style="width:105px">操作</th></tr></thead><tbody id="receiptHistory"></tbody><tfoot><tr><td>合計</td><td class="money" id="receiptFoot"></td><td></td><td></td></tr></tfoot></table></div></section>
+</div>
+<div class="footnote"><b>管理の考え方：</b> この画面は、当社から元請・お客様へ出す請求と、その入金を管理します。下請・仕入先から当社へ来る請求は「発注・請求管理」で管理します。この画面では請求書そのものを作成しません。「いつ・いくら請求したか」「いつ・いくら入金されたか」だけを管理します。将来、MS請求書システムと連携する場合も、この請求履歴へ自動反映できる構造を想定します。</div>
+</main>
+<script src="ms_data.js"></script><script>
+(function(){
+const $=id=>document.getElementById(id),p=new URLSearchParams(location.search),id=p.get('id')||'';
+if(!id||!window.MSData){alert('工事データを読み込めません。工事一覧から工事を選択してください。');location.href='kouji_list.html';return}
+let project=MSData.get('projects',id);if(!project){alert('選択中の工事が見つかりません。');location.href='kouji_list.html';return}sessionStorage.setItem('mscm:selectedProjectId',String(id));
+const n=v=>Number(String(v??'').replace(/[^\d.-]/g,''))||0,yen=v=>n(v).toLocaleString('ja-JP')+'円',esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),active=x=>x&&x.status!=='inactive',today=()=>new Date().toISOString().slice(0,10);
+let cs=(MSData.all('contracts')||[]).filter(x=>active(x)&&String(x.projectId)===String(id)),contract=cs.length?n(cs.sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')))[0].currentAmount):0;
+if(!contract)contract=n(project.finalContractAmount||project.contractAmount||project.orderAmount);
+const SALES_KEY='mscm:salesBilling:v1';
+function loadSalesStore(){try{const v=JSON.parse(MSShared.getItem(SALES_KEY)||'{}');return v&&typeof v==='object'?v:{}}catch(e){return {}}}
+function saveSalesStore(store){MSShared.setItem(SALES_KEY,JSON.stringify(store))}
+function uid(prefix){return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
+let salesStore=loadSalesStore();
+let salesProject=salesStore[String(id)]||{invoices:[],receipts:[]};
+let invoices=(salesProject.invoices||[]).filter(active),receipts=(salesProject.receipts||[]).filter(active),editInvoiceId='',editReceiptId='';
+function persistSales(){
+ salesStore=loadSalesStore();
+ salesStore[String(id)]={invoices,receipts,updatedAt:new Date().toISOString()};
+ saveSalesStore(salesStore);
+}
+const sum=a=>a.reduce((t,x)=>t+n(x.amount),0);
+function fm(el){const d=String(el.value||'').replace(/[^\d]/g,'');el.value=d?Number(d).toLocaleString('ja-JP'):''}
+function show(i,m){$(i).textContent=m;$(i).style.display='block'}function hide(i){$(i).style.display='none'}
+function hasReceipt(x){return receipts.some(r=>active(r)&&(String(r.invoiceId||'')===String(x.id)||String(r.clientInvoiceId||'')===String(x.id)))}
+function uniqueById(a){const seen=new Set();return a.filter(x=>{const k=String(x.id||'');if(!k)return true;if(seen.has(k))return false;seen.add(k);return true})}
+function render(){invoices=uniqueById(invoices);receipts=uniqueById(receipts);const it=sum(invoices),rt=sum(receipts);$('invoiceTotal').textContent=yen(it);$('unbilled').textContent=yen(contract-it);$('receiptTotal').textContent=yen(rt);$('unpaid').textContent=yen(it-rt);$('invoiceFoot').textContent=yen(it);$('receiptFoot').textContent=yen(rt);
+$('invoiceHistory').innerHTML=invoices.map(x=>`<tr><td>${esc(String(x.date||'').replaceAll('-','/'))}</td><td class="money">${yen(x.amount)}</td><td>${esc(x.memo)}</td><td><div class="row-actions"><button type="button" onclick="editInvoice('${esc(x.id)}')">編集</button><button type="button" class="delete" onclick="deleteInvoice('${esc(x.id)}')">削除</button></div></td></tr>`).join('');
+$('receiptHistory').innerHTML=receipts.map(x=>`<tr><td>${esc(String(x.date||'').replaceAll('-','/'))}</td><td class="money">${yen(x.amount)}</td><td>${esc(x.memo)}</td><td><div class="row-actions"><button type="button" onclick="editReceipt('${esc(x.id)}')">編集</button><button type="button" class="delete" onclick="deleteReceipt('${esc(x.id)}')">削除</button></div></td></tr>`).join('')}
+window.editInvoice=i=>{const x=invoices.find(v=>String(v.id)===String(i));if(!x)return;if(hasReceipt(x)){alert('この元請請求には入金データがあります。先に入金データを訂正してください。');return}editInvoiceId=x.id;$('invoiceDate').value=x.date||'';$('invoiceAmount').value=n(x.amount).toLocaleString('ja-JP');$('invoiceMemo').value=x.memo||'';document.querySelector('#invoiceForm .save').textContent='元請請求を更新'};
+window.deleteInvoice=i=>{const x=invoices.find(v=>String(v.id)===String(i));if(!x)return;if(hasReceipt(x)){alert('この元請請求には入金データがあります。先に入金データを訂正してください。');return}if(!confirm('この元請請求データを削除しますか？'))return;if(!confirm('削除すると元に戻せません。本当に削除しますか？'))return;invoices=invoices.filter(v=>String(v.id)!==String(i));persistSales();render()};
+window.editReceipt=i=>{const x=receipts.find(v=>String(v.id)===String(i));if(!x)return;editReceiptId=x.id;$('receiptDate').value=x.date||'';$('receiptAmount').value=n(x.amount).toLocaleString('ja-JP');$('receiptMemo').value=x.memo||'';document.querySelector('#receiptForm .save').textContent='入金を更新'};
+window.deleteReceipt=i=>{const x=receipts.find(v=>String(v.id)===String(i));if(!x)return;if(!confirm('この入金データを削除しますか？'))return;if(!confirm('削除すると元に戻せません。本当に削除しますか？'))return;receipts=receipts.filter(v=>String(v.id)!==String(i));persistSales();render()};
+function saveInvoice(){hide('invoiceWarning');const date=$('invoiceDate').value,amount=n($('invoiceAmount').value),memo=$('invoiceMemo').value.trim();if(!date||amount<=0)return;const old=editInvoiceId?invoices.find(x=>String(x.id)===String(editInvoiceId)):null;if(old&&hasReceipt(old)){alert('この元請請求には入金データがあります。先に入金データを訂正してください。');return}if(sum(invoices)-(old?n(old.amount):0)+amount>contract){show('invoiceWarning','受注金額を超える元請請求になります。受注金額・増減を確認してください。');return}if(!old&&invoices.some(x=>active(x)&&x.date===date&&n(x.amount)===amount&&String(x.memo||'')===memo)){show('invoiceWarning','同じ日付・同じ金額・同じ備考の元請請求がすでに登録されています。');return}
+const rec={...(old||{}),id:(old&&old.id)||uid('si'),projectId:id,dataSide:'sales',date,amount,memo,status:'active',updatedAt:new Date().toISOString()};
+invoices=old?invoices.map(x=>String(x.id)===String(old.id)?rec:x):[...invoices,rec];
+persistSales();editInvoiceId='';$('invoiceAmount').value='';$('invoiceMemo').value='';$('invoiceSaveBtn').textContent='元請請求を登録';render();$('invoiceAmount').focus()}
+function saveReceipt(){hide('receiptWarning');const date=$('receiptDate').value,amount=n($('receiptAmount').value),memo=$('receiptMemo').value.trim();if(!date||amount<=0)return;const old=editReceiptId?receipts.find(x=>String(x.id)===String(editReceiptId)):null;if(sum(receipts)-(old?n(old.amount):0)+amount>sum(invoices)){show('receiptWarning','請求累計を超える入金になります。請求内容または入金内容を確認してください。');return}if(!old&&receipts.some(x=>active(x)&&x.date===date&&n(x.amount)===amount&&String(x.memo||'')===memo)){show('receiptWarning','同じ日付・同じ金額・同じ備考の入金がすでに登録されています。');return}
+const rec={...(old||{}),id:(old&&old.id)||uid('sr'),projectId:id,dataSide:'sales',date,amount,memo,status:'active',updatedAt:new Date().toISOString()};
+receipts=old?receipts.map(x=>String(x.id)===String(old.id)?rec:x):[...receipts,rec];
+persistSales();editReceiptId='';$('receiptAmount').value='';$('receiptMemo').value='';$('receiptSaveBtn').textContent='入金を登録';render();$('receiptAmount').focus()}
+[$('invoiceAmount'),$('receiptAmount')].forEach(el=>el.oninput=()=>fm(el));
+
+function setupEnterMove(ids,saveId){ids.forEach((fid,idx)=>$(fid).addEventListener('keydown',e=>{if(e.key!=='Enter'||e.shiftKey)return;e.preventDefault();e.stopPropagation();(idx<ids.length-1?$(ids[idx+1]):$(saveId)).focus()}))}
+setupEnterMove(['invoiceDate','invoiceAmount','invoiceMemo'],'invoiceSaveBtn');setupEnterMove(['receiptDate','receiptAmount','receiptMemo'],'receiptSaveBtn');
+$('invoiceForm').addEventListener('submit',e=>e.preventDefault());$('receiptForm').addEventListener('submit',e=>e.preventDefault());
+let invoiceSaving=false,receiptSaving=false;
+$('invoiceSaveBtn').onclick=()=>{if(invoiceSaving)return;invoiceSaving=true;$('invoiceSaveBtn').disabled=true;try{saveInvoice()}finally{setTimeout(()=>{invoiceSaving=false;$('invoiceSaveBtn').disabled=false},500)}};
+$('receiptSaveBtn').onclick=()=>{if(receiptSaving)return;receiptSaving=true;$('receiptSaveBtn').disabled=true;try{saveReceipt()}finally{setTimeout(()=>{receiptSaving=false;$('receiptSaveBtn').disabled=false},500)}};
+document.querySelector('.no').textContent='工事番号　'+(project.legacyProjectNo||project.no||'—');document.querySelector('.name').textContent=project.name||'';document.querySelector('.meta').textContent='発注者：'+(project.clientName||'—')+'　｜　工事担当：'+(project.projectPerson||project.sitePerson||'—')+'　｜　工期：'+(project.startDate||'—')+' ～ '+(project.endDate||'—');$('contractValue').textContent=yen(contract);
+document.querySelectorAll('.top-actions button')[0].onclick=()=>location.href='kouji_carte.html?id='+encodeURIComponent(id);$('invoiceDate').value=today();$('receiptDate').value=today();render();
+})();
+</script></body></html>

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<script src="ms_password.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>経審資料｜工事経歴書｜MS建設管理システム</title>
+<style>
+:root{--deep:#173f6b;--blue:#176fa8;--line:#c9dbe8;--bg:#f3f8fc;--text:#243746}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:linear-gradient(180deg,#fff,#edf6fc)}
+.top{background:linear-gradient(135deg,#173f6b,#245b86);color:#fff}
+.topin{max-width:1500px;margin:auto;padding:15px 24px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:24px;font-weight:950}.sub{font-size:12px;opacity:.9;margin-top:3px}
+button{cursor:pointer;font-family:inherit}.top button{border:1px solid rgba(255,255,255,.65);background:rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:8px 14px;font-weight:900}
+main{max-width:1500px;margin:auto;padding:16px 24px 30px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 18px rgba(23,63,107,.07);margin-bottom:12px;overflow:hidden}
+.cardhead{padding:11px 14px;background:#f2f8fc;border-bottom:1px solid #d9e6ef;font-size:18px;font-weight:950;color:var(--deep)}
+.controls{padding:13px;display:grid;grid-template-columns:150px 180px 180px 1fr auto;gap:10px;align-items:end}
+label{display:block;font-size:11px;font-weight:900;color:#60798a;margin-bottom:4px}
+input,select{width:100%;height:38px;border:1px solid #b8cbd8;border-radius:7px;padding:0 9px;font-size:14px;background:#fff}
+.btn{height:38px;border:0;border-radius:7px;padding:0 15px;font-weight:900;background:#176fa8;color:#fff}
+.btn.gray{background:#60798a}.btn.green{background:#348c7d}
+.note{padding:0 13px 13px;font-size:12px;color:#607481;line-height:1.55}
+.stats{display:flex;gap:18px;padding:10px 13px;border-top:1px solid #edf2f5;font-size:13px}.stats b{color:var(--deep)}
+.tablewrap{overflow:auto;padding:0 10px 12px}
+table{border-collapse:collapse;width:100%;min-width:1320px;font-size:12px}
+th,td{border:1px solid #7c8790;padding:5px 6px;vertical-align:middle}
+th{background:#f5f7f8;text-align:center;white-space:nowrap}
+td.num{text-align:right;font-variant-numeric:tabular-nums}.center{text-align:center}
+.small{font-size:10px;color:#5f707c}.edit{background:#fffceb}
+.empty{text-align:center;padding:30px;color:#71838f}
+.print-only{display:none}
+@page{size:A4 landscape;margin:8mm}
+@media print{
+ body{background:#fff}.top,.screen-only{display:none!important}main{max-width:none;padding:0}
+ .card{border:0;box-shadow:none;margin:0;overflow:visible}.cardhead{display:none}.tablewrap{padding:0;overflow:visible}
+ .print-only{display:block}
+ .print-head{position:relative;margin-bottom:5mm;min-height:16mm}
+ .print-title{font-size:19pt;font-weight:900}.print-type{font-size:11pt;font-weight:800;margin-top:1mm}
+ .print-period{position:absolute;right:0;top:1mm;font-size:9pt}
+ table{min-width:0;width:100%;font-size:8.8pt;table-layout:fixed;color:#000}
+ th,td{padding:1.75mm 1.2mm;border:0.35mm solid #000;word-break:break-all;color:#000;line-height:1.45}
+ th{background:#fff;color:#000;font-size:8.5pt}
+ .no-print{display:none!important}
+ tbody tr{break-inside:avoid;page-break-inside:avoid;min-height:10.5mm}
+ .type-section{break-before:page;page-break-before:always}
+ .type-section:first-child{break-before:auto;page-break-before:auto}
+ .type-section .tablewrap{padding:0}
+ .type-section table{margin:0}
+ .type-section thead{display:table-header-group}
+ .type-section tfoot{display:table-row-group}
+  .type-section,.type-section *{color:#000!important}
+  td:last-child{font-size:8pt;line-height:1.4;white-space:pre-wrap}
+  .print-title{color:#000}.print-type{color:#000}.print-period{color:#000}
+ .stack{line-height:1.5}
+ .stack .subline{display:block;border-top:.25mm solid #777;margin-top:1.0mm;padding-top:1.0mm}
+}
+.type-section{margin-bottom:18px;color:#000}
+#report table,#report th,#report td,#report .small,#report .type-title{color:#000}
+.type-title{font-size:16px;font-weight:900;color:var(--deep);padding:8px 10px 5px}
+.stack{line-height:1.5}
+.stack .subline{display:block;margin-top:3px}
+
+</style>
+<script src="shared_storage.js"></script>
+</head>
+<body>
+<header class="top"><div class="topin">
+<div><div class="brand">MS建設管理システム</div><div class="sub">経審資料 ＞ 工事経歴書</div></div>
+<div><button onclick="history.back()">戻る</button> <button onclick="location.href='index.html'">メイン画面へ</button></div>
+</div></header>
+<main>
+<section class="card screen-only">
+ <div class="cardhead">工事経歴書 作成条件</div>
+ <div class="controls">
+  <div><label>年度</label><select id="fy"></select></div>
+  <div><label>期間開始</label><input id="from" type="date"></div>
+  <div><label>期間終了</label><input id="to" type="date"></div>
+  <div><label>建設業種</label><select id="type"><option value="">すべて</option></select></div>
+  <div><button class="btn" id="printBtn">印刷</button></div>
+ </div>
+ <div class="note">見本と同じ考え方で、年度・業種別に工事を一覧化します。工事情報・取引先・注文・入金データから自動表示します。業種は工事情報の「工種区分」を使用し、工種ごとに改ページして印刷します。</div>
+ <div class="stats"><span>表示件数 <b id="count">0</b>件</span><span>契約金額（税抜）合計 <b id="sumEx">0円</b></span><span>契約金額（税込）合計 <b id="sumIn">0円</b></span></div>
+</section>
+
+<section class="card">
+ <div class="cardhead">工事経歴書</div>
+ <div id="report"></div>
+</section>
+</main>
+<script src="ms_data.js"></script>
+<script>
+(function(){
+const TYPES=['土木一式','建築一式','大工','左官','とび・土工・コンクリート','石','屋根','電気','管','タイル・れんが・ブロック','鋼構造物','鉄筋','舗装','しゅんせつ','板金','ガラス','塗装','防水','内装仕上','機械器具設置','熱絶縁','電気通信','造園','さく井','建具','水道施設','消防施設','清掃施設','解体'];
+const KEY='mscm:keishinProject:v1';
+let extra={}; try{extra=JSON.parse(MSShared.getItem(KEY)||'{}')}catch(e){extra={}}
+const projects=(MSData.all('projects')||[]).filter(x=>x.status!=='inactive');
+const partners=MSData.all('partners')||[];
+const orders=MSData.all('orders')||[];
+const payments=MSData.all('payments')||[];
+const SALES_KEY='mscm:salesBilling:v1';
+let salesStore={}; try{salesStore=JSON.parse(MSShared.getItem(SALES_KEY)||'{}')||{}}catch(e){salesStore={}}
+const fy=document.getElementById('fy'), from=document.getElementById('from'), to=document.getElementById('to'), type=document.getElementById('type');
+TYPES.forEach(v=>type.add(new Option(v,v)));
+const now=new Date(), y=now.getFullYear();
+for(let yy=y+1;yy>=y-6;yy--) fy.add(new Option('令和'+(yy-2018)+'年度',String(yy)));
+fy.value=String(y);
+function setPeriod(){const yy=Number(fy.value);from.value=yy+'-06-01';to.value=(yy+1)+'-05-31';render()}
+function yen(v){const n=Number(v)||0;return n.toLocaleString('ja-JP')}
+function date(v){if(!v)return '';return String(v).slice(0,10).replaceAll('-','/')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function contract(p){const oc=p.orderContract||{}, f=p.legacyFinancials||{};return Number(oc.currentContractAmount??f.finalContractAmount??f.contractAmount??p.contractAmount??0)||0}
+function taxEx(inc){return inc?Math.round(inc/1.1):0}
+function inPeriod(p){const a=from.value,b=to.value;const s=String(p.startDate||''),e=String(p.endDate||'');return (!a||!e||e>=a)&&(!b||!s||s<=b)}
+function saveExtra(id,field,value){extra[id]=Object.assign({},extra[id]||{}, {[field]:value});MSShared.setItem(KEY,JSON.stringify(extra));render()}
+window.keishinEdit=function(id,field,el){saveExtra(id,field,el.value)}
+function projectType(p){
+ const raw=String(p.workCategory||extra[p.id]?.type||p.keishinType||'').trim();
+ if(!raw)return '';
+ const short=raw.endsWith('工事')?raw.slice(0,-2):raw;
+ return TYPES.includes(short)?short:raw;
+}
+function partnerFor(p){return (p.clientId&&partners.find(x=>x.id===p.clientId))||partners.find(x=>(x.name||x.companyName||'')===(p.clientName||p.clientSnapshot?.name||''))||null}
+function clientAddress(p){const q=partnerFor(p);return p.clientSnapshot?.address||q?.address||extra[p.id]?.clientAddress||''}
+function hasOrder(p){return orders.some(o=>o.status!=='inactive'&&(o.projectId===p.id||o.projectNo===p.no||o.legacyProjectNo===p.legacyProjectNo))}
+function paymentInfo(p){
+  // 元請請求・入金管理(seikyu_nyukin.html)の正式な保存先を最優先
+  const sp=salesStore[String(p.id)]||{};
+  const receipts=(sp.receipts||[]).filter(x=>x&&x.status!=='inactive');
+  if(receipts.length){
+    const sorted=[...receipts].sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+    return {date:sorted.map(x=>x.date||'').filter(Boolean).pop()||'',amount:receipts.reduce((n,x)=>n+(Number(x.amount)||0),0)};
+  }
+  // 互換用：旧 payments 領域
+  const f=p.legacyFinancials||{};
+  const list=payments.filter(x=>x.status!=='inactive'&&(String(x.projectId)===String(p.id)||x.projectNo===p.no));
+  if(list.length){list.sort((a,b)=>String(a.paymentDate||a.date||a.paidDate||'').localeCompare(String(b.paymentDate||b.date||b.paidDate||'')));return {date:list.map(x=>x.paymentDate||x.date||x.paidDate||'').filter(Boolean).pop()||'',amount:list.reduce((n,x)=>n+(Number(x.amount??x.paymentAmount??x.paidAmount??0)||0),0)}}
+  const payDate=p.paymentDate||p.paidDate||p.receiptDate||f.paymentDate||f.paidDate||f.receiptDate||f['入金日付']||'';
+  const payAmount=Number(p.paymentAmount??p.paidAmount??p.receiptAmount??f.paymentAmount??f.paidAmount??f.receiptAmount??f['入金額']??0)||0;
+  return {date:payDate,amount:payAmount};
+}
+function primeText(p){const v=p.contractType||p.primeContractorType||p.legacyPrimeType||p['請負区分名']||'';return v==='元請け'?'元請':v==='下請け'?'下請':v}
+function makeTable(rows,typeName){
+ let sx=0,si=0;
+ const body=rows.map(p=>{
+   const ex=extra[p.id]||{}, inc=contract(p), exc=taxEx(inc), pay=paymentInfo(p);sx+=exc;si+=inc;
+   const no=p.legacyProjectNo||p.no||'';
+   const prime=primeText(p);
+   const addr=clientAddress(p), ordered=hasOrder(p)?'○':'';
+   return `<tr>
+   <td class="center">${esc(no)}</td>
+   <td class="center stack"><span>${esc(prime)}</span><span class="subline">${ordered}</span></td>
+   <td><b>${esc(p.name||'')}</b><br><span class="small">${esc(p.address||'')}</span></td>
+   <td>${esc(p.clientName||p.clientSnapshot?.name||'')}<br><span class="small">${esc(addr)}</span></td>
+   <td class="center">${esc(p.projectPerson||p.sitePerson||'')}</td>
+   <td class="center stack">${date(p.startDate)}<span class="subline">${date(p.endDate)}</span></td>
+   <td class="num stack">${yen(exc)}<span class="subline">${yen(inc)}</span></td>
+   <td class="center stack">${date(pay.date)}<span class="subline num">${pay.amount?yen(pay.amount):''}</span></td>
+   <td><textarea class="edit no-print" rows="3" style="width:100%;min-height:58px;resize:vertical;color:#000;font:inherit" placeholder="備考（3行程度）" onchange="keishinEdit('${p.id}','note',this)">${esc(ex.note||'')}</textarea><span class="print-only">${esc(ex.note||'')}</span></td>
+   </tr>`;
+ }).join('');
+ return `<section class="type-section"><div class="print-only print-head"><div class="print-title" >令和${Number(fy.value)-2018}年度　工事経歴書</div><div class="print-type">【 ${esc(typeName||'業種未設定')} 】</div><div class="print-period">期間　${date(from.value)} ～ ${date(to.value)}</div></div><div class="type-title screen-only">${esc(typeName||'業種未設定')}</div><div class="tablewrap"><table><colgroup><col style="width:6%"><col style="width:6%"><col style="width:21%"><col style="width:17%"><col style="width:7%"><col style="width:11%"><col style="width:10%"><col style="width:10%"><col style="width:12%"></colgroup><thead><tr><th>工事番号</th><th>請負区分<br><span class="small">注文</span></th><th>工事名<br><span class="small">工事場所</span></th><th>発注者名<br><span class="small">発注者住所</span></th><th>担当者</th><th>工期<br><span class="small">自／至</span></th><th>契約金額<br><span class="small">税抜／税込</span></th><th>入金<br><span class="small">入金日／入金額</span></th><th>備考</th></tr></thead><tbody>${body||'<tr><td colspan="9" class="empty">該当する工事がありません。</td></tr>'}</tbody><tfoot><tr><th colspan="6">＜　合　計　＞</th><th class="num stack">${yen(sx)}<span class="subline">${yen(si)}</span></th><th></th><th></th></tr></tfoot></table></div></section>`;
+}
+function render(){
+ let rows=projects.filter(inPeriod);
+ if(type.value) rows=rows.filter(p=>projectType(p)===type.value);
+ rows.sort((a,b)=>String(a.startDate||'').localeCompare(String(b.startDate||'')));
+ let sx=0,si=0; rows.forEach(p=>{const inc=contract(p);sx+=taxEx(inc);si+=inc});
+ const groups=[];
+ if(type.value){groups.push([type.value,rows])}else{
+   TYPES.forEach(t=>{const a=rows.filter(p=>projectType(p)===t);if(a.length)groups.push([t,a])});
+   const other=[...new Set(rows.map(projectType).filter(t=>t&&!TYPES.includes(t)))];other.forEach(t=>groups.push([t,rows.filter(p=>projectType(p)===t)]));
+   const unset=rows.filter(p=>!projectType(p));if(unset.length)groups.push(['業種未設定',unset]);
+ }
+ document.getElementById('report').innerHTML=groups.length?groups.map(g=>makeTable(g[1],g[0])).join(''):'<div class="empty">該当する工事がありません。</div>';
+ document.getElementById('count').textContent=rows.length;document.getElementById('sumEx').textContent=yen(sx)+'円';document.getElementById('sumIn').textContent=yen(si)+'円';
+}
+fy.addEventListener('change',setPeriod);from.addEventListener('change',render);to.addEventListener('change',render);type.addEventListener('change',render);
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+setPeriod();
+})();
+</script>
+</body></html>

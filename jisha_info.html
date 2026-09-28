@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>自社情報｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+:root{--blue:#174d78;--line:#cbdbe6;--bg:#f3f7fa;--text:#263f50}*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:var(--bg)}
+header{background:#fff;border-bottom:1px solid var(--line)}.top{max-width:1180px;margin:auto;padding:16px 26px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:22px;font-weight:900;color:var(--blue)}button{border:0;border-radius:7px;padding:9px 15px;font-weight:800;cursor:pointer}.back{background:#e6eef3;color:#405c6d}.save{background:var(--blue);color:#fff}
+main{max-width:1100px;margin:auto;padding:22px 26px 34px}h1{margin:0;color:var(--blue);font-size:27px}.lead{margin:6px 0 17px;color:#71818c;font-size:13px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}.pt{padding:10px 13px;background:#eef5f9;border-bottom:1px solid #d8e5ed;color:var(--blue);font-size:15px;font-weight:900}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px 12px;padding:14px}.field label{display:block;font-size:12px;font-weight:900;color:#607887;margin-bottom:4px}
+.field input,.field textarea{width:100%;border:1px solid #b8cdda;border-radius:5px;padding:7px 8px;font:inherit;font-size:14px;background:#fff}.field input{height:35px}.field textarea{height:70px;resize:vertical}
+.span2{grid-column:span 2}.span3{grid-column:span 3}.span4{grid-column:span 4}.span6{grid-column:span 6}
+.note{padding:10px 13px;background:#fffaf0;border:1px solid #ead9ad;border-radius:8px;font-size:12px;line-height:1.7;color:#6f5a2d;margin-bottom:12px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.status{font-size:12px;color:#647985;margin-right:auto;align-self:center}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.span2,.span3,.span4,.span6{grid-column:span 2}}
+</style></head><body>
+<header><div class="top"><div class="brand">MS建設管理システム　／　自社情報</div><button class="back" id="backBtn">管理・設定へ戻る</button></div></header>
+<main><h1>自社情報</h1><div class="lead">注文書・注文請書・契約書などに共通で使用する会社情報を登録します。</div>
+<div class="note"><b>共通情報です。</b> ここで保存した内容を、今後作成する注文書・注文請書・契約書などから自動取得します。</div>
+
+<section class="panel"><div class="pt">会社基本情報</div><div class="grid">
+<div class="field span3"><label>会社名</label><input id="companyName" placeholder="例：MSランドスケープ"></div>
+<div class="field span3"><label>会社名ふりがな</label><input id="companyKana"></div>
+<div class="field span2"><label>代表者役職</label><input id="representativeTitle" placeholder="例：代表"></div>
+<div class="field span2"><label>代表者名</label><input id="representativeName"></div>
+<div class="field span2"><label>インボイス登録番号</label><input id="invoiceNo" placeholder="T1234567890123"></div>
+<div class="field span2"><label>郵便番号</label><input id="postal" placeholder="000-0000"></div>
+<div class="field span4"><label>住所</label><input id="address"></div>
+<div class="field span2"><label>電話番号</label><input id="tel"></div><div class="field span2"><label>FAX</label><input id="fax"></div>
+<div class="field span2"><label>メール</label><input id="email"></div>
+</div></section>
+
+<section class="panel"><div class="pt">建設業許可・帳票情報</div><div class="grid">
+<div class="field span3"><label>建設業許可番号</label><input id="licenseNo" placeholder="例：静岡県知事許可（般-00）第00000号"></div>
+<div class="field span3"><label>許可業種・補足</label><input id="licenseNote"></div>
+<div class="field span6"><label>帳票用備考</label><textarea id="documentNote"></textarea></div>
+</div></section>
+
+<section class="panel"><div class="pt">振込先</div><div class="grid">
+<div class="field span2"><label>金融機関名</label><input id="bankName"></div><div class="field span2"><label>支店名</label><input id="bankBranch"></div>
+<div class="field span2"><label>口座種別</label><input id="accountType" placeholder="普通"></div><div class="field span2"><label>口座番号</label><input id="accountNo"></div>
+<div class="field span4"><label>口座名義</label><input id="accountName"></div>
+</div></section>
+
+<div class="actions"><span class="status" id="status">未保存</span><button class="back" id="cancelBtn">管理・設定へ戻る</button><button class="save" id="saveBtn">自社情報を保存</button></div>
+</main>
+<script src="shared_storage.js"></script><script src="ms_data.js"></script>
+<script>
+(()=>{const $=id=>document.getElementById(id);
+const fields=['companyName','companyKana','representativeTitle','representativeName','invoiceNo','postal','address','tel','fax','email','licenseNo','licenseNote','documentNote','bankName','bankBranch','accountType','accountNo','accountName'];
+let current=null;
+function load(){if(!window.MSData){alert('共通データを読み込めません。start_server.bat から起動してください。');return}
+try{const rows=MSData.all('companySettings')||[];current=rows.find(x=>x&&x.status!=='inactive')||rows[0]||null}catch(e){current=null}
+if(current)fields.forEach(k=>{$(k).value=current[k]??''});$('status').textContent=current?'保存済み':'未登録'}
+function save(){if(!window.MSData){alert('共通データを読み込めません。');return}
+if(!$('companyName').value.trim()){alert('会社名を入力してください。');$('companyName').focus();return}
+const rec={...(current||{}),status:'active',updatedAt:new Date().toISOString()};fields.forEach(k=>rec[k]=$(k).value.trim());
+try{current=MSData.save('companySettings',rec);$('status').textContent='保存しました';alert('自社情報を保存しました。')}
+catch(e){console.error(e);alert('自社情報の保存中にエラーが発生しました。\n'+(e&&e.message?e.message:String(e)))}}
+function back(){location.href='kanri_settei.html'}$('saveBtn').onclick=save;$('backBtn').onclick=back;$('cancelBtn').onclick=back;load()})();
+</script></body></html>

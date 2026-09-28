@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<script src="ms_password.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>発注・下請請求管理（支払側）｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+:root{--deep:#173f6b;--blue:#176fa8;--line:#c9dbe8;--text:#263f50;--muted:#657986;--money:#f8ecef;--orange:#d8792b;--green:#3f815e}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#fff,#edf6fc);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif}
+header{background:linear-gradient(135deg,#173f6b,#245b86);color:#fff}
+.head{max-width:1440px;margin:auto;padding:13px 24px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:24px;font-weight:900}.sub{font-size:13px;opacity:.9}.head-right{display:flex;align-items:center;gap:18px}.nav{display:flex;gap:7px}
+button{font-family:inherit;cursor:pointer}.nav button{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:7px 12px;font-weight:800}
+main{max-width:1440px;margin:auto;padding:11px 24px 28px}
+.project,.panel{background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:0 4px 12px rgba(23,63,107,.05)}
+.project{padding:8px 11px;display:flex;justify-content:space-between;align-items:center}.project h1{font-size:19px;margin:0;color:var(--deep)}.meta{font-size:13px;color:var(--muted);margin-top:3px}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:8px 0}
+.metric{background:#fff;border:1px solid #d4e1e9;border-radius:8px;padding:7px 10px}.metric .l{font-size:11px;font-weight:900;color:#687d89}.metric .v{text-align:right;font-size:17px;font-weight:700;margin-top:2px}.b{border-top:3px solid var(--blue)}.o{border-top:3px solid var(--orange)}.g{border-top:3px solid var(--green)}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px 9px;padding:9px 10px}
+.field label{display:block;font-size:11px;font-weight:900;color:#607887;margin:0 0 2px}.field input,.field select,.field textarea{width:100%;height:29px;border:1px solid #b8cdda;border-radius:4px;padding:4px 6px;font:inherit;font-size:13px;background:#fff}.field input.money{background:var(--money);text-align:right}.span2{grid-column:span 2}.span3{grid-column:span 3}.span6{grid-column:span 6}
+.pt{padding:7px 10px;background:#f2f8fc;border-bottom:1px solid #d9e6ef;color:var(--deep);font-size:13px;font-weight:900;display:flex;justify-content:space-between;align-items:center}
+.panel{overflow:hidden;margin-top:8px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:900px}th{background:#edf4f8;color:#426278;font-size:12px;text-align:left;padding:7px 6px;border-bottom:1px solid #c9dbe8}td{font-size:13px;padding:5px 6px;border-bottom:1px solid #e5edf2}th.num,td.num{text-align:right}.amount{font-weight:700;font-variant-numeric:tabular-nums}.edit{width:100%;height:27px;border:1px solid #b8cdda;border-radius:4px;background:var(--money);text-align:right;padding:3px 5px;font:inherit}
+.note{padding:7px 10px;background:#fafcfd;border-top:1px solid #e3ebf0;color:#687d89;font-size:10px}
+.summary{display:flex;justify-content:flex-end;gap:25px;padding:8px 11px;background:#fffaf4;border-top:1px solid #eadbc8;font-size:11px}.summary b{font-size:14px}
+.warn{margin-top:8px;padding:8px 10px;border:1px solid #e6c89e;background:#fff7ec;color:#805323;border-radius:8px;font-size:10px}
+.actions{display:flex;justify-content:space-between;gap:8px;margin-top:10px}.left,.right{display:flex;gap:7px}.actions button{border:0;border-radius:7px;padding:8px 14px;font-weight:900}.back{background:#e7eef2;color:#425d6d}.save{background:var(--blue);color:#fff}.doc{background:var(--orange);color:#fff}.uke{background:#5b7790;color:#fff}
+
+.order-list{min-width:1180px}
+.order-list th.supplier-col,.order-list td.supplier-col{width:380px;min-width:380px;white-space:nowrap}
+.order-list th.action-col,.order-list td.action-col{width:145px;min-width:145px;text-align:center}
+.row-actions{display:flex;gap:5px;justify-content:center}
+.row-actions button{border:0;border-radius:5px;padding:5px 8px;font-size:11px;font-weight:900;cursor:pointer}
+.row-edit{background:#e6f1f8;color:#245c7b}.row-delete{background:#f8e8e8;color:#8b3838}
+.row-locked{font-size:10px;font-weight:900;color:#8a6b32;white-space:nowrap}
+
+.order-list tbody tr{cursor:pointer}.order-list tbody tr:hover{background:#f4f9fc}
+.order-list tbody tr.selected{background:#e9f4fb}
+.badge{display:inline-block;border-radius:999px;padding:3px 7px;font-size:9px;font-weight:900}
+.done{background:#e6f4eb;color:#34704d}.wait{background:#fff1df;color:#9a5d18}
+.list-total{font-size:11px;color:#536d7c}.list-total b{font-size:14px;color:#173f6b}
+.newbtn{border:0;border-radius:6px;background:#176fa8;color:#fff;padding:6px 11px;font-size:10px;font-weight:900}.budget-pick{margin:0 10px 10px;border:1px solid #c9dbe8;border-radius:7px;overflow:hidden}.budget-pick table{min-width:700px}.budget-pick input[type=checkbox]{width:18px;height:18px}.flow-note{padding:7px 10px;background:#eef6fb;border-bottom:1px solid #d9e6ef;font-size:10px;color:#496879}.budget-total{display:flex;justify-content:flex-end;gap:24px;padding:8px 10px;background:#f7fafc;border-top:1px solid #d9e6ef;font-size:11px}.budget-total b{font-size:14px;color:#173f6b}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}.metrics{grid-template-columns:1fr 1fr}.span6{grid-column:span 3}.head{align-items:flex-start;gap:10px}.head-right{flex-direction:column;align-items:flex-end;gap:7px}.head-stats{gap:10px}.head-stat{min-width:100px}.head-stat .hv{font-size:14px}}
+.pay-toggle{width:100%;border:0;background:#eef8f2;color:#2f6849;padding:9px 11px;font-size:13px;font-weight:900;display:flex;justify-content:space-between;align-items:center}.pay-toggle .arrow{display:inline-block;width:18px}.pay-body{display:none}.pay-body.open{display:block}.pay-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:9px 10px 0}.pay-card{border:1px solid #cfe1d6;border-radius:7px;padding:7px 9px;background:#f8fcf9}.pay-card .l{font-size:9px;font-weight:900;color:#607b69}.pay-card .v{text-align:right;font-size:15px;font-weight:800;margin-top:2px}.two-ledgers{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}.ledger{border:1px solid #d4e1e9;border-radius:8px;overflow:hidden;background:#fff}.ledger-head{padding:8px 10px;font-size:13px;font-weight:900;display:flex;justify-content:space-between;align-items:center}.invoice .ledger-head{background:#eef6fb;color:#285f82}.payment .ledger-head{background:#eef8f2;color:#2f6849}.ledger-form{display:grid;grid-template-columns:120px 140px 1fr 92px;gap:7px;padding:9px;background:#fafcfd;border-bottom:1px solid #e2ebf0}.ledger-form input{width:100%;height:30px;border:1px solid #b8cdda;border-radius:4px;padding:4px 6px;font:inherit;font-size:11px}.ledger-form .money{background:var(--money);text-align:right}.ledger-form button{border:0;border-radius:5px;color:#fff;font-weight:900}.invoice .ledger-form button{background:var(--blue)}.payment .ledger-form button{background:var(--green)}.ledger table{min-width:0}.ledger th,.ledger td{font-size:10px}.ledger-total{padding:7px 10px;text-align:right;background:#f8fafb;font-size:11px}.ledger-total b{font-size:14px}.pay-warning{margin:0 10px 10px;padding:7px 10px;border-radius:6px;background:#fff7ec;border:1px solid #e6c89e;color:#805323;font-size:10px}@media(max-width:900px){.pay-summary{grid-template-columns:1fr 1fr}.two-ledgers{grid-template-columns:1fr}.ledger-form{grid-template-columns:1fr 1fr}.ledger-form .wide{grid-column:span 2}}
+
+.order-list{width:100%;min-width:1180px;table-layout:fixed}
+.order-list th.supplier-col,.order-list td.supplier-col{width:380px!important;min-width:380px!important;max-width:380px!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
+.order-list th.action-col,.order-list td.action-col{width:150px!important;min-width:150px!important}
+.order-list th:nth-child(2),.order-list td:nth-child(2){width:auto}
+.order-list .row-actions{display:flex!important;gap:6px;justify-content:center}
+.order-list .row-actions button{display:inline-block!important;min-width:54px;height:29px}
+
+/* v9 発注一覧：画面内に発注先・操作を必ず表示 */
+.table-wrap{overflow-x:hidden!important}
+.order-list{width:100%!important;min-width:0!important;table-layout:fixed!important}
+.order-list th.supplier-col,.order-list td.supplier-col{
+ width:30%!important;min-width:0!important;max-width:none!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+}
+.order-list th:nth-child(2),.order-list td:nth-child(2){width:19%!important}
+.order-list th:nth-child(3),.order-list td:nth-child(3){width:12%!important}
+.order-list th:nth-child(4),.order-list td:nth-child(4){width:11%!important}
+.order-list th:nth-child(5),.order-list td:nth-child(5){width:11%!important}
+.order-list th:nth-child(6),.order-list td:nth-child(6){width:7%!important}
+.order-list th.action-col,.order-list td.action-col{width:10%!important;min-width:0!important}
+.order-list .row-actions{display:flex!important;gap:4px!important;justify-content:center!important}
+.order-list .row-actions button{display:inline-block!important;min-width:42px!important;padding:4px 5px!important;height:27px!important}
+
+.supplier-field{position:relative}
+.supplier-combo{position:relative}
+.supplier-combo input{padding-right:28px!important}
+.supplier-arrow{position:absolute;right:8px;top:6px;font-size:11px;color:#587284;pointer-events:none}
+.supplier-candidates{display:none;position:absolute;z-index:1000;left:0;right:0;top:31px;max-height:260px;overflow-y:auto;background:#fff;border:1px solid #9fb9c9;border-radius:5px;box-shadow:0 7px 18px rgba(23,63,107,.18)}
+.supplier-candidates.open{display:block}
+.supplier-option{padding:7px 9px;border-bottom:1px solid #edf2f5;cursor:pointer;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.supplier-option:last-child{border-bottom:0}.supplier-option:hover,.supplier-option.active{background:#eaf4fa;color:#174f75}
+.supplier-empty{padding:9px;color:#778b97;font-size:12px}
+
+/* 発注・請求画面：明細文字を読みやすく拡大 */
+.order-list th,.order-list td{font-size:15px!important}
+.order-list .amount{font-size:16px!important;font-weight:800}
+#invoiceBody td{font-size:15px!important}
+#invoiceBody .amount{font-size:16px!important;font-weight:800}
+.table-wrap table:not(.order-list) th{font-size:14px!important}
+.table-wrap table:not(.order-list) td{font-size:15px!important}
+.field label{font-size:14px!important}
+.field input,.field select,.field textarea{font-size:15px!important}
+.supplier-option{font-size:15px!important}
+.summary-card .label,.summary .label{font-size:13px!important}
+.summary-card .value,.summary .value{font-size:17px!important}
+.row-actions button{font-size:13px!important}
+
+/* 下請請求 登録・履歴：数字を中心にさらに読みやすく拡大 */
+#invoiceBody td{font-size:17px!important}
+#invoiceBody .amount{font-size:19px!important;font-weight:900!important;font-variant-numeric:tabular-nums}
+#invoiceBody td:first-child{font-size:16px!important;font-weight:700}
+#invoiceBody td:nth-child(3){font-size:16px!important}
+#invoiceBody .row-actions button{font-size:14px!important}
+#invoiceDate,#invoiceAmount,#invoiceMemo{font-size:17px!important;font-weight:700}
+#invoiceAmount{font-size:19px!important;font-weight:900!important}
+#invoicePanel label,.invoice-panel label{font-size:15px!important}
+
+/* 下請請求 登録・履歴：元より少しだけ大きいサイズに調整 */
+#invoiceBody td{font-size:16px!important}
+#invoiceBody .amount{font-size:16px!important;font-weight:800!important;font-variant-numeric:tabular-nums}
+#invoiceBody td:first-child{font-size:15px!important;font-weight:600}
+#invoiceBody td:nth-child(3){font-size:15px!important}
+#invoiceBody .row-actions button{font-size:13px!important}
+#invoiceDate,#invoiceAmount,#invoiceMemo{font-size:15px!important;font-weight:600}
+#invoiceAmount{font-size:16px!important;font-weight:800!important}
+#invoicePanel label,.invoice-panel label{font-size:14px!important}
+
+/* 下請請求 登録・履歴：控えめな拡大に再調整 */
+#invoiceBody td{font-size:15px!important}
+#invoiceBody .amount{font-size:15px!important;font-weight:800!important;font-variant-numeric:tabular-nums}
+#invoiceBody td:first-child{font-size:14px!important;font-weight:600}
+#invoiceBody td:nth-child(3){font-size:14px!important}
+#invoiceBody .row-actions button{font-size:12px!important}
+#invoiceDate,#invoiceAmount,#invoiceMemo{font-size:14px!important;font-weight:600}
+#invoiceAmount{font-size:15px!important;font-weight:800!important}
+#invoicePanel label,.invoice-panel label{font-size:13px!important}
+
+/* 金額表示：太字を抑えて画面全体の濃さを調整 */
+.order-list .amount,
+#invoiceBody .amount,
+#invoiceAmount,
+.readnum,
+.summary-card .value,
+.summary .value{
+  font-weight:600!important;
+}
+
+/* 下請請求 登録・履歴：請求額を少し小さく */
+#invoiceBody .amount{
+  font-size:14px!important;
+}
+#invoiceAmount{
+  font-size:14px!important;
+  font-weight:600!important;
+}
+
+/* 注文書用 契約・支払条件 */
+.contract-box{margin:0 10px 10px;border:1px solid #c9dbe8;border-radius:7px;overflow:hidden;background:#fff}
+.contract-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px 10px;padding:10px}
+.contract-grid .field input,.contract-grid .field select{height:31px}
+.contract-grid .wide{grid-column:span 2}
+@media(max-width:900px){.contract-grid{grid-template-columns:repeat(2,1fr)}}
+
+.contract-collapsed{margin:0 10px 10px;border:1px solid #c9dbe8;border-radius:7px;overflow:hidden;background:#fff}
+.contract-toggle{width:100%;border:0;background:#f2f8fc;color:#173f6b;padding:9px 11px;font-weight:900;display:flex;justify-content:space-between;align-items:center;text-align:left}
+.contract-toggle:hover{background:#eaf4fa}
+.contract-status{font-size:11px;color:#3f815e;background:#eaf6ef;border-radius:999px;padding:3px 9px}
+.contract-collapsed .contract-box{margin:0!important;border:0!important;border-top:1px solid #d9e6ef!important;border-radius:0!important}
+</style>
+</head>
+<body>
+<header><div class="head"><div><div class="brand">MS建設管理システム</div><div class="sub">発注・下請請求管理（支払側）　<span style="background:#fff3cd;color:#7a5600;padding:2px 7px;border-radius:10px;font-weight:900">基準版 v5.1</span></div></div><div class="head-right"><div class="nav"><button id="goBudget">実行予算へ</button><button id="goCarte">工事カルテへ</button></div></div></div></header>
+<main>
+<section class="project"><div><h1 id="projectTitle">工事を読み込み中...</h1><div class="meta" id="projectMeta"></div></div><b style="font-size:12px;color:#176fa8">発注・請求状況</b></section>
+<section class="metrics">
+<div class="metric b"><div class="l">受注金額</div><div class="v" id="mContract">0円</div></div>
+<div class="metric b"><div class="l">実行予算</div><div class="v" id="mBudget">0円</div></div>
+<div class="metric g"><div class="l">予定利益率</div><div class="v" id="mMargin">0.0％</div></div>
+<div class="metric o"><div class="l">発注済</div><div class="v" id="mOrdered">0円</div></div>
+<div class="metric g"><div class="l">未発注予算</div><div class="v" id="mUnordered">0円</div></div>
+<div class="metric o"><div class="l">未請求額</div><div class="v" id="mUnbilled">0円</div></div>
+</section>
+<section class="panel">
+<div class="pt"><span>この工事の発注先一覧</span><button class="newbtn" id="newOrder">＋ 発注先を追加</button></div>
+<div class="table-wrap"><table class="order-list" style="table-layout:fixed"><thead><tr><th class="supplier-col">発注先</th><th>発注内容</th><th class="num" style="width:125px">発注額</th><th class="num" style="width:125px">請求累計</th><th class="num" style="width:125px">未請求額</th><th style="width:90px">状態</th><th class="action-col">操作</th></tr></thead><tbody id="orderList"></tbody></table></div>
+<div class="note">実行予算を元に発注します。1つの工種を複数社へ分けることも、複数の工種を1社へまとめて発注することもできます。</div>
+</section>
+<section class="panel" id="addPanel" style="display:none">
+<div class="pt"><span>実行予算から発注</span><button class="back" id="closeAdd" style="border:0;border-radius:5px;padding:5px 10px;font-weight:900">閉じる</button></div>
+<div class="flow-note">実行予算の工種を選び、各工種の「今回発注額」を入力します。複数工種を1社へまとめる場合も、工種ごとの内訳を指定できます。</div>
+<div class="grid">
+<div class="field span2 supplier-field"><label>発注先</label>
+<div class="supplier-combo">
+<input id="supplierSearch" type="text" autocomplete="off" placeholder="会社名・ふりがな・略称で検索">
+<span class="supplier-arrow">▼</span>
+<div id="supplierCandidates" class="supplier-candidates"></div>
+</div>
+<select id="supplier" style="display:none"><option value="">選択してください</option></select>
+</div>
+<div class="field span2"><label>発注内容</label><input id="newContent"></div>
+<div class="field"><label>発注合計</label><input id="newAmount" class="money" inputmode="numeric" readonly></div>
+<div class="field"><label>発注日</label><input id="orderDate" type="date"></div>
+</div>
+<div class="budget-pick"><div class="pt" style="font-size:12px"><span>実行予算から発注する工種を選択</span><span>複数選択可</span></div>
+<div class="table-wrap"><table><thead><tr><th style="width:55px">選択</th><th style="width:190px">工種</th><th>内容</th><th class="num" style="width:115px">実行予算</th><th class="num" style="width:115px">発注済</th><th class="num" style="width:115px">未発注</th><th class="num" style="width:145px">今回発注額</th></tr></thead><tbody id="budgetPick"></tbody></table></div>
+<div class="budget-total"><span>選択予算残　<b id="selectedBudget">0円</b></span><span>発注金額　<b id="enteredOrder">0円</b></span><span>発注後予算残　<b id="afterBudget">0円</b></span></div></div>
+<div class="contract-collapsed">
+<button type="button" class="contract-toggle" id="contractToggle">
+  <span><span id="contractArrow">▶</span> 契約・支払条件</span>
+  <span class="contract-status" id="contractStatus">標準条件を使用</span>
+</button>
+<div id="contractBody" style="display:none">
+<div class="contract-box" style="margin-top:0">
+<div class="pt"><span>契約・支払条件</span><span style="font-size:10px;color:#657986">通常は確認のみでOKです</span></div>
+<div class="contract-grid">
+<div class="field"><label>工期開始</label><input id="ccStart" type="date"></div>
+<div class="field"><label>工期終了</label><input id="ccEnd" type="date"></div>
+<div class="field"><label>施工しない日</label><input id="ccNoDay"></div>
+<div class="field"><label>施工しない時間帯</label><input id="ccNoTime"></div>
+<div class="field"><label>出来高払</label><input id="ccProgress" value="95％"></div>
+<div class="field"><label>保留金</label><input id="ccRetention" value="5％"></div>
+<div class="field"><label>保留解除</label><input id="ccRetentionRelease" value="最終請求後1か月"></div>
+<div class="field"><label>前払金</label><input id="ccAdvance" value="なし"></div>
+<div class="field"><label>請求締切</label><input id="ccClosing" value="月末"></div>
+<div class="field"><label>支払日</label><input id="ccPayDay" value="翌月末"></div>
+<div class="field"><label>支払方法</label><input id="ccPayMethod" value="銀行振込"></div>
+<div class="field"><label>労災保険</label><input id="ccWorkers" value="注文者負担"></div>
+<div class="field"><label>履行遅滞損害金（年率）</label><select id="ccDelay"><option value="14.6％">14.6％</option><option value="5％">5％</option><option value="その他">その他</option></select><input id="ccDelayOther" inputmode="decimal" placeholder="例：8％" style="display:none;margin-top:4px"></div>
+<div class="field"><label>過払金返還利息（年率）</label><select id="ccOverpay"><option value="14.6％">14.6％</option><option value="5％">5％</option><option value="その他">その他</option></select><input id="ccOverpayOther" inputmode="decimal" placeholder="例：8％" style="display:none;margin-top:4px"></div>
+<div class="field"><label>契約不適合責任期間</label><input id="ccDefect" value="個別協議"></div>
+<div class="field"><label>運送費</label><input id="ccFreight" value="受注者負担"></div>
+<div class="field"><label>建設リサイクル法</label><select id="ccRecycle"><option>対象外</option><option>対象</option></select></div>
+<div class="field"><label>消費税率</label><select id="ccTax"><option value="10">10％</option><option value="8">8％</option><option value="0">0％</option></select></div>
+<div class="field wide"><label>特約・補足</label><input id="ccSpecial"></div>
+</div>
+</div>
+
+</div>
+</div>
+<div class="actions" style="padding:0 10px 10px"><div></div><div class="right"><button type="button" class="save" id="registerOrder">発注を登録</button><button class="doc" id="issueOrder">発注書を発行</button></div></div>
+</section>
+<section class="panel" id="billingPanel" style="display:none">
+<button class="pay-toggle" id="payToggle"><span><span class="arrow" id="payArrow">▼</span><span id="payTitle">請求管理</span></span><span>未請求額　<b id="invoiceRemain">0円</b></span></button>
+<div class="pay-body open" id="payBody"><div class="pay-summary" style="grid-template-columns:repeat(3,1fr)"><div class="pay-card"><div class="l">発注額</div><div class="v" id="sumOrder">0円</div></div><div class="pay-card"><div class="l">請求累計</div><div class="v" id="sumBilled">0円</div></div><div class="pay-card"><div class="l">未請求額</div><div class="v" id="sumRemain">0円</div></div></div>
+<div class="ledger invoice" style="margin:10px"><div class="ledger-head"><span>下請請求 登録・履歴</span><span>下請け・仕入先から請求書が来たら登録</span></div>
+<div class="ledger-form"><input type="date" id="invoiceDate"><input class="money" id="invoiceAmount" inputmode="numeric" placeholder="請求額"><input class="wide" id="invoiceMemo" placeholder="請求書番号・備考"><button id="invoiceSave">下請請求を登録</button></div>
+<div class="table-wrap"><table><thead><tr><th style="width:120px">請求日</th><th class="num" style="width:140px">請求額</th><th>請求書番号・備考</th><th style="width:120px">操作</th></tr></thead><tbody id="invoiceBody"></tbody></table></div><div class="ledger-total">請求累計　<b id="invoiceTotal">0円</b></div></div>
+<div class="pay-warning" id="invoiceWarning"><b>請求チェック：</b> 発注額の範囲内です。</div></div></section>
+<div class="actions"><div class="left"><button class="back" id="backBudget">実行予算へ戻る</button></div></div>
+</main>
+<script src="shared_storage.js"></script>
+<script src="ms_data.js"></script>
+<script>
+(()=>{
+const $=id=>document.getElementById(id), n=v=>Number(String(v??'').replace(/[^\d.-]/g,''))||0, yen=v=>n(v).toLocaleString('ja-JP')+'円';
+function formatMoneyInput(el){
+ const raw=String(el.value??'');
+ const caret=el.selectionStart??raw.length;
+ const digitsBefore=(raw.slice(0,caret).match(/\d/g)||[]).length;
+ const neg=raw.trim().startsWith('-');
+ const digits=raw.replace(/[^\d]/g,'');
+ if(!digits){el.value=neg?'-':'';return}
+ const num=Number(digits);
+ el.value=(neg?'-':'')+(Number.isFinite(num)?num.toLocaleString('ja-JP'):digits);
+ let seen=0,pos=0;
+ for(;pos<el.value.length;pos++){if(/\d/.test(el.value[pos]))seen++;if(seen>=digitsBefore) {pos++;break}}
+ try{el.setSelectionRange(pos,pos)}catch(e){}
+}
+function bindMoneyInputs(){
+ document.querySelectorAll('input.money').forEach(el=>{
+  if(el.dataset.commaBound==='1')return;
+  el.dataset.commaBound='1';
+  el.addEventListener('input',()=>{formatMoneyInput(el);if(el.id==='newAmount')updatePick()});
+  if(el.value)formatMoneyInput(el);
+ });
+}
+
+const p=new URLSearchParams(location.search), id=p.get('id')||'';
+if(!id||!window.MSData){alert('工事データを読み込めません。');location.replace('kouji_list.html');return;}
+let project=MSData.get('projects',id)||(MSData.all('projects')||[]).find(x=>String(x.id)===String(id)); if(!project){alert('選択中の工事を読み込めません。工事一覧から選び直してください。');location.replace('kouji_list.html');return;} sessionStorage.setItem('mscm:selectedProjectId',id);
+let budget=(MSData.all('budgets')||[]).filter(x=>String(x.projectId)===String(id)&&x.status!=='inactive').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')))[0]||null;
+let items=budget&&Array.isArray(budget.items)?budget.items.map(x=>({...x})):[];
+try{
+ const handoff=JSON.parse(sessionStorage.getItem('mscm:orderBudgetHandoff')||'null');
+ if(handoff&&String(handoff.projectId)===String(id)&&Array.isArray(handoff.items)&&handoff.items.length){
+   items=handoff.items.map(x=>({...x,amount:n(x.amount),orderedAmount:n(x.orderedAmount)}));
+ }
+}catch(e){}
+let orders=(MSData.all('orders')||[]).filter(x=>String(x.projectId)===String(id)&&x.status!=='inactive');
+let editingInvoiceId='';
+let invoices=(MSData.all('supplierInvoices')||[]).filter(x=>String(x.projectId)===String(id)&&x.status!=='inactive');
+let currentOrderId='';
+let editingOrderId='';
+function go(f){sessionStorage.setItem('mscm:selectedProjectId',id);location.href=f+'?id='+encodeURIComponent(id)}
+function contract(){const c=project.contractCurrent||project.currentContractAmount||project.finalContractAmount||project.contractAmount||0;return n(c)}
+function today(){return new Date().toLocaleDateString('sv-SE')}
+function esc(s){return String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function supplierName(o){return o.supplierName||'—'}
+function billed(orderId){return invoices.filter(x=>x.orderId===orderId).reduce((s,x)=>s+n(x.amount),0)}
+function renderHead(){const no=project.legacyProjectNo||project.no||'—';$('projectTitle').textContent=no+'　'+(project.name||'');$('projectMeta').textContent='発注者：'+(project.clientName||'—')+'　｜　工期：'+(project.startDate||'—')+' ～ '+(project.endDate||'—')+'　｜　担当：'+(project.projectPerson||project.sitePerson||'—');}
+function recalcBudgetOrdered(){items.forEach((it,i)=>{it.orderedAmount=orders.reduce((s,o)=>s+(Array.isArray(o.allocations)?o.allocations.filter(a=>Number(a.itemIndex)===i).reduce((q,a)=>q+n(a.amount),0):0),0)});if(budget){budget=MSData.save('budgets',{...budget,items,updatedAt:new Date().toISOString()});}}
+function metrics(){const bt=items.reduce((s,x)=>s+n(x.amount),0), ord=orders.reduce((s,x)=>s+n(x.amount),0), inv=invoices.reduce((s,x)=>s+n(x.amount),0), c=contract();$('mContract').textContent=yen(c);$('mBudget').textContent=yen(bt);$('mMargin').textContent=(c?(c-bt)/c*100:0).toFixed(1)+'％';$('mOrdered').textContent=yen(ord);$('mUnordered').textContent=yen(bt-ord);$('mUnbilled').textContent=yen(ord-inv);}
+function renderOrders(){
+ const tb=$('orderList');tb.innerHTML='';
+ if(!orders.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#71838e;padding:14px">発注はまだありません。</td></tr>';
+ orders.forEach(o=>{
+  const b=billed(o.id),r=n(o.amount)-b,tr=document.createElement('tr'),issued=!!o.orderIssuedAt;
+  tr.dataset.id=o.id;
+  const ops=issued
+   ?'<span class="row-locked">発注書発行済</span>'
+   :'<div class="row-actions"><button type="button" class="row-edit">編集</button><button type="button" class="row-delete">削除</button></div>';
+  tr.innerHTML='<td class="supplier-col">'+esc(supplierName(o))+'</td><td>'+esc(o.content||'')+'</td><td class="num amount">'+yen(o.amount)+'</td><td class="num amount">'+yen(b)+'</td><td class="num amount">'+yen(r)+'</td><td><span class="badge '+(r<=0?'done':'wait')+'">'+(r<=0?'請求済':(b<=0?'未請求':'請求途中'))+'</span></td><td class="action-col">'+ops+'</td>';
+  tr.onclick=()=>selectOrder(o.id);
+  const eb=tr.querySelector('.row-edit');if(eb)eb.onclick=e=>{e.stopPropagation();editOrder(o.id)};
+  const db=tr.querySelector('.row-delete');if(db)db.onclick=e=>{e.stopPropagation();deleteOrder(o.id)};
+  tb.appendChild(tr)
+ });
+ metrics();
+}
+
+function defaultConditions(){
+ return {
+  start:project.startDate||'', end:project.endDate||'', noDay:'', noTime:'',
+  progress:'95％', retention:'5％', retentionRelease:'最終請求後1か月',
+  advance:'なし', closing:'月末', payDay:'翌月末', payMethod:'銀行振込',
+  workers:'注文者負担', delay:'14.6％', overpay:'14.6％',
+  defect:'個別協議', freight:'受注者負担', recycle:'対象外', tax:'10', special:''
+ };
+}
+function supplierById(sid){return supplierRows.find(x=>String(x.id||supplierLabel(x))===String(sid))||null}
+function getRateValue(selectId,otherId){
+ const sel=$(selectId), other=$(otherId);
+ return sel.value==='その他' ? other.value.trim() : sel.value;
+}
+function setRateValue(selectId,otherId,value){
+ const sel=$(selectId), other=$(otherId), v=String(value||'').trim();
+ if(v==='14.6％'||v==='5％'){
+  sel.value=v; other.value=''; other.style.display='none';
+ }else{
+  sel.value='その他'; other.value=v; other.style.display='';
+ }
+}
+function bindRateSelect(selectId,otherId){
+ const sel=$(selectId), other=$(otherId);
+ const sync=()=>{other.style.display=sel.value==='その他'?'':'none'; if(sel.value==='その他')other.focus();};
+ sel.addEventListener('change',sync);
+}
+function conditionValues(){
+ return {start:$('ccStart').value,end:$('ccEnd').value,noDay:$('ccNoDay').value.trim(),noTime:$('ccNoTime').value.trim(),
+ progress:$('ccProgress').value.trim(),retention:$('ccRetention').value.trim(),retentionRelease:$('ccRetentionRelease').value.trim(),
+ advance:$('ccAdvance').value.trim(),closing:$('ccClosing').value.trim(),payDay:$('ccPayDay').value.trim(),payMethod:$('ccPayMethod').value.trim(),
+ workers:$('ccWorkers').value.trim(),delay:getRateValue('ccDelay','ccDelayOther'),overpay:getRateValue('ccOverpay','ccOverpayOther'),defect:$('ccDefect').value.trim(),
+ freight:$('ccFreight').value.trim(),recycle:$('ccRecycle').value,tax:$('ccTax').value,special:$('ccSpecial').value.trim()};
+}
+function fillConditions(c,supplierId){
+ const d={...defaultConditions(),...(c||{})};
+ const sp=supplierById(supplierId);
+ if(!c && sp && sp.paymentTerms)d.payMethod=sp.paymentTerms;
+ [['ccStart','start'],['ccEnd','end'],['ccNoDay','noDay'],['ccNoTime','noTime'],['ccProgress','progress'],['ccRetention','retention'],
+ ['ccRetentionRelease','retentionRelease'],['ccAdvance','advance'],['ccClosing','closing'],['ccPayDay','payDay'],['ccPayMethod','payMethod'],
+ ['ccWorkers','workers'],['ccDefect','defect'],['ccFreight','freight'],['ccRecycle','recycle'],
+ ['ccTax','tax'],['ccSpecial','special']].forEach(([id,k])=>{$(id).value=d[k]??''});
+ setRateValue('ccDelay','ccDelayOther',d.delay);
+ setRateValue('ccOverpay','ccOverpayOther',d.overpay);
+}
+
+function editOrder(oid){
+ const o=orders.find(x=>x.id===oid);if(!o)return;
+ if(o.orderIssuedAt){alert('発注書発行済みのため編集できません。');return}
+ editingOrderId=oid;
+ $('addPanel').style.display='block';
+ $('supplier').value=o.supplierId||'';
+ $('supplierSearch').value=o.supplierName||supplierName(o)||'';
+ $('newContent').value=o.content||'';$('newContent').dataset.auto='0';
+ $('newAmount').value=n(o.amount)?n(o.amount).toLocaleString('ja-JP'):'';
+ $('orderDate').value=o.orderDate||today();
+ renderBudgetPick();
+ updatePick(false);
+ $('registerOrder').textContent='発注を更新';
+ $('addPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function deleteOrder(oid){
+ const o=orders.find(x=>x.id===oid);if(!o)return;
+ if(o.orderIssuedAt){alert('発注書発行済みのため削除できません。');return}
+ if(invoices.some(x=>x.orderId===oid)){alert('この発注には請求登録があります。先に請求データを確認してください。');return}
+ if(!confirm('この発注を削除しますか？\n実行予算の発注済額も元に戻ります。'))return;
+ MSData.save('orders',{...o,status:'inactive',updatedAt:new Date().toISOString()});
+ orders=orders.filter(x=>x.id!==oid);
+ if(currentOrderId===oid){currentOrderId='';$('billingPanel').style.display='none'}
+ recalcBudgetOrdered();renderBudgetPick();renderOrders();
+}
+let supplierRows=[],supplierActive=-1;
+function supplierLabel(x){return x.name||x.companyName||x.partnerName||''}
+function supplierSearchText(x){return [supplierLabel(x),x.kana,x.nameKana,x.companyKana,x.shortName,x.abbreviation,x.code].filter(Boolean).join(' ').toLowerCase()}
+function loadSuppliers(){
+ try{
+  supplierRows=MSData.all('partners').filter(x=>{
+   const t=String(x.tradeType||'').trim(),st=String(x.tradeStatus||(x.status==='inactive'?'休止':'取引中')).trim();
+   return (t==='発注'||t==='両方')&&st==='取引中'&&x.status!=='inactive'
+  }).sort((a,b)=>supplierLabel(a).localeCompare(supplierLabel(b),'ja'));
+ }catch(e){supplierRows=[]}
+ const sel=$('supplier');sel.innerHTML='<option value="">選択してください</option>';
+ supplierRows.forEach(x=>{const o=document.createElement('option');o.value=x.id||supplierLabel(x);o.textContent=supplierLabel(x);o.dataset.name=supplierLabel(x);sel.appendChild(o)});
+ setupSupplierSearch();
+}
+function renderSupplierCandidates(q=''){
+ const box=$('supplierCandidates'),key=String(q||'').trim().toLowerCase();
+ const rows=supplierRows.filter(x=>!key||supplierSearchText(x).includes(key)).slice(0,100);
+ supplierActive=rows.length?0:-1;
+ box.innerHTML='';
+ if(!rows.length){box.innerHTML='<div class="supplier-empty">該当する発注先がありません</div>';box.classList.add('open');return}
+ rows.forEach((x,i)=>{
+  const d=document.createElement('div');d.className='supplier-option'+(i===supplierActive?' active':'');
+  d.dataset.id=x.id||supplierLabel(x);d.dataset.name=supplierLabel(x);d.textContent=supplierLabel(x);
+  d.onmousedown=e=>{e.preventDefault();chooseSupplier(d.dataset.id,d.dataset.name)};
+  box.appendChild(d)
+ });
+ box.classList.add('open');
+}
+function chooseSupplier(value,name){
+ $('supplier').value=String(value);$('supplierSearch').value=name||'';$('supplierCandidates').classList.remove('open');supplierActive=-1;if(!editingOrderId){const sp=supplierById(value);if(sp&&sp.paymentTerms)$('ccPayMethod').value=sp.paymentTerms;}
+}
+function moveSupplier(step){
+ const opts=[...$('supplierCandidates').querySelectorAll('.supplier-option')];if(!opts.length)return;
+ supplierActive=Math.max(0,Math.min(opts.length-1,supplierActive+step));
+ opts.forEach((x,i)=>x.classList.toggle('active',i===supplierActive));opts[supplierActive].scrollIntoView({block:'nearest'});
+}
+function setupSupplierSearch(){
+ const inp=$('supplierSearch'),box=$('supplierCandidates');
+ inp.onfocus=()=>renderSupplierCandidates(inp.value);
+ inp.onclick=()=>renderSupplierCandidates(inp.value);
+ inp.oninput=()=>{$('supplier').value='';renderSupplierCandidates(inp.value)};
+ inp.onkeydown=e=>{
+  if(e.key==='ArrowDown'){e.preventDefault();if(!box.classList.contains('open'))renderSupplierCandidates(inp.value);else moveSupplier(1)}
+  else if(e.key==='ArrowUp'){e.preventDefault();moveSupplier(-1)}
+  else if(e.key==='Enter'&&box.classList.contains('open')){const a=box.querySelector('.supplier-option.active');if(a){e.preventDefault();chooseSupplier(a.dataset.id,a.dataset.name)}}
+  else if(e.key==='Escape'){box.classList.remove('open')}
+ };
+ document.addEventListener('mousedown',e=>{if(!e.target.closest('.supplier-combo'))box.classList.remove('open')});
+}
+function oldAllocation(i){
+ const oldOrder=editingOrderId?orders.find(o=>String(o.id)===String(editingOrderId)):null;
+ return oldOrder&&Array.isArray(oldOrder.allocations)?oldOrder.allocations.filter(a=>Number(a.itemIndex)===i).reduce((q,a)=>q+n(a.amount),0):0;
+}
+function availableBudget(i){return Math.max(0,n(items[i]?.amount)-n(items[i]?.orderedAmount)+oldAllocation(i));}
+function renderBudgetPick(){
+ const tb=$('budgetPick');tb.innerHTML='';
+ if(!items.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#8a5a28;padding:16px">この工事の実行予算明細が見つかりません。実行予算へ戻って「実行予算を保存」を押してください。</td></tr>';return;}
+ items.forEach((it,i)=>{
+  const remain=Math.max(0,n(it.amount)-n(it.orderedAmount));
+  const available=availableBudget(i);
+  const oldAmt=oldAllocation(i);
+  const tr=document.createElement('tr');
+  tr.innerHTML='<td style="text-align:center"><input type="checkbox" class="budgetCheck" data-i="'+i+'"></td><td>'+esc(it.trade||'')+'</td><td>'+esc(it.name||'')+'</td><td class="num amount">'+yen(it.amount)+'</td><td class="num amount">'+yen(it.orderedAmount)+'</td><td class="num amount">'+yen(remain)+'</td><td class="num"><input class="money allocationAmount" data-i="'+i+'" inputmode="numeric" style="width:125px;text-align:right" placeholder="0" disabled></td>';
+  tb.appendChild(tr);
+  const ch=tr.querySelector('.budgetCheck'), inp=tr.querySelector('.allocationAmount');
+  if(oldAmt>0){ch.checked=true;inp.disabled=false;inp.value=oldAmt.toLocaleString('ja-JP');}
+  ch.onchange=()=>{inp.disabled=!ch.checked;if(ch.checked&&!n(inp.value))inp.value=available?available.toLocaleString('ja-JP'):'';if(!ch.checked)inp.value='';updatePick(true);};
+  inp.oninput=()=>updatePick(true);
+  inp.onblur=()=>{const a=n(inp.value);inp.value=a?a.toLocaleString('ja-JP'):'';updatePick(true);};
+ });
+ updatePick(false);
+}
+function updatePick(){
+ let availableTotal=0,orderTotal=0,names=[];
+ document.querySelectorAll('.budgetCheck:checked').forEach(c=>{
+  const i=+c.dataset.i, inp=document.querySelector('.allocationAmount[data-i="'+i+'"]');
+  availableTotal+=availableBudget(i); orderTotal+=n(inp&&inp.value); names.push(items[i].trade||items[i].name||'');
+ });
+ $('newAmount').value=orderTotal?orderTotal.toLocaleString('ja-JP'):'';
+ $('selectedBudget').textContent=yen(availableTotal);
+ $('enteredOrder').textContent=yen(orderTotal);
+ $('afterBudget').textContent=yen(availableTotal-orderTotal);
+ if(!$('newContent').value||$('newContent').dataset.auto==='1'){$('newContent').value=names.join('・');$('newContent').dataset.auto='1';}
+}
+function selectOrder(oid){editingInvoiceId='';$('invoiceSave').textContent='請求登録';$('invoiceAmount').value='';$('invoiceMemo').value='';currentOrderId=oid;document.querySelectorAll('#orderList tr').forEach(r=>r.classList.toggle('selected',r.dataset.id===oid));const o=orders.find(x=>x.id===oid);if(!o)return;$('billingPanel').style.display='block';$('payTitle').textContent=supplierName(o)+'　請求管理';renderInvoices();$('billingPanel').scrollIntoView({behavior:'smooth',block:'start'});}
+function renderInvoices(){
+ const o=orders.find(x=>x.id===currentOrderId);if(!o)return;
+ const xs=invoices.filter(x=>x.orderId===currentOrderId).sort((a,b)=>String(a.invoiceDate||'').localeCompare(String(b.invoiceDate||''))),tb=$('invoiceBody');
+ tb.innerHTML='';let total=0;
+ xs.forEach(x=>{
+  total+=n(x.amount);
+  const tr=document.createElement('tr');
+  tr.innerHTML='<td>'+esc(x.invoiceDate||'')+'</td><td class="num amount">'+yen(x.amount)+'</td><td>'+esc(x.memo||'')+'</td><td><div class="row-actions"><button type="button" class="row-edit">編集</button><button type="button" class="row-delete">削除</button></div></td>';
+  tr.querySelector('.row-edit').onclick=()=>editInvoice(x.id);
+  tr.querySelector('.row-delete').onclick=()=>deleteInvoice(x.id);
+  tb.appendChild(tr);
+ });
+ const rem=n(o.amount)-total;$('sumOrder').textContent=yen(o.amount);$('sumBilled').textContent=yen(total);$('sumRemain').textContent=yen(rem);$('invoiceRemain').textContent=yen(rem);$('invoiceTotal').textContent=yen(total);
+ const w=$('invoiceWarning');if(rem<0){w.innerHTML='<b>請求超過：</b> 発注額を '+yen(-rem)+' 超えています。追加発注・増額変更を確認してください。';w.style.background='#fff0f0';w.style.color='#8b3333'}else{w.innerHTML='<b>請求チェック：</b> 発注額の範囲内です。現在の未請求額は '+yen(rem)+' です。';w.style.background='#fff7ec';w.style.color='#805323'}
+}
+function invoiceHasPayment(inv){
+ try{
+  const pays=MSData.all('supplierPayments')||[];
+  return pays.some(x=>x.status!=='inactive'&&(String(x.invoiceId||'')===String(inv.id)||String(x.supplierInvoiceId||'')===String(inv.id)));
+ }catch(e){return false}
+}
+function editInvoice(iid){
+ const x=invoices.find(v=>String(v.id)===String(iid));if(!x)return;
+ if(invoiceHasPayment(x)){alert('この請求には支払データがあります。先に支払データを訂正してください。');return}
+ editingInvoiceId=x.id;
+ $('invoiceDate').value=x.invoiceDate||today();
+ $('invoiceAmount').value=n(x.amount)?n(x.amount).toLocaleString('ja-JP'):'';
+ $('invoiceMemo').value=x.memo||'';
+ $('invoiceSave').textContent='下請請求を更新';
+ $('invoiceAmount').focus();
+}
+function deleteInvoice(iid){
+ const x=invoices.find(v=>String(v.id)===String(iid));if(!x)return;
+ if(invoiceHasPayment(x)){alert('この請求には支払データがあります。先に支払データを訂正してください。');return}
+ if(!confirm('この請求データを削除しますか？\n請求額 '+yen(x.amount)+' が請求累計から戻ります。'))return;
+ if(!confirm('削除すると元に戻せません。\n本当に削除しますか？'))return;
+ MSData.save('supplierInvoices',{...x,status:'inactive',updatedAt:new Date().toISOString()});
+ invoices=invoices.filter(v=>String(v.id)!==String(iid));
+ if(String(editingInvoiceId)===String(iid)){editingInvoiceId='';$('invoiceSave').textContent='請求登録';$('invoiceAmount').value='';$('invoiceMemo').value=''}
+ renderInvoices();renderOrders();
+};
+$('invoiceSave').onclick=()=>{
+ const o=orders.find(x=>x.id===currentOrderId),a=n($('invoiceAmount').value),d=$('invoiceDate').value;if(!o)return;
+ if(!d||a<=0){alert('下請請求日と請求額を入力してください。');return}
+ const old=editingInvoiceId?invoices.find(x=>String(x.id)===String(editingInvoiceId)):null;
+ if(old&&invoiceHasPayment(old)){alert('この請求には支払データがあります。先に支払データを訂正してください。');return}
+ const past=billed(o.id)-(old?n(old.amount):0);
+ if(past+a>n(o.amount)&&!confirm('請求累計が発注額を '+yen(past+a-n(o.amount))+' 超えます。登録を続けますか？'))return;
+ const rec=MSData.save('supplierInvoices',{...(old||{}),projectId:id,dataSide:'purchase',orderId:o.id,supplierId:o.supplierId||'',supplierName:o.supplierName||'',invoiceDate:d,amount:a,memo:$('invoiceMemo').value.trim(),status:'active',updatedAt:new Date().toISOString()});
+ if(old){invoices=invoices.map(x=>String(x.id)===String(old.id)?rec:x)}else{invoices.push(rec)}
+ editingInvoiceId='';$('invoiceSave').textContent='請求登録';$('invoiceAmount').value='';$('invoiceMemo').value='';renderInvoices();renderOrders();
+};
+function selectedAllocations(){
+ const out=[];
+ document.querySelectorAll('.budgetCheck:checked').forEach(c=>{
+  const i=+c.dataset.i,inp=document.querySelector('.allocationAmount[data-i="'+i+'"]');
+  out.push({itemIndex:i,amount:n(inp&&inp.value),available:availableBudget(i)});
+ });
+ return out;
+}
+
+let contractTouched=false;
+function setContractStatus(){
+ const s=$('contractStatus'); if(!s)return;
+ s.textContent=contractTouched?'変更あり':'標準条件を使用';
+}
+$('contractToggle').onclick=()=>{
+ const b=$('contractBody'),open=b.style.display!=='none';
+ b.style.display=open?'none':'block';
+ $('contractArrow').textContent=open?'▶':'▼';
+};
+document.querySelectorAll('#contractBody input,#contractBody select').forEach(el=>{
+ el.addEventListener('change',()=>{contractTouched=true;setContractStatus()});
+ el.addEventListener('input',()=>{contractTouched=true;setContractStatus()});
+});
+
+
+function saveCurrentOrder(openDocument=false){
+ try{
+   const sid=$('supplier').value;
+   const supplierOpt=$('supplier').selectedOptions[0];
+   const sname=(supplierOpt&&supplierOpt.dataset.name)||$('supplierSearch').value.trim();
+   const content=$('newContent').value.trim();
+   const orderDate=$('orderDate').value;
+   const rows=selectedAllocations();
+   const amount=rows.reduce((q,r)=>q+n(r.amount),0);
+
+   if(!sid||!sname){alert('発注先を選択してください。');$('supplierSearch').focus();return null;}
+   if(!rows.length){alert('実行予算から発注する工種を1つ以上選択してください。');return null;}
+   if(rows.some(r=>r.amount<=0)){alert('選択した工種ごとに「今回発注額」を入力してください。');return null;}
+   const over=rows.find(r=>r.amount>r.available);
+   if(over){alert((items[over.itemIndex]?.trade||items[over.itemIndex]?.name||'選択工種')+' の今回発注額が未発注予算を '+yen(over.amount-over.available)+' 超えています。');return null;}
+   if(amount<=0){alert('今回発注額を入力してください。');return null;}
+   if(!orderDate){alert('発注日を入力してください。');$('orderDate').focus();return null;}
+
+   const allocations=rows.map(r=>({itemIndex:r.itemIndex,amount:r.amount}));
+   const old=editingOrderId?orders.find(o=>String(o.id)===String(editingOrderId)):null;
+   if(old&&old.orderIssuedAt){alert('発注書発行済みのため編集できません。');return null;}
+
+   const rec=MSData.save('orders',{
+     ...(old||{}),
+     projectId:id,
+     dataSide:'purchase',
+     supplierId:sid,
+     supplierName:sname,
+     content:content||rows.map(r=>items[r.itemIndex]?.trade||items[r.itemIndex]?.name||'').filter(Boolean).join('・'),
+     amount,
+     orderDate,
+     allocations,
+     contractConditions:conditionValues(),
+     status:'active',
+     updatedAt:new Date().toISOString()
+   });
+
+   if(old) orders=orders.map(o=>String(o.id)===String(old.id)?rec:o);
+   else orders.push(rec);
+
+   editingOrderId='';
+   recalcBudgetOrdered();
+   renderBudgetPick();
+   renderOrders();
+   $('registerOrder').textContent='発注を登録';
+   currentOrderId=rec.id;
+   sessionStorage.setItem('mscm:selectedOrderId',rec.id);
+   sessionStorage.setItem('mscm:selectedProjectId',id);
+
+   if(openDocument){
+     location.href='hacchu_chumonsho.html?orderId='+encodeURIComponent(rec.id)+'&id='+encodeURIComponent(id);
+   }else{
+     $('addPanel').style.display='none';
+     selectOrder(rec.id);
+     alert(old?'発注を更新しました。':'発注を登録しました。');
+   }
+   return rec;
+ }catch(e){
+   console.error(e);
+   alert('発注登録中にエラーが発生しました。\n'+(e&&e.message?e.message:String(e)));
+   return null;
+ }
+}
+$('registerOrder').onclick=()=>saveCurrentOrder(false);
+
+$('newOrder').onclick=()=>{
+ editingOrderId=''; $('registerOrder').textContent='発注を登録';
+ $('addPanel').style.display='block';
+ bindRateSelect('ccDelay','ccDelayOther');
+bindRateSelect('ccOverpay','ccOverpayOther');
+bindMoneyInputs();
+ $('supplier').value=''; $('supplierSearch').value=''; $('supplierCandidates').classList.remove('open');
+ $('newContent').value=''; $('newContent').dataset.auto='1';
+ $('newAmount').value='';
+ $('orderDate').value=today();
+ fillConditions(null,'');
+ contractTouched=false;setContractStatus();$('contractBody').style.display='none';$('contractArrow').textContent='▶';
+ renderBudgetPick(); updatePick();
+ $('addPanel').scrollIntoView({behavior:'smooth',block:'start'})
+};$('closeAdd').onclick=()=>{editingOrderId='';$('registerOrder').textContent='発注を登録';$('addPanel').style.display='none'};$('newContent').oninput=e=>e.target.dataset.auto='0';$('invoiceAmount').onblur=()=>{const a=n($('invoiceAmount').value);$('invoiceAmount').value=a?a.toLocaleString('ja-JP'):''};$('payToggle').onclick=()=>{const b=$('payBody'),open=b.classList.toggle('open');$('payArrow').textContent=open?'▼':'▶'};
+$('issueOrder').onclick=()=>{
+ if($('addPanel').style.display!=='none'){
+   saveCurrentOrder(true);
+   return;
+ }
+ const o=currentOrderId?orders.find(x=>String(x.id)===String(currentOrderId)):null;
+ if(!o){alert('発注一覧から発注を選択してください。');return}
+ sessionStorage.setItem('mscm:selectedOrderId',o.id);
+ sessionStorage.setItem('mscm:selectedProjectId',id);
+ location.href='hacchu_chumonsho.html?orderId='+encodeURIComponent(o.id)+'&id='+encodeURIComponent(id);
+};$('goBudget').onclick=$('backBudget').onclick=()=>go('jikko_yosan.html');$('goCarte').onclick=()=>go('kouji_carte.html');
+renderHead();loadSuppliers();recalcBudgetOrdered();renderBudgetPick();renderOrders();$('orderDate').value=today();fillConditions(null,'');$('invoiceDate').value=today();bindMoneyInputs();
+})();
+</script>
+</body></html>

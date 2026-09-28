@@ -1,0 +1,25 @@
+<!doctype html><html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>管理・設定｜MS建設管理システム</title><style>
+:root{--blue:#174d78;--line:#cbdbe6;--bg:#f3f7fa;--text:#263f50}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:var(--bg)}header{background:#fff;border-bottom:1px solid var(--line)}.top{max-width:1380px;margin:auto;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:22px;font-weight:900;color:var(--blue)}button{border:0;border-radius:8px;background:var(--blue);color:#fff;padding:9px 16px;font-weight:800;cursor:pointer}main{max-width:1100px;margin:auto;padding:24px 28px}h1{margin:0;color:var(--blue);font-size:28px}.lead{margin:6px 0 18px;color:#71818c;font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px;min-height:125px}.card.primary{border:2px solid #8eb7d2}.card h2{margin:0 0 7px;color:var(--blue);font-size:19px}.card p{margin:0 0 14px;font-size:12px;line-height:1.6;color:#607583}.card button{width:100%}.card button[disabled]{background:#9baab4;cursor:default}.warn{margin-top:18px;background:#fff9e9;border:1px solid #e2cf95;border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.7;color:#6c5a2d}@media(max-width:700px){.grid{grid-template-columns:1fr}}</style></head><body>
+<header><div class="top"><div class="brand">MS建設管理システム　／　管理・設定</div><button onclick="location.href='index.html'">メイン画面に戻る</button></div></header><main><h1>管理・設定</h1><div class="lead">日常の工事管理とは別に、各種マスターと管理業務をまとめます。</div>
+<style>
+.group{margin:0 0 20px}.group-title{font-size:17px;font-weight:900;color:#174d78;margin:0 0 9px;padding-bottom:7px;border-bottom:2px solid #d7e4ed}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.card{min-height:112px;padding:14px}.card h2{font-size:17px;margin-bottom:5px}.card p{margin-bottom:10px}.sub{font-size:11px;color:#7a8b96;margin-top:5px}@media(max-width:850px){.grid3,.grid2{grid-template-columns:1fr}}
+</style>
+<section class="group"><div class="group-title">各種マスター</div><div class="grid3">
+<div class="card primary"><h2>取引先マスター</h2><p>法人・個人・協力会社・仕入先などの基本情報、担当者、許可情報を管理します。</p><button onclick="location.href='torihikisaki_master.html'">取引先マスター</button></div>
+<div class="card"><h2>社員・担当者マスター</h2><p>自社の社員・担当者を登録し、工事担当や取引先の主担当・副担当から参照します。</p><button onclick="location.href='shain_master.html'">社員・担当者マスター</button></div>
+<div class="card"><h2>工種マスター</h2><p>経審・建設業許可で使用する工種を管理します。通常は名称をロックし、使用する工種を選択します。</p><button onclick="location.href='koushu_master.html'">工種マスター</button></div>
+<div class="card"><h2>工事区分マスター</h2><p>会社独自の工事・業務分類を登録します。追加・編集・表示順変更・無効化ができます。</p><button onclick="location.href='kouji_kubun_master.html'">工事区分マスター</button></div>
+<div class="card"><h2>取引先区分マスター</h2><p>元請・下請・仕入先など、取引先に設定する会社独自の区分を登録します。</p><button onclick="location.href='torihikisaki_kubun_master.html'">取引先区分マスター</button></div>
+<div class="card primary"><h2>自社情報</h2><p>会社名、住所、代表者、連絡先、インボイス登録番号などの共通情報を管理します。</p><button onclick="location.href='jisha_info.html'">自社情報を開く</button></div>
+</div></section>
+<section class="group"><div class="group-title">管理業務</div><div class="grid3">
+<div class="card"><h2>作業員名簿入力</h2><p>協力会社ごとの作業員情報をまとめて登録し、取引先や工事の名簿へ反映します。</p><button onclick="location.href='sagyoin_master.html'">作業員名簿を開く</button></div>
+<div class="card primary"><h2>経営・管理資料</h2><p>月次経営概況、担当者別実績、受注先別明細、工事採算、未請求・未入金、資金繰りを確認します。</p><button onclick="location.href='shacho_kanri.html'">経営・管理資料を開く</button></div>
+<div class="card primary"><h2>年賀・贈答入力</h2><p>年賀状・暑中見舞い・お中元・お歳暮の送付、贈答品の発注、受領履歴を管理します。</p><button onclick="location.href='nenga_zoutou.html'">年賀・贈答管理を開く</button></div>
+<div class="card primary"><h2>経審資料作成</h2><p>工事データを利用して、年度・建設業種別の工事経歴書を作成・印刷します。</p><button onclick="location.href='keishin_kouji_keireki.html'">工事経歴書を開く</button></div>
+<div class="card primary"><h2>システム・データ設定</h2><p>自動採番、内部ID、データ形式、バージョン移行、将来のサーバー運用方針を管理します。</p><button onclick="location.href='system_data_settings.html'">システム・データ設定</button></div>
+<div class="card"><h2>バックアップ・復元</h2><p>共通データをJSONで書き出し・復元します。アプリ更新前の保全に使用します。</p><button onclick="location.href='backup_restore.html'">バックアップ・復元</button></div>
+</div></section>
+<div class="warn"><b>日常業務と管理業務を分けています。</b><br>実際の契約・発注は工事カルテ側で行い、ここでは各種マスター、名簿・贈答・経審・経営資料、システム設定・バックアップなどの管理業務を扱います。</div>
+</main></body></html>

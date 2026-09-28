@@ -1,0 +1,169 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>取引先｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+<style>
+:root{--blue:#174d78;--line:#cbdbe6;--bg:#f3f7fa;--text:#263f50;--soft:#edf5fa}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:var(--bg)}header{background:#fff;border-bottom:1px solid var(--line)}.top{max-width:1500px;margin:auto;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:22px;font-weight:900;color:var(--blue)}button,.btn{border:0;border-radius:8px;background:var(--blue);color:#fff;padding:9px 16px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}main{max-width:1500px;margin:auto;padding:22px 28px}.title{display:flex;justify-content:space-between;align-items:end;gap:15px}.title h1{margin:0;color:var(--blue);font-size:28px}.note{font-size:12px;color:#71818c;margin-top:3px}.search{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.searchgrid{display:grid;grid-template-columns:2fr 160px 160px 160px 120px;gap:9px}.search input,.search select{height:40px;border:1px solid #b8cbd8;border-radius:8px;padding:0 11px;font-size:14px;background:#fff}.subsearch{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:9px}.searchactions{display:flex;gap:8px}.clear{background:#71818c}.panel{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}.panel h2{margin:0;padding:12px 15px;background:var(--soft);color:var(--blue);font-size:17px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px;min-width:1280px}th,td{padding:10px 11px;border-bottom:1px solid #e2ebf1;text-align:left;white-space:nowrap}th{background:#f8fbfd;color:#5d7483;font-size:12px;position:sticky;top:0}tbody tr{cursor:pointer}tbody tr:hover{background:#f4f9fc}.name{font-weight:900;color:var(--blue)}.tag{display:inline-block;padding:3px 8px;border-radius:12px;background:#e8f2f8;color:var(--blue);font-size:11px;font-weight:800}.subtag{display:inline-block;padding:3px 8px;border-radius:12px;background:#f1f4f6;color:#526875;font-size:11px;font-weight:800}.detail{display:none;margin-top:14px}.detail.show{display:block}.detailhead{padding:15px;display:flex;justify-content:space-between;gap:12px;align-items:center}.detailhead h2{background:none;padding:0;font-size:21px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 15px 15px}.box{border:1px solid var(--line);border-radius:10px;overflow:hidden}.box h3{margin:0;background:#f4f8fb;padding:10px 12px;color:var(--blue);font-size:15px}.boxbody{padding:12px;line-height:1.9;font-size:13px}.jobs{padding:0 15px 15px}.job{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:9px;margin-top:8px;background:#fff}.job a{color:var(--blue);font-weight:900;text-decoration:none}.foot{margin-top:14px;color:#71818c;font-size:12px;line-height:1.7}.count{font-size:12px;color:#71818c;font-weight:400;margin-left:10px}@media(max-width:900px){.searchgrid,.subsearch{grid-template-columns:1fr 1fr}.title{display:block}.title .btn{margin-top:10px}.grid{grid-template-columns:1fr}}@media(max-width:560px){.searchgrid,.subsearch{grid-template-columns:1fr}.detailhead{align-items:flex-start;flex-direction:column}}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+.kpi span{display:block;font-size:12px;color:#71818c}.kpi b{display:block;margin-top:3px;font-size:22px;color:var(--blue)}
+.analysis{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.chartbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.chartbox h2{font-size:16px;color:var(--blue);margin:0 0 12px}
+.barrow{display:grid;grid-template-columns:145px 1fr 90px;gap:8px;align-items:center;margin:8px 0;font-size:12px}
+.bartrack{height:18px;background:#edf3f7;border-radius:5px;overflow:hidden}.barfill{height:100%;background:#6f9fbd;border-radius:5px}
+.barval{text-align:right;font-variant-numeric:tabular-nums}.chartnote{font-size:11px;color:#71818c;margin-top:8px}
+.viewtabs{display:flex;gap:8px;margin-top:14px}.viewtabs button{background:#dfeaf1;color:#31566d}.viewtabs button.active{background:var(--blue);color:#fff}
+.num{text-align:right;font-variant-numeric:tabular-nums}.linkname{color:var(--blue);font-weight:800;text-decoration:underline}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.analysis{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="top"><div class="brand">MS建設管理システム　／　取引先</div><button onclick="location.href='index.html'">メイン画面に戻る</button></div></header><main>
+<div class="title"><div><h1>取引先一覧</h1><div class="note">取引先を検索し、連絡先・取引区分・取引状況を確認します。会社名を選ぶと取引先マスターを開きます。</div></div><a class="btn" href="torihikisaki_master.html">＋ 新規登録</a></div>
+
+<div class="search">
+ <div class="searchgrid">
+  <input id="q" placeholder="会社名・フリガナ・住所・業種・備考など">
+  <select id="type"><option value="">すべての種別</option><option>法人顧客</option><option>個人顧客</option><option>協力会社</option><option>仕入先</option><option>その他</option></select>
+  <select id="trade"><option value="">すべての取引区分</option><option>受注</option><option>発注</option><option>両方</option><option>工事取引なし</option></select>
+  <select id="area"><option value="">すべての地域</option></select>
+  <button onclick="renderAll()">検索・集計</button>
+ </div>
+ <div class="subsearch">
+  <input id="person" placeholder="担当者・窓口">
+  <input id="phone" placeholder="電話番号">
+  <div class="searchactions"><select id="status" style="flex:1"><option value="">すべての状態</option><option>取引中</option><option>休止</option></select><button class="clear" onclick="clearFilter()">条件クリア</button></div>
+ </div>
+</div>
+
+
+
+<section class="panel" id="partnerPanel"><h2>取引先一覧 <span class="count" id="count"></span></h2><div class="tablewrap"><table><thead><tr><th>取引先No.</th><th>名称</th><th>種別</th><th>取引区分</th><th>担当者・窓口</th><th>電話番号</th><th>地域</th><th>住所</th><th>状態</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+
+
+
+
+
+<div class="foot">※この画面は取引先の検索・確認用です。工事の集計・経営分析は「工事一覧・集計」で確認します。</div>
+</main><script src="shared_storage.js"></script>
+<script src="ms_data.js"></script><script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const yen=n=>Number(n||0).toLocaleString('ja-JP')+'円', n=x=>Number(String(x??0).replace(/,/g,''))||0;
+let partners=[],projects=[],employees=[],empMap=new Map(),stats=new Map(),current=[],view='partners',periodProjects=[],prevProjects=[];
+const iso=d=>d.toISOString().slice(0,10);
+function fyRange(offset=0){let t=new Date(),y=t.getFullYear()-(t.getMonth()<3?1:0)+offset;return [new Date(y,3,1),new Date(y+1,2,31)]}
+function projectDateObj(p){const d=pdate(p);return d?new Date(d+'T00:00:00'):null}
+function inRange(p,a,b){const d=projectDateObj(p);return d&&d>=a&&d<=b}
+function customPeriod(){$('period').value='custom';applyPeriod()}
+function applyPeriod(){
+ const now=new Date();let a,b,pa,pb,v=$('period').value;
+ if(v==='month'){a=new Date(now.getFullYear(),now.getMonth(),1);b=new Date(now.getFullYear(),now.getMonth()+1,0);pa=new Date(a.getFullYear()-1,a.getMonth(),1);pb=new Date(b.getFullYear()-1,b.getMonth()+1,0)}
+ else if(v==='prev'){[a,b]=fyRange(-1);pa=new Date(a.getFullYear()-1,a.getMonth(),a.getDate());pb=new Date(b.getFullYear()-1,b.getMonth(),b.getDate())}
+ else if(v==='custom'){a=$('dateFrom').value?new Date($('dateFrom').value+'T00:00:00'):new Date(2000,0,1);b=$('dateTo').value?new Date($('dateTo').value+'T23:59:59'):now;pa=new Date(a);pa.setFullYear(pa.getFullYear()-1);pb=new Date(b);pb.setFullYear(pb.getFullYear()-1)}
+ else if(v==='all'){a=new Date(2000,0,1);b=new Date(2100,0,1);pa=a;pb=b}
+ else {[a,b]=fyRange(0);pa=new Date(a);pa.setFullYear(pa.getFullYear()-1);pb=new Date(b);pb.setFullYear(pb.getFullYear()-1)}
+ if(v!=='custom'){ $('dateFrom').value=iso(a); $('dateTo').value=iso(b) }
+ $('periodLabel').textContent=`${iso(a)} ～ ${iso(b)}`;
+ periodProjects=projects.filter(p=>inRange(p,a,b)); prevProjects=projects.filter(p=>inRange(p,pa,pb));
+ buildStats();renderAll();
+}
+function active(x){return !x?.deletedAt && x?.status!=='deleted'}
+function staffName(id){return empMap.get(String(id))?.name||''}
+function pdate(p){return p.orderDate||p.contractDate||p.registrationDate||p.registeredDate||p.createdAt?.slice?.(0,10)||''}
+function amount(p){return n(p.finalContractAmount||p.contractAmount||p.orderAmount)}
+function clientName(p){return String(p.clientName||p.clientSnapshot?.name||'').trim()}
+function buildStats(){
+ stats=new Map();
+ for(const p of periodProjects){
+  const name=clientName(p); if(!name)continue;
+  let z=stats.get(name);if(!z)stats.set(name,z={count:0,amount:0,last:'',latest:''});
+  z.count++;z.amount+=amount(p);const d=pdate(p);if(d>=z.last){z.last=d;z.latest=p.name||''}
+ }
+}
+function fillAreas(){
+ const vals=[...new Set(partners.map(x=>x.area).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+ $('area').innerHTML='<option value="">すべての地域</option>'+vals.map(x=>`<option>${esc(x)}</option>`).join('');
+}
+function filtered(){
+ const q=$('q').value.trim().toLowerCase(),type=$('type').value,trade=$('trade').value,area=$('area').value,person=$('person').value.trim().toLowerCase(),phone=$('phone').value.trim().toLowerCase(),status=$('status').value;
+ return partners.filter(r=>{
+  const st=r.tradeStatus||(r.status==='inactive'?'休止':'取引中');
+  const key=[r.no,r.name,r.kana,r.representative,r.tel,r.fax,r.mobile,r.address,r.area,r.businessContent,r.note,staffName(r.ourStaffId)].join(' ').toLowerCase();
+  return (!q||key.includes(q))&&(!type||r.partnerType===type)&&(!trade||r.tradeType===trade)&&(!area||r.area===area)&&(!person||[r.representative,staffName(r.ourStaffId)].join(' ').toLowerCase().includes(person))&&(!phone||[r.tel,r.mobile].join(' ').toLowerCase().includes(phone))&&(!status||st===status);
+ });
+}
+function barChart(el,arr,valueFmt){
+ if(!arr.length){el.innerHTML='<div class="note">該当データなし</div>';return}
+ const mx=Math.max(...arr.map(x=>x.value),1);
+ el.innerHTML=arr.map(x=>`<div class="barrow"><div title="${esc(x.label)}">${esc(x.label)}</div><div class="bartrack"><div class="barfill" style="width:${Math.max(2,x.value/mx*100)}%"></div></div><div class="barval">${valueFmt(x.value)}</div></div>`).join('');
+}
+function projectStaffName(p){
+ const role=($('staffRole')&&$('staffRole').value)||'sales';
+ const cfg={
+  sales:[['salesStaffId','salesEmployeeId','salesPersonId'],['salesStaffName','salesPersonName','salesPerson','営業担当者','営業担当']],
+  construction:[['constructionStaffId','constructionEmployeeId'],['constructionStaffName','constructionPersonName','工事担当者','工事担当']],
+  site:[['siteStaffId','siteEmployeeId'],['siteStaffName','sitePersonName','現場担当者','現場担当']],
+  estimate:[['estimateStaffId','estimateEmployeeId'],['estimateStaffName','estimatePersonName','積算担当者','積算担当']],
+  design:[['designStaffId','designEmployeeId'],['designStaffName','designPersonName','設計担当者','設計担当']]
+ }[role];
+ for(const k of cfg[0]) if(p[k]){const n=staffName(p[k]);if(n)return n}
+ for(const k of cfg[1]) if(p[k]) return p[k];
+ return '未設定';
+}
+function staffSummary(){
+ const m=new Map();
+ for(const p of periodProjects){let k=projectStaffName(p),z=m.get(k)||{count:0,amount:0};z.count++;z.amount+=amount(p);m.set(k,z)}
+ return [...m.entries()].map(([name,z])=>({name,...z})).sort((a,b)=>b.amount-a.amount);
+}
+function renderStaff(){
+ const a=staffSummary(),total=a.reduce((x,z)=>x+z.amount,0);
+ $('staffRows').innerHTML=a.map((z,i)=>`<tr><td>${i+1}</td><td>${esc(z.name)}</td><td class="num">${z.count}</td><td class="num">${yen(z.amount)}</td><td class="num">${total?(z.amount/total*100).toFixed(1):'0.0'}%</td></tr>`).join('')||'<tr><td colspan="5">該当データなし</td></tr>';
+ barChart($('staffChart'),a.slice(0,10).map(z=>({label:z.name,value:z.amount})),yen);
+ const mm=new Map();for(const p of periodProjects){let d=pdate(p);if(!d)continue;let k=d.slice(0,7),z=mm.get(k)||0;mm.set(k,z+amount(p))}
+ barChart($('monthChart'),[...mm.entries()].sort().map(([label,value])=>({label,value})),yen);
+}
+function renderCards(){
+ const names=new Set(current.map(x=>x.name)), related=[...stats.entries()].filter(([name])=>names.has(name));
+ const pc=related.reduce((a,[,z])=>a+z.count,0),pa=related.reduce((a,[,z])=>a+z.amount,0);
+ $('kCount').textContent=current.length.toLocaleString()+'社';
+ $('kActive').textContent=current.filter(r=>(r.tradeStatus||(r.status==='inactive'?'休止':'取引中'))==='取引中').length.toLocaleString()+'社';
+ $('kClients').textContent=related.length.toLocaleString()+'社';$('kProjects').textContent=pc.toLocaleString()+'件';$('kAmount').textContent=yen(pa);
+ const prevAmt=prevProjects.reduce((a,p)=>a+amount(p),0);$('kYoY').textContent=prevAmt?((pa-prevAmt)/prevAmt*100>=0?'+':'')+((pa-prevAmt)/prevAmt*100).toFixed(1)+'%':'－';
+ const [fya,fyb]=fyRange(0),fyNames=new Set(projects.filter(p=>inRange(p,fya,fyb)).map(clientName).filter(Boolean));$('kDormant').textContent=current.filter(r=>!fyNames.has(r.name)).length.toLocaleString()+'社';
+ const tc={};current.forEach(r=>{let k=r.partnerType||'未設定';tc[k]=(tc[k]||0)+1});
+ barChart($('typeChart'),Object.entries(tc).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value),v=>v+'社');
+ const top=related.map(([label,z])=>({label,value:z.amount})).sort((a,b)=>b.value-a.value).slice(0,10);
+ barChart($('clientChart'),top,yen);
+}
+function renderPartners(){
+ let list=current;
+ if(view==='dormant')list=current.filter(r=>!stats.has(r.name));
+ $('rows').innerHTML=list.map(r=>{const st=r.tradeStatus||(r.status==='inactive'?'休止':'取引中'),z=stats.get(r.name)||{count:0,amount:0,last:''};
+ return `<tr onclick="location.href='torihikisaki_master.html?id=${encodeURIComponent(r.id)}'"><td>${esc(r.no||'')}</td><td class="name">${esc(r.name||'')}</td><td><span class="tag">${esc(r.partnerType||'')}</span></td><td><span class="subtag">${esc(r.tradeType||'')}</span></td><td>${esc(staffName(r.ourStaffId)||r.representative||'')}</td><td>${esc(r.tel||'')}</td><td>${esc(r.area||'')}</td><td>${esc(r.address||'')}</td><td>${esc(st)}</td></tr>`}).join('');
+ $('count').textContent=list.length.toLocaleString()+'件表示';
+}
+function renderClients(){
+ const allowed=new Set(current.map(x=>x.name));
+ const a=[...stats.entries()].filter(([name])=>allowed.has(name)).sort((a,b)=>b[1].amount-a[1].amount);
+ $('clientRows').innerHTML=a.map(([name,z])=>{const p=partners.find(x=>x.name===name);const link=p?`<a class="linkname" href="torihikisaki_master.html?id=${encodeURIComponent(p.id)}">${esc(name)}</a>`:esc(name);
+ return `<tr><td>${link}</td><td class="num">${z.count}</td><td class="num">${yen(z.amount)}</td><td>${esc(z.last||'－')}</td><td>${esc(z.latest||'')}</td></tr>`}).join('')||'<tr><td colspan="5">該当データなし</td></tr>';
+}
+function renderAll(){current=filtered();renderPartners()}
+function setView(v){view='partners';renderPartners()}
+function clearFilter(){['q','type','trade','area','person','phone','status'].forEach(id=>$(id).value='');renderAll()}
+['q','person','phone'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')renderAll()}));
+['type','trade','area','status'].forEach(id=>$(id).addEventListener('change',renderAll));
+window.addEventListener('load',()=>{
+ partners=(MSData.all('partners')||[]).filter(active).sort((a,b)=>(a.no||'').localeCompare(b.no||''));
+ projects=(MSData.all('projects')||[]).filter(active);employees=(MSData.all('employees')||[]).filter(active);employees.forEach(x=>empMap.set(String(x.id),x));
+ fillAreas();const qq=new URLSearchParams(location.search).get('q')||'';if(qq)$('q').value=qq;periodProjects=projects;buildStats();current=filtered();renderPartners();
+});
+</script></body></html>

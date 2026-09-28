@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="ja"><head>
+<script src="ms_password.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>注文書・注文請書｜MS建設管理システム</title>
+<style id="ms-no-flicker">
+/* 初期データ反映前のテンプレートちらつき防止。レイアウト値は変更しない */
+html.ms-app-loading body{visibility:hidden}
+</style>
+<script id="ms-no-flicker-start">
+document.documentElement.classList.add('ms-app-loading');
+window.addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    document.documentElement.classList.remove('ms-app-loading');
+  });
+},{once:true});
+</script>
+
+<style>
+:root{--ink:#25313a;--muted:#6e7c86;--line:#cfd8de;--soft:#f3f6f8;--accent:#315c72;--accent2:#e9f0f3;--money:#6b344c}
+*{box-sizing:border-box}body{margin:0;background:#e9eef1;color:var(--ink);font-family:"Yu Gothic","Meiryo",sans-serif}
+.toolbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #d5dde2;padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toolbar b{margin-right:auto;color:var(--accent)}button{border:0;border-radius:7px;padding:8px 14px;font-weight:800;cursor:pointer}.pri{background:var(--accent);color:#fff}.sub{background:#e7edf0;color:#345364}.save{background:var(--money);color:#fff}
+.notice,.editor{max-width:210mm;margin:10px auto;background:#fff}.notice{padding:10px 13px;border-left:4px solid var(--accent);font-size:12px}.editor{padding:13px 15px;border-radius:8px;box-shadow:0 1px 5px #c9d1d6}.editor h2{font-size:15px;margin:0 0 9px;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.f label{display:block;font-size:10px;font-weight:800;margin-bottom:3px}.f input,.f select{width:100%;border:1px solid #afbdc5;border-radius:5px;padding:6px;font:inherit;font-size:12px}.span2{grid-column:span 2}
+.page{width:210mm;min-height:297mm;margin:10px auto;background:#fff;padding:30mm 14mm 11mm;box-shadow:0 1px 8px #aab4ba;position:relative}
+.brandline{display:block;height:2.2mm;background:var(--accent);margin:0 -14mm 7mm}.head{display:grid;grid-template-columns:1fr auto;gap:8mm;align-items:end}.title{font-size:28px;font-weight:900;letter-spacing:.16em;margin:0}.meta{text-align:right;font-size:9px;line-height:1.7;color:var(--muted)}
+.party{display:grid;grid-template-columns:1fr 1fr;gap:7mm;margin-top:7mm}.partybox{min-height:29mm}.cap{font-size:8.5px;color:var(--muted);font-weight:800;letter-spacing:.08em}.partyname{font-size:16px;font-weight:900;margin:3mm 0 2mm;border-bottom:1px solid var(--ink);padding-bottom:2mm}.issuer{font-size:9.3px;line-height:1.55}.issuer b{font-size:14px}
+.moneyhero{margin:7mm 0 5mm;background:var(--soft);border-left:5px solid var(--money);padding:4mm 5mm;display:flex;align-items:center;justify-content:space-between}.moneyhero span{font-size:10px;font-weight:800}.moneyhero strong{font-size:24px;color:var(--money);letter-spacing:.03em}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-top:4mm}.card{border:1px solid var(--line);border-radius:5px;overflow:hidden}.card h3{margin:0;background:var(--accent2);color:var(--accent);font-size:10px;padding:2.2mm 3mm}.rows{padding:1.5mm 3mm}.row{display:grid;grid-template-columns:31mm 1fr;gap:2mm;padding:1.35mm 0;border-bottom:1px solid #e6ebee;font-size:9.2px}.row:last-child{border:0}.row .k{color:var(--muted);font-weight:800}
+.section{font-size:10px;font-weight:900;color:var(--accent);margin:5mm 0 2mm}.detail{width:100%;border-collapse:collapse;font-size:9px}.detail th,.detail td{padding:1.8mm 2mm;border-bottom:1px solid var(--line)}.detail th{background:var(--soft);text-align:left}.right{text-align:right}
+.notes{margin-top:4mm;border-top:1px solid var(--line);padding-top:2mm;font-size:8px;line-height:1.5}.notes b{color:var(--accent)}
+.signbox{margin:7mm 0 0 auto;width:84mm;border:1px solid var(--line);border-radius:5px;padding:4mm;min-height:35mm;font-size:9.5px;line-height:1.7}.seal{float:right;border:1px solid #aab4ba;border-radius:50%;width:16mm;height:16mm;line-height:16mm;text-align:center;color:#8b969d}
+.terms .brandline{display:block;height:2.2mm;background:var(--accent);margin:0 -14mm 7mm}.terms h1{text-align:center;font-size:18px;margin:0 0 1mm}.terms .lead{text-align:center;font-size:8px;color:var(--muted);margin-bottom:4mm}.termcols{column-count:2;column-gap:5mm;column-rule:1px solid #e1e6e9}.clause{break-inside:avoid;margin:0 0 .65mm}.clause h3{font-size:6.1px;color:var(--accent);margin:0 0 .5mm}.clause p{font-size:4.9px;line-height:1.17;margin:0;text-align:justify}.legalnote{margin-top:3mm;padding:2mm 3mm;background:var(--soft);font-size:4.7px;line-height:1.16}
+.foot{position:absolute;bottom:5mm;left:14mm;right:14mm;display:flex;justify-content:space-between;font-size:7px;color:#89949b}
+.error{max-width:210mm;margin:10px auto;background:#fff0f0;border:1px solid #d99;padding:10px;color:#8a2020;display:none}
+@page{size:A4 portrait;margin:0}
+@media print{body{background:#fff}.toolbar,.notice,.editor,.error{display:none!important}.page{display:none;margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;page-break-after:always}.page.printing{display:block}.page.printing:last-child{page-break-after:auto}}
+</style></head><body>
+<div class="toolbar"><b>注文書・注文請書　第3案</b><button class="sub" onclick="history.back()">戻る</button><button class="save" id="saveBtn">契約条件を保存</button><button class="pri" onclick="printSet('order')">注文書を印刷</button><button class="pri" onclick="printSet('accept')">注文請書を印刷</button></div>
+<div class="notice">第3案：旧帳票の情報量を残し、表面をカード型の現代的なレイアウトへ変更。約款は簡略15項目を廃止し、標準下請契約約款の主要論点を網羅する構成へ拡張しました。</div>
+<div class="error" id="error"></div>
+<section class="editor"><h2>この発注の個別契約条件</h2><div class="grid">
+<div class="f"><label>工期開始</label><input id="cStart" type="date"></div><div class="f"><label>工期終了</label><input id="cEnd" type="date"></div><div class="f"><label>施工しない日</label><input id="cNoDay"></div><div class="f"><label>施工しない時間帯</label><input id="cNoTime"></div>
+<div class="f"><label>出来高払</label><input id="cProgress" value="95％"></div><div class="f"><label>保留金</label><input id="cRetention" value="5％"></div><div class="f"><label>保留解除</label><input id="cRetentionRelease" value="最終請求後1か月"></div><div class="f"><label>前払金</label><input id="cAdvance" value="なし"></div>
+<div class="f"><label>請求締切</label><input id="cClosing" value="月末"></div><div class="f"><label>支払日</label><input id="cPayDay" value="翌月末"></div><div class="f"><label>支払方法</label><input id="cPayMethod" value="銀行振込"></div><div class="f"><label>労災保険</label><input id="cWorkers" value="注文者負担"></div>
+<div class="f"><label>履行遅滞損害金（年率）</label><input id="cDelay" list="rateOptions" value="14.6％" placeholder="例：14.6％"><datalist id="rateOptions"><option value="14.6％"><option value="5％"></datalist></div><div class="f"><label>過払金返還利息（年率）</label><input id="cOverpay" list="rateOptions" value="14.6％" placeholder="例：14.6％"></div><div class="f"><label>契約不適合責任期間</label><input id="cDefect" value="個別協議"></div><div class="f"><label>運送費</label><input id="cFreight" value="受注者負担"></div>
+<div class="f"><label>建設リサイクル法</label><select id="cRecycle"><option>対象外</option><option>対象</option><option>要確認</option></select></div><div class="f"><label>消費税率</label><select id="cTax"><option value="10">10%</option><option value="8">8%</option><option value="0">0%</option></select></div><div class="f span2"><label>特約・補足</label><input id="cSpecial"></div>
+</div></section>
+
+<section class="page" id="orderFront"><div class="brandline"></div><div class="head"><h1 class="title">注文書</h1><div class="meta">ORDER No. <span data-v="orderNo">―</span><br>発行日 <span data-v="orderDate"></span></div></div>
+<div class="party"><div class="partybox"><div class="cap">受注者 / CONTRACTOR</div><div class="partyname"><span data-v="supplierName"></span>　御中</div><div class="issuer">〒<span data-v="supplierPostal"></span>　<span data-v="supplierAddress"></span></div></div>
+<div class="partybox"><div class="cap">発注者 / ORDERER</div><div class="issuer">〒<span data-v="ourPostal"></span><br><span data-v="ourAddress"></span><br><b data-v="ourCompany"></b><br><span data-v="ourRepTitle"></span> <span data-v="ourRep"></span><br>TEL <span data-v="ourTel"></span>　FAX <span data-v="ourFax"></span></div></div></div>
+<div class="moneyhero"><span>注文金額（税込）</span><strong data-v="amount"></strong></div>
+<div class="cards">
+<div class="card"><h3>工事概要</h3><div class="rows"><div class="row"><div class="k">工事名</div><div data-v="projectName"></div></div><div class="row"><div class="k">工事場所</div><div data-v="projectAddress"></div></div><div class="row"><div class="k">工事内容</div><div data-v="content"></div></div><div class="row"><div class="k">工期</div><div><span data-v="start"></span> ～ <span data-v="end"></span></div></div><div class="row"><div class="k">施工しない日等</div><div><span data-v="noDay"></span> / <span data-v="noTime"></span></div></div></div></div>
+<div class="card"><h3>支払条件</h3><div class="rows"><div class="row"><div class="k">工事価格</div><div data-v="base"></div></div><div class="row"><div class="k">消費税等</div><div data-v="taxAmount"></div></div><div class="row"><div class="k">請求 / 支払</div><div><span data-v="closing"></span> / <span data-v="payDay"></span></div></div><div class="row"><div class="k">出来高払 / 保留金</div><div><span data-v="progress"></span> / <span data-v="retention"></span></div></div><div class="row"><div class="k">保留解除</div><div data-v="retentionRelease"></div></div><div class="row"><div class="k">支払方法</div><div data-v="payMethod"></div></div></div></div>
+</div>
+<div class="section">発注内訳</div><table class="detail"><thead><tr><th>工種・内容</th><th style="width:38mm" class="right">金額</th></tr></thead><tbody data-v="allocRows"></tbody></table>
+<div class="section">個別契約条件</div><div class="cards"><div class="card"><div class="rows"><div class="row"><div class="k">履行遅滞損害金</div><div data-v="delay"></div></div><div class="row"><div class="k">過払金返還利息</div><div data-v="overpay"></div></div><div class="row"><div class="k">契約不適合責任</div><div data-v="defect"></div></div></div></div><div class="card"><div class="rows"><div class="row"><div class="k">労災保険</div><div data-v="workers"></div></div><div class="row"><div class="k">運送費</div><div data-v="freight"></div></div><div class="row"><div class="k">リサイクル法</div><div data-v="recycle"></div></div></div></div></div>
+<div class="section">施工・現場注意事項</div>
+<div class="notes notice-list">
+<div class="ni"><span class="n">①</span><span>元請・施主様・近隣住民への明るい挨拶を徹底してください。</span></div>
+<div class="ni"><span class="n">②</span><span>安全第一を徹底し、重機作業・高所作業・重量物運搬作業等を含め、不安全行動をしないでください。</span></div>
+<div class="ni"><span class="n">③</span><span>ヘルメットのあご紐、保護メガネ等、必要な保護具を確実に着用してください。</span></div>
+<div class="ni"><span class="n">④</span><span>くわえタバコでの作業、吸い殻・空き缶等のポイ捨ては禁止します。喫煙は指定場所で行ってください。</span></div>
+<div class="ni"><span class="n">⑤</span><span>騒音・粉じん等、工事中は近隣へ十分配慮してください。</span></div>
+<div class="ni"><span class="n">⑥</span><span>毎日の作業終了時に片付け・清掃を徹底してください。</span></div>
+<div class="ni"><span class="n">⑦</span><span>工事内容に不都合・疑義・変更がある場合は、必ず施工前に担当者と協議してください。</span></div>
+<div class="ni"><span class="n">⑧</span><span>工事完了後は自主点検・清掃を必ず行ってください。</span></div>
+<div class="ni"><span class="n">⑨</span><span>予算その他工事上知り得た情報を施主様その他外部へ漏らさないよう管理してください。</span></div>
+<div class="ni"><span class="n">⑩</span><span>環境への配慮を行ってください。</span></div>
+<div class="ni"><span class="n">⑪</span><span>現場周辺の道路・側溝等を汚さないようにしてください。</span></div>
+<div class="ni"><span class="n">⑫</span><span>廃棄物は担当者へ確認のうえ適切に処理し、必要な委託契約書・マニフェストを適正に管理してください。</span></div>
+<div class="ni"><span class="n">⑬</span><span>本契約の履行にあたっては、添付の工事下請基本契約条件を遵守してください。</span></div>
+</div><div class="foot"><span>MS建設管理システム</span><span>1 / 2</span></div></section>
+
+<section class="page terms" id="termsAll"><div class="brandline"></div><h1>工事下請基本契約条件</h1><div class="lead">注文書・注文請書共通　―　個別条件は表面記載事項を優先します</div><div class="termcols"><div class="clause"><h3>第1条　総則</h3><p>注文者及び請負者は、注文書、注文請書、設計図書、見積条件及び本契約条件に基づき、対等な立場で誠実に契約を履行する。</p></div><div class="clause"><h3>第2条　契約書類・優先関係</h3><p>個別の注文書・注文請書に定める事項は本契約条件に優先する。設計図書、見積条件その他の契約書類との間に疑義又は不一致がある場合は双方協議し、記録が残る方法で確認する。貸与した設計図書等は不要となったとき速やかに返却する。</p></div><div class="clause"><h3>第3条　請負代金内訳・工程</h3><p>注文者が必要とするとき、請負者は設計図書等に基づく請負代金内訳書、施工計画書及び工程表を作成し、契約締結後速やかに提出する。変更が生じた場合も必要に応じて更新する。</p></div><div class="clause"><h3>第4条　関連工事との調整</h3><p>注文者は関連工事との調整を行い、請負者は合理的な範囲でこれに協力する。</p></div><div class="clause"><h3>第5条　法令遵守</h3><p>双方は建設業法、労働関係法令、安全衛生関係法令、廃棄物関係法令その他施工に適用される法令を遵守する。</p></div><div class="clause"><h3>第6条　秘密保持</h3><p>工事に関連して知り得た技術上、営業上その他の非公開情報を、正当な理由なく第三者へ開示しない。</p></div><div class="clause"><h3>第7条　特許権等</h3><p>施工方法、材料、機器等が第三者の知的財産権の対象である場合、使用に必要な権利関係を適切に処理する。</p></div><div class="clause"><h3>第8条　安全・衛生</h3><p>請負者は事業者として施工従事者の災害防止に必要な措置を講じ、注文者の安全衛生管理方針及び現場ルールを遵守し、自らの責任体制を明確にする。労災保険の取扱いは表面の個別条件に従う。</p></div><div class="clause"><h3>第9条　事業内容等の報告</h3><p>契約履行上必要な範囲で、双方は相手方に事業内容、許可、資格その他必要事項の報告を求めることができる。</p></div><div class="clause"><h3>第10条　施工方法等に関する意見</h3><p>工程の細部、作業方法等を定める場合、注文者は必要に応じ請負者の意見を聴取する。</p></div><div class="clause"><h3>第11条　通知・指示等</h3><p>契約上重要な承諾、通知、指示、請求、協議結果は、原則として記録が残る方法で行う。</p></div><div class="clause"><h3>第12条　権利義務の譲渡</h3><p>相手方の承諾なく、契約から生ずる権利又は義務を第三者へ譲渡又は承継させない。ただし法令上認められる場合を除く。</p></div><div class="clause"><h3>第13条　一括下請負等の禁止</h3><p>請負者は法令に反する一括下請負を行わない。再下請を行う場合は適正な施工体制を確保する。</p></div><div class="clause"><h3>第14条　関係事項の通知</h3><p>請負者は、必要に応じ建設業許可、現場代理人、主任技術者その他施工体制上必要な事項を注文者へ通知し、変更時も同様とする。</p></div><div class="clause"><h3>第15条　再下請負人</h3><p>再下請を行う場合、請負者は法令及び注文者の施工体制管理上必要な範囲で再下請負人に関する事項を通知する。</p></div><div class="clause"><h3>第16条　現場担当者</h3><p>双方は現場担当者を定めた場合、その氏名、権限その他必要事項を相手方へ明らかにする。</p></div><div class="clause"><h3>第17条　技術者等</h3><p>請負者は法令上必要な主任技術者等を適切に配置し、施工の技術上の管理を行う。</p></div><div class="clause"><h3>第18条　工事関係者への措置</h3><p>施工又は管理上著しく不適当な関係者があると認める場合、相手方に理由を示して必要な措置を求めることができる。</p></div><div class="clause"><h3>第19条　工事材料・機器</h3><p>契約で品質を定めた材料及び機器を使用し、検査対象となるものは所定の確認を受ける。</p></div><div class="clause"><h3>第20条　立会・施工記録</h3><p>施工後に確認困難となる部分等について、必要に応じ立会、写真その他の施工記録を行う。</p></div><div class="clause"><h3>第21条　支給材料・貸与品</h3><p>支給材料及び貸与品は受領時に種類・数量・品質等を確認し、善良な管理者の注意をもって保管・使用する。不適合又は不足等を発見したときは速やかに通知し、不要又は使用済みとなったものは指示に従い返却又は処理する。</p></div><div class="clause"><h3>第22条　契約内容に適合しない施工</h3><p>施工が契約内容又は設計図書に適合しない場合、注文者は必要な是正を求めることができる。ただし注文者の指示、支給材料その他請負者の責めに帰すことができない原因による場合は、費用及び工期への影響を双方協議する。</p></div><div class="clause"><h3>第23条　条件変更等</h3><p>請負者は、設計図書と現場状態の不一致、表示の不明確・誤り・脱漏、地質・湧水その他施工条件の相違、又は明示されていない予期困難な条件を発見したときは直ちに注文者へ通知し確認を求める。確認の結果必要がある場合は、工事内容、工期又は請負代金を協議して変更する。</p></div><div class="clause"><h3>第24条　工事の変更・中止</h3><p>注文者は必要があるとき、工事内容の変更又は工事の全部若しくは一部の施工中止を求めることができる。この場合、施工済み部分、手配済み材料、現場維持費その他への影響を確認し、必要な工期、請負代金及び増加費用等を双方協議して定める。</p></div><div class="clause"><h3>第25条　請負者の請求による工期延長</h3><p>天候不良、不可抗力、注文者側の事情その他請負者の責めに帰すことができない正当な理由により工期内完成が困難な場合、請負者は理由を示して工期延長を求めることができる。延長日数及び必要な費用は双方協議する。</p></div><div class="clause"><h3>第26条　注文者の請求による工期変更</h3><p>注文者が工期変更を必要とするときは請負者へその内容を示して協議する。双方は施工実態、資材・労務の手配、安全確保等を踏まえ、著しく短い工期とならないよう合理的な工期を定める。</p></div><div class="clause"><h3>第27条　請負代金の変更</h3><p>工事内容、数量、工期、施工条件、賃金又は物価その他契約の基礎となる条件に変更が生じ、請負代金が不適当となった場合、双方は変更理由と根拠を確認し、必要な請負代金の変更を協議する。</p></div><div class="clause"><h3>第28条　臨機の措置</h3><p>災害防止その他緊急の必要があるとき、請負者は合理的な応急措置を講じ、速やかに注文者へ報告する。費用負担は原因等を踏まえて協議する。</p></div><div class="clause"><h3>第29条　一般的損害</h3><p>完成検査又は引渡し前に、工事目的物、工事材料その他施工に関して損害が生じた場合は、その原因及び双方の責任範囲に応じて負担する。注文者の責めに帰すべき事由による損害は注文者の負担とする。</p></div><div class="clause"><h3>第30条　第三者損害</h3><p>施工により第三者へ損害を及ぼした場合、双方は速やかに事実関係を確認し、その原因及び責任範囲に応じて負担する。第三者との紛争が生じた場合は双方協力して適切な処理解決に当たる。</p></div><div class="clause"><h3>第31条　不可抗力</h3><p>天災その他不可抗力により、出来形、仮設物、搬入済み材料又は機械器具等に損害が生じた場合、請負者は速やかに通知する。双方は被害状況、管理状況、保険等を確認し、復旧方法、工期及び合理的な費用負担を協議する。</p></div><div class="clause"><h3>第32条　完成検査</h3><p>請負者は工事を完成したとき注文者へ通知する。注文者は合理的な期間内に完成確認を行う。契約不適合がある場合は内容を明らかにし、請負者は責任範囲に応じ必要な是正を行い、再確認を受ける。</p></div><div class="clause"><h3>第33条　完成前使用</h3><p>注文者が完成前の目的物を使用する場合、請負者と必要な条件を協議し、使用に起因する損害の扱いを定める。</p></div><div class="clause"><h3>第34条　支払方法・時期</h3><p>請負代金の支払方法及び時期は表面の個別条件による。変更が必要な場合は相手方の同意を得て定める。注文者は法令及び個別条件に従い、適正な時期に請負代金を支払う。</p></div><div class="clause"><h3>第35条　前払金</h3><p>前払金を定めた場合、その金額、支払時期及び精算方法は表面又は別途合意した条件による。</p></div><div class="clause"><h3>第36条　部分払・出来高払</h3><p>出来高払を定めた場合、請負者は出来形部分、現場搬入材料等について確認を受け、表面記載の割合及び条件により部分払を請求できる。既払額、前払金、保留金その他の控除・精算方法は個別条件に従う。</p></div><div class="clause"><h3>第37条　完成時の支払</h3><p>請負者は完成検査に合格し、引渡しを要する場合は引渡しを完了した後、残額の支払を請求できる。注文者は表面の締日、支払日、保留解除その他個別条件及び法令に従い支払う。</p></div><div class="clause"><h3>第38条　労務費等の適正な取扱い</h3><p>双方は適正な施工体制と技能労働者の処遇確保に配慮し、労務費その他必要な経費について、見積条件、施工実態及び現行の建設業取引ルールを踏まえて協議する。著しく低い労務費等を前提とした不適切な取引を行わない。</p></div><div class="clause"><h3>第39条　施工中止</h3><p>支払遅延、不可抗力その他正当な理由により施工継続が困難となる場合、請負者は注文者へ理由を示して通知し、必要に応じ施工を中止できる。現場維持、作業員・機器の保持等に要した合理的な費用及び工期は双方協議する。</p></div><div class="clause"><h3>第40条　契約不適合責任</h3><p>完成物が種類、品質その他契約内容に適合しない場合、注文者は関係法令及び契約内容に従い、修補その他の履行の追完、代金減額、損害賠償等を求めることができる。責任期間は表面記載条件を基本とし、原因及び注文者の指示・支給材料等の影響を考慮する。</p></div><div class="clause"><h3>第41条　履行遅滞・支払遅延・過払金返還</h3><p>請負者の責めに帰すべき理由により工期内完成ができない場合、注文者は未完成部分等を基礎として、表面記載の履行遅滞損害金の年率により損害金を求めることができる。注文者の責めに帰すべき支払遅延については、請負者は未受領額につき表面記載条件又は法令に従い遅延利息を求めることができる。請負者に返還すべき過払金が生じた場合の返還利息は、表面記載の過払金返還利息の年率による。</p></div><div class="clause"><h3>第42条　注文者による解除</h3><p>請負者が正当な理由なく着手しない、工期内又は相当期間内の完成見込みがない、重大な契約違反があり契約目的を達成できない等の場合、注文者は催告その他法令上必要な手続を経て契約を解除できる。催告を要しない場合は関係法令に従う。</p></div><div class="clause"><h3>第43条　完成前の任意解除等</h3><p>工事完成前に注文者の都合で契約を終了する必要がある場合、注文者は請負者へ通知し、出来高、搬入・手配済み材料、撤去・片付け費、解約に伴う合理的な損害その他必要な精算を双方協議する。</p></div><div class="clause"><h3>第44条　請負者による解除</h3><p>注文者の重大な契約違反、相当期間を定めた催告後も支払がない、支払能力を欠くことが明らかである等、施工継続が困難な事由がある場合、請負者は関係法令及び契約条件に従い契約を解除できる。</p></div><div class="clause"><h3>第45条　解除後の措置</h3><p>契約解除時は、出来形及び材料等の帰属・引渡し、前払金・既払金の精算、貸与品の返還、仮設物の撤去、現場の片付けその他必要事項を双方協議して処理する。</p></div><div class="clause"><h3>第46条　紛争の解決</h3><p>契約に関する紛争が生じた場合、まず双方で誠実に協議する。協議で解決しない場合は、双方の合意により選定した第三者、建設業法による建設工事紛争審査会のあっせん・調停その他合意した手続により解決を図る。</p></div><div class="clause"><h3>第47条　協議・補則</h3><p>契約書類に定めのない事項又は解釈に疑義が生じた事項は、関係法令及び取引慣行を踏まえ双方協議して定める。</p></div></div><div class="legalnote">この契約条件は、国土交通省・中央建設業審議会「建設工事標準下請契約約款（令和7年12月2日最終改正）」の主要な構成・論点を参考に、MS建設管理システム用に整理した独自案です。国土交通省の約款本文そのものではありません。実運用で正式な契約条項として採用する前に、取引形態・許可業種・支払条件等に応じた専門家確認を推奨します。</div><div class="foot"><span>工事下請基本契約条件</span><span>2 / 2</span></div></section>
+
+
+<section class="page" id="acceptFront"><div class="brandline"></div><div class="head"><h1 class="title">注文請書</h1><div class="meta">ORDER No. <span data-v="orderNo">―</span><br>請書日　　年　　月　　日</div></div>
+<div class="party"><div class="partybox"><div class="cap">注文者 / ORDERER</div><div class="partyname"><span data-v="ourCompany"></span>　御中</div><div class="issuer">〒<span data-v="ourPostal"></span>　<span data-v="ourAddress"></span></div></div>
+<div class="partybox"><div class="cap">受注者 / CONTRACTOR</div><div class="issuer">〒<span data-v="supplierPostal"></span><br><span data-v="supplierAddress"></span><br><b data-v="supplierName"></b><br>代表者 <span data-v="supplierRep"></span></div></div></div>
+<div class="moneyhero"><span>請負金額（税込）</span><strong data-v="amount"></strong></div>
+<div class="cards">
+<div class="card"><h3>工事概要</h3><div class="rows"><div class="row"><div class="k">工事名</div><div data-v="projectName"></div></div><div class="row"><div class="k">工事場所</div><div data-v="projectAddress"></div></div><div class="row"><div class="k">工事内容</div><div data-v="content"></div></div><div class="row"><div class="k">工期</div><div><span data-v="start"></span> ～ <span data-v="end"></span></div></div><div class="row"><div class="k">施工しない日等</div><div><span data-v="noDay"></span> / <span data-v="noTime"></span></div></div></div></div>
+<div class="card"><h3>支払条件</h3><div class="rows"><div class="row"><div class="k">工事価格</div><div data-v="base"></div></div><div class="row"><div class="k">消費税等</div><div data-v="taxAmount"></div></div><div class="row"><div class="k">請求 / 支払</div><div><span data-v="closing"></span> / <span data-v="payDay"></span></div></div><div class="row"><div class="k">出来高払 / 保留金</div><div><span data-v="progress"></span> / <span data-v="retention"></span></div></div><div class="row"><div class="k">保留解除</div><div data-v="retentionRelease"></div></div><div class="row"><div class="k">支払方法</div><div data-v="payMethod"></div></div></div></div>
+</div>
+<div class="section">発注内訳</div><table class="detail"><thead><tr><th>工種・内容</th><th style="width:38mm" class="right">金額</th></tr></thead><tbody data-v="allocRows"></tbody></table>
+<div class="section">個別契約条件</div><div class="cards"><div class="card"><div class="rows"><div class="row"><div class="k">履行遅滞損害金</div><div data-v="delay"></div></div><div class="row"><div class="k">過払金返還利息</div><div data-v="overpay"></div></div><div class="row"><div class="k">契約不適合責任</div><div data-v="defect"></div></div></div></div><div class="card"><div class="rows"><div class="row"><div class="k">労災保険</div><div data-v="workers"></div></div><div class="row"><div class="k">運送費</div><div data-v="freight"></div></div><div class="row"><div class="k">リサイクル法</div><div data-v="recycle"></div></div></div></div></div>
+<div class="section">施工・現場注意事項</div>
+<div class="notes notice-list">
+<div class="ni"><span class="n">①</span><span>元請・施主様・近隣住民への明るい挨拶を徹底してください。</span></div>
+<div class="ni"><span class="n">②</span><span>安全第一を徹底し、重機作業・高所作業・重量物運搬作業等を含め、不安全行動をしないでください。</span></div>
+<div class="ni"><span class="n">③</span><span>ヘルメットのあご紐、保護メガネ等、必要な保護具を確実に着用してください。</span></div>
+<div class="ni"><span class="n">④</span><span>くわえタバコでの作業、吸い殻・空き缶等のポイ捨ては禁止します。喫煙は指定場所で行ってください。</span></div>
+<div class="ni"><span class="n">⑤</span><span>騒音・粉じん等、工事中は近隣へ十分配慮してください。</span></div>
+<div class="ni"><span class="n">⑥</span><span>毎日の作業終了時に片付け・清掃を徹底してください。</span></div>
+<div class="ni"><span class="n">⑦</span><span>工事内容に不都合・疑義・変更がある場合は、必ず施工前に担当者と協議してください。</span></div>
+<div class="ni"><span class="n">⑧</span><span>工事完了後は自主点検・清掃を必ず行ってください。</span></div>
+<div class="ni"><span class="n">⑨</span><span>予算その他工事上知り得た情報を施主様その他外部へ漏らさないよう管理してください。</span></div>
+<div class="ni"><span class="n">⑩</span><span>環境への配慮を行ってください。</span></div>
+<div class="ni"><span class="n">⑪</span><span>現場周辺の道路・側溝等を汚さないようにしてください。</span></div>
+<div class="ni"><span class="n">⑫</span><span>廃棄物は担当者へ確認のうえ適切に処理し、必要な委託契約書・マニフェストを適正に管理してください。</span></div>
+<div class="ni"><span class="n">⑬</span><span>本契約の履行にあたっては、添付の工事下請基本契約条件を遵守してください。</span></div>
+</div><div class="signbox"><span class="seal">印</span>上記事項及び工事下請基本契約条件を承諾し、この工事を請け負います。<br>請書日　　年　　月　　日<br><b data-v="supplierName"></b>　代表者 <span data-v="supplierRep"></span></div>
+<div class="foot"><span>MS建設管理システム</span><span>1 / 2</span></div></section>
+
+<script src="shared_storage.js"></script><script src="ms_data.js"></script>
+<script>
+(()=>{const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),oid=q.get('orderId')||q.get('id')||sessionStorage.getItem('mscm:selectedOrderId')||'';
+const yen=v=>'¥'+Number(v||0).toLocaleString('ja-JP'),fmt=v=>{if(!v)return'';let a=String(v).slice(0,10).split('-');return a.length===3?`${a[0]}年${+a[1]}月${+a[2]}日`:v};
+const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));function set(k,v){document.querySelectorAll(`[data-v="${k}"]`).forEach(e=>e.tagName==='TBODY'?e.innerHTML=v:e.textContent=v??'')}
+function fail(s){$('error').style.display='block';$('error').textContent=s}if(!window.MSData){fail('共通データを読み込めません。');return}
+let orders=MSData.all('orders'),o=orders.find(x=>String(x.id)===String(oid))||orders.filter(x=>x.status!=='inactive'&&x.dataSide==='purchase').slice(-1)[0];if(!o){fail('発注データがありません。');return}
+let p=MSData.get('projects',o.projectId)||{},s=MSData.get('partners',o.supplierId)||{},our=(MSData.all('companySettings')||[]).find(x=>x.status!=='inactive')||{};
+let c=Object.assign({start:p.startDate||'',end:p.endDate||'',noDay:'',noTime:'',progress:'95％',retention:'5％',retentionRelease:'最終請求後1か月',advance:'なし',closing:'月末',payDay:'翌月末',payMethod:s.paymentTerms||'銀行振込',workers:'注文者負担',delay:'約款による',overpay:'約款による',defect:'個別協議',freight:'受注者負担',recycle:'対象外',tax:10,special:''},o.contractConditions||{});
+const ids={start:'cStart',end:'cEnd',noDay:'cNoDay',noTime:'cNoTime',progress:'cProgress',retention:'cRetention',retentionRelease:'cRetentionRelease',advance:'cAdvance',closing:'cClosing',payDay:'cPayDay',payMethod:'cPayMethod',workers:'cWorkers',delay:'cDelay',overpay:'cOverpay',defect:'cDefect',freight:'cFreight',recycle:'cRecycle',tax:'cTax',special:'cSpecial'};
+Object.entries(ids).forEach(([k,id])=>$(id).value=c[k]??'');function read(){Object.entries(ids).forEach(([k,id])=>c[k]=$(id).value.trim());return c}
+function render(){read();set('orderNo',o.no||o.id||'');set('orderDate',fmt(o.orderDate));set('supplierName',o.supplierName||s.name||s.companyName||'');set('supplierPostal',s.zipcode||s.postal||'');set('supplierAddress',s.address||'');set('supplierRep',s.representative||s.representativeName||'');set('ourPostal',our.postal||'');set('ourAddress',our.address||'');set('ourCompany',our.companyName||'');set('ourRepTitle',our.representativeTitle||'');set('ourRep',our.representativeName||'');set('ourTel',our.tel||'');set('ourFax',our.fax||'');set('projectName',p.name||p.projectName||'');set('projectAddress',p.address||p.projectAddress||'');set('content',o.content||'');set('start',fmt(c.start));set('end',fmt(c.end));set('noDay',c.noDay||'定めなし');set('noTime',c.noTime||'定めなし');set('amount',yen(o.amount));
+let r=Number(c.tax)||0,t=r?Math.round(Number(o.amount||0)*r/(100+r)):0;set('taxAmount',r?yen(t):'―');set('base',r?yen(Number(o.amount||0)-t):yen(o.amount));
+['progress','retention','retentionRelease','closing','payDay','payMethod','workers','delay','overpay','defect','freight','recycle','special'].forEach(k=>set(k,c[k]||'―'));
+let budget=(MSData.all('budgets')||[]).find(b=>String(b.projectId)===String(o.projectId)),items=budget&&Array.isArray(budget.items)?budget.items:[];let rows=(o.allocations||[]).map(a=>{let it=items[+a.itemIndex]||{};return `<tr><td>${esc(it.trade||it.name||o.content||'')}</td><td class="right">${esc(yen(a.amount))}</td></tr>`}).join('');set('allocRows',rows||`<tr><td>${esc(o.content||'')}</td><td class="right">${esc(yen(o.amount))}</td></tr>`);
+const detailCount=(o.allocations||[]).length||1;
+['orderFront','acceptFront'].forEach(id=>$(id).classList.toggle('detail-compact',detailCount>=3));}
+Object.values(ids).forEach(id=>$(id).addEventListener('input',render));$('saveBtn').onclick=()=>{render();o=MSData.save('orders',{...o,contractConditions:{...c},updatedAt:new Date().toISOString()});alert('この発注の契約条件を保存しました。')};
+window.printSet=type=>{render();document.querySelectorAll('.page').forEach(x=>x.classList.remove('printing'));if(type==='order'){$('orderFront').classList.add('printing')}else{$('acceptFront').classList.add('printing')}$('termsAll').classList.add('printing');setTimeout(()=>print(),60)};render();
+})();</script></body></html>
+<style>
+.terms{padding-top:10mm}
+.terms h1{margin-top:0}
+.notes.notice-list{font-size:7.7px;line-height:1.38}
+.notes.notice-list .ni{display:grid;grid-template-columns:5mm 1fr;gap:1mm;padding:.55mm 0;border-bottom:1px dotted #d9e0e4}
+.notes.notice-list .ni:last-child{border-bottom:0}
+.notes.notice-list .n{font-weight:900;color:var(--accent)}
+@media print{
+ #orderFront,#acceptFront{padding-top:30mm}
+ .terms{padding-top:10mm}
+}
+</style>
+
+<style>
+#orderFront>.brandline,#acceptFront>.brandline{margin-top:0}
+.terms{padding:9mm 10mm 8mm}
+.terms .termcols{column-count:2;column-gap:5mm;column-rule:1px solid #dce3e7}
+.terms .clause{margin-bottom:.72mm}
+.terms .clause h3{font-size:6.45px;line-height:1.15;margin:0 0 .25mm}
+.terms .clause p{font-size:5.15px;line-height:1.18;margin:0;text-align:justify}
+.terms .legalnote{font-size:4.8px;line-height:1.18;margin-top:1.5mm;padding:1.5mm 2mm}
+@media print{
+ #orderFront,#acceptFront{padding-top:30mm}
+ .terms{padding:9mm 10mm 8mm}
+}
+</style>
+
+<style>
+/* 第7案：第3案に近い細いアクセントへ戻す */
+#orderFront>.brandline,#acceptFront>.brandline{
+  display:block;
+  height:1.1mm;
+  background:var(--accent);
+  margin:0 0 7mm 0;
+  border-radius:.25mm;
+}
+.terms>.brandline{
+  display:block;
+  height:1mm;
+  background:var(--accent);
+  margin:0 0 3.5mm 0;
+  border-radius:.2mm;
+}
+
+/* 約款：2段のまま、下余白を減らして本文を読みやすく拡大 */
+.terms{
+  padding:8mm 9mm 6mm !important;
+}
+.terms h1{
+  margin:0 0 1.5mm !important;
+  font-size:15px !important;
+  line-height:1.1 !important;
+}
+.terms .lead{
+  margin-bottom:2mm !important;
+  font-size:6.7px !important;
+  line-height:1.15 !important;
+}
+.terms .termcols{
+  column-count:2 !important;
+  column-gap:5mm !important;
+  column-rule:1px solid #dce3e7 !important;
+}
+.terms .clause{
+  margin:0 0 .82mm !important;
+  break-inside:avoid;
+}
+.terms .clause h3{
+  font-size:7.15px !important;
+  line-height:1.14 !important;
+  margin:0 0 .28mm !important;
+}
+.terms .clause p{
+  font-size:5.75px !important;
+  line-height:1.20 !important;
+  margin:0 !important;
+  text-align:justify !important;
+}
+.terms .legalnote{
+  font-size:5.15px !important;
+  line-height:1.18 !important;
+  margin-top:1.6mm !important;
+  padding:1.3mm 1.8mm !important;
+}
+.terms .foot{
+  bottom:3.5mm !important;
+}
+@media print{
+  #orderFront,#acceptFront{padding-top:30mm !important;}
+  .terms{padding:8mm 9mm 6mm !important;}
+}
+</style>
+
+<style>
+@media screen{
+  #orderFront,#acceptFront{padding-top:20mm !important;}
+}
+@media print{
+  #orderFront,#acceptFront{padding-top:20mm !important;}
+}
+</style>
+
+<style>
+/* 表面：上余白20mm */
+#orderFront,#acceptFront{padding-top:20mm !important;}
+
+/* 約款：2列・内容はそのまま。下余白を活用して読みやすくする */
+.terms{
+  padding:8mm 9mm 7mm !important;
+}
+.terms .clause{
+  margin-bottom:1.05mm !important;
+}
+.terms .clause h3{
+  font-size:8.2px !important;
+  line-height:1.18 !important;
+  margin:0 0 .35mm !important;
+}
+.terms .clause p{
+  font-size:6.65px !important;
+  line-height:1.27 !important;
+  margin:0 !important;
+  text-align:justify !important;
+}
+.terms .lead{
+  font-size:7.2px !important;
+  line-height:1.2 !important;
+  margin-bottom:2.4mm !important;
+}
+.terms .legalnote{
+  font-size:5.8px !important;
+  line-height:1.22 !important;
+  margin-top:1.8mm !important;
+  padding:1.4mm 1.8mm !important;
+}
+@media print{
+  #orderFront,#acceptFront{padding-top:20mm !important;}
+  .terms{padding:8mm 9mm 7mm !important;}
+}
+</style>
+
+<style>
+/* 約款の最終バランス調整：下余白を文字の読みやすさへ振り分ける */
+.terms{
+  padding:7mm 9mm 5.5mm !important;
+}
+.terms .brandline{
+  margin-bottom:3mm !important;
+}
+.terms h1{
+  font-size:16px !important;
+  margin-bottom:1.6mm !important;
+}
+.terms .lead{
+  font-size:7.6px !important;
+  line-height:1.22 !important;
+  margin-bottom:2.5mm !important;
+}
+.terms .clause{
+  margin-bottom:1.12mm !important;
+}
+.terms .clause h3{
+  font-size:8.65px !important;
+  line-height:1.18 !important;
+  margin-bottom:.38mm !important;
+}
+.terms .clause p{
+  font-size:7.05px !important;
+  line-height:1.29 !important;
+}
+.terms .legalnote{
+  font-size:6.05px !important;
+  line-height:1.23 !important;
+  margin-top:2mm !important;
+  padding:1.5mm 1.9mm !important;
+}
+.terms .foot{
+  bottom:3mm !important;
+}
+@media print{
+  .terms{padding:7mm 9mm 5.5mm !important;}
+}
+</style>
+
+<style>
+.terms{padding-top:20mm !important;}
+@media print{
+  .terms{padding-top:20mm !important;}
+}
+</style>
+
+<style>
+/* 第12案：約款タイトルと第1条の間を20mm */
+.terms .lead{
+  margin-bottom:20mm !important;
+}
+</style>
+
+<style>
+/* 第17案：第12案の正常表示を基準に、確認・印刷専用へ安全に整理 */
+.ms-printbar-inner{
+  width:min(1040px,calc(100% - 28px));
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.ms-printbar-title{font-weight:900;white-space:nowrap}
+.ms-printbar-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:nowrap}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  /* 開発用説明と警告だけを個別に消す */
+  [...document.querySelectorAll('body *')].forEach(el=>{
+    const own=[...el.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim();
+    const all=(el.textContent||'').trim();
+
+    if((own.startsWith('第3案：') || own==='共通データを読み込めません。') && el.children.length<=2){
+      el.style.display='none';
+    }
+
+    /* 契約条件カードだけを、見出しから最小のカード単位で非表示 */
+    if(all==='この発注の個別契約条件'){
+      let box=el;
+      while(box.parentElement && box.parentElement!==document.body){
+        const p=box.parentElement;
+        if(p.querySelectorAll('input,select,textarea').length>=8){ box=p; break; }
+        box=p;
+      }
+      box.style.display='none';
+    }
+  });
+
+  /* 保存ボタンだけ非表示。印刷ボタンは既存イベントを保持 */
+  const buttons=[...document.querySelectorAll('button')];
+  const save=buttons.find(b=>(b.textContent||'').includes('契約条件を保存'));
+  if(save) save.style.display='none';
+
+  /* 既存の上部帯は壊さず、中の要素だけ中央寄せ */
+  const back=buttons.find(b=>(b.textContent||'').trim()==='戻る');
+  const po=buttons.find(b=>(b.textContent||'').includes('注文書を印刷'));
+  const pa=buttons.find(b=>(b.textContent||'').includes('注文請書を印刷'));
+  if(back && po && pa){
+    const candidates=[back.parentElement,back.parentElement?.parentElement,back.parentElement?.parentElement?.parentElement].filter(Boolean);
+    const host=candidates.find(x=>x.contains(po)&&x.contains(pa));
+    if(host){
+      const title=[...host.querySelectorAll('*')].find(x=>
+        !x.querySelector('button') && /注文書・注文請書/.test((x.textContent||'').trim())
+      );
+      if(title) title.textContent='注文書・注文請書';
+
+      host.style.boxSizing='border-box';
+      host.style.paddingLeft='max(14px, calc((100vw - 1040px)/2))';
+      host.style.paddingRight='max(14px, calc((100vw - 1040px)/2))';
+    }
+  }
+});
+</script>
+
+<style id="ms-print-flicker-guard">
+/* 印刷準備中は通常画面を一時的に隠す。印刷用3ページの寸法・文字・帯は変更しない */
+@media screen{
+  html.ms-print-preparing body{visibility:hidden}
+}
+@media print{
+  html.ms-print-preparing body{visibility:visible!important}
+  html.ms-print-preparing #msPrintRoot{visibility:visible!important}
+}
+</style>
+
+<style id="ms-final-print-css">
+/* 最終版：画面用の読みやすさ */
+.moneyhero{background:#d9e4e9!important;border-left-color:#6b344c!important}
+.moneyhero span{font-size:13px!important;font-weight:900!important;color:#111!important}
+.moneyhero strong{font-size:26px!important;font-weight:900!important;color:#000!important}
+.card{border-color:#8fa8b5!important}
+.card h3{background:#d8e6ec!important;color:#173f55!important;font-size:12px!important;font-weight:900!important}
+.row{font-size:10.3px!important;line-height:1.30!important;border-bottom-color:#cbd8df!important}
+.section{font-size:12px!important;font-weight:900!important;color:#173f55!important}
+.detail{font-size:10.2px!important}
+.detail th{background:#dce7ec!important;color:#111!important}
+.detail th,.detail td{border-bottom-color:#9fb3be!important}
+.notes.notice-list{font-size:8.2px!important;line-height:1.30!important;margin-bottom:5mm!important}
+.terms .lead{margin-bottom:15mm!important}
+
+/* 印刷専用ルートは通常画面では存在しても見せない */
+#msPrintRoot{display:none}
+
+@media print{
+  @page{size:A4 portrait;margin:0}
+
+  html,body{
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+  }
+
+  /* 通常画面は丸ごと非表示。印刷専用ルートだけ出す */
+  body > *:not(#msPrintRoot){display:none!important}
+  #msPrintRoot{display:block!important;margin:0!important;padding:0!important}
+
+  .print-sheet{
+    display:block!important;
+    width:210mm!important;
+    margin:0!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+    overflow:visible!important;
+    page-break-inside:avoid!important;
+    break-inside:avoid-page!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  .print-sheet + .print-sheet{
+    page-break-before:always!important;
+    break-before:page!important;
+  }
+
+  /* クローン内では旧 .page の高さ・改ページ指定を完全解除 */
+  #msPrintRoot .page{
+    display:block!important;
+    width:210mm!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:20mm 14mm 5mm!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+    page-break-before:auto!important;
+    page-break-after:auto!important;
+    break-before:auto!important;
+    break-after:auto!important;
+    break-inside:avoid!important;
+    box-sizing:border-box!important;
+  }
+
+  #msPrintRoot .terms{
+    padding:8mm 9mm 6mm!important;
+  }
+  #msPrintRoot .terms .lead{margin-bottom:15mm!important}
+
+  /* 印刷時の色を確実に */
+  #msPrintRoot .moneyhero,
+  #msPrintRoot .card h3,
+  #msPrintRoot .detail th{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+}
+</style>
+
+<script id="ms-final-print-js">
+(function(){
+  function removeOldRoot(){
+    const old=document.getElementById('msPrintRoot');
+    if(old) old.remove();
+  }
+  function makeSheet(source){
+    const sheet=document.createElement('div');
+    sheet.className='print-sheet';
+    const clone=source.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.classList.remove('printing');
+    sheet.appendChild(clone);
+    return sheet;
+  }
+  function buildPrintRoot(){
+    removeOldRoot();
+    const order=document.getElementById('orderFront');
+    const accept=document.getElementById('acceptFront');
+    const terms=document.getElementById('termsAll');
+    if(!order||!accept||!terms){
+      alert('印刷用の注文書・注文請書・約款を準備できませんでした。');
+      return false;
+    }
+    const root=document.createElement('div');
+    root.id='msPrintRoot';
+    root.appendChild(makeSheet(order));
+    root.appendChild(makeSheet(accept));
+    root.appendChild(makeSheet(terms));
+    document.body.appendChild(root);
+    return true;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    const buttons=[...document.querySelectorAll('button')];
+    const candidates=buttons.filter(b=>{
+      const t=(b.textContent||'').trim();
+      return t==='印刷'||t.includes('注文書を印刷')||t.includes('注文請書を印刷');
+    });
+    if(!candidates.length)return;
+
+    const first=candidates[0];
+    const clean=first.cloneNode(true);
+    clean.removeAttribute('onclick');
+    clean.textContent='印刷';
+    first.replaceWith(clean);
+    candidates.slice(1).forEach(b=>b.style.display='none');
+
+    clean.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      document.documentElement.classList.add('ms-print-preparing');
+      if(buildPrintRoot()){
+        requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
+      }else{
+        document.documentElement.classList.remove('ms-print-preparing');
+      }
+    },true);
+
+    window.addEventListener('afterprint',function(){
+      removeOldRoot();
+      document.documentElement.classList.remove('ms-print-preparing');
+    });
+  });
+})();
+</script>
+
+<style id="ms-print3-hardfix">
+/* v18: 印刷は必ず A4 3枚（注文書・注文請書・約款）に固定 */
+@media print {
+  @page { size:A4 portrait; margin:0; }
+  html, body { width:210mm!important; margin:0!important; padding:0!important; }
+  body > *:not(#msPrintRoot){ display:none!important; }
+  #msPrintRoot{
+    display:block!important;
+    width:210mm!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #msPrintRoot .print-sheet{
+    display:block!important;
+    position:relative!important;
+    width:210mm!important;
+    height:297mm!important;
+    min-height:297mm!important;
+    max-height:297mm!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+    page-break-inside:avoid!important;
+    break-inside:avoid-page!important;
+    page-break-after:always!important;
+    break-after:page!important;
+  }
+  #msPrintRoot .print-sheet:last-child{
+    page-break-after:auto!important;
+    break-after:auto!important;
+  }
+  #msPrintRoot .page{
+    display:block!important;
+    position:relative!important;
+    width:210mm!important;
+    height:297mm!important;
+    min-height:297mm!important;
+    max-height:297mm!important;
+    margin:0!important;
+    padding:20mm 14mm 8mm!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+    box-shadow:none!important;
+    page-break-before:auto!important;
+    page-break-after:auto!important;
+    break-before:auto!important;
+    break-after:auto!important;
+    break-inside:avoid-page!important;
+  }
+  #msPrintRoot .terms{
+    padding:8mm 9mm 7mm!important;
+  }
+  #msPrintRoot .foot{ bottom:5mm!important; }
+}
+</style>
+
+<style id="ms-v19-accept-seal-terms-margin">
+/* v19: 注文請書の押印欄を確実に表示／約款上余白を注文書・請書と統一 */
+#acceptFront .signbox{
+  display:block!important;
+  margin:4mm 0 0 auto!important;
+  width:84mm!important;
+  min-height:28mm!important;
+  padding:3mm!important;
+}
+#acceptFront .seal{
+  display:block!important;
+}
+@media print{
+  #msPrintRoot .terms{
+    padding:20mm 9mm 7mm!important;
+  }
+  #msPrintRoot .page .signbox{
+    display:block!important;
+    margin:3mm 0 0 auto!important;
+    width:84mm!important;
+    min-height:25mm!important;
+    padding:2.5mm 3mm!important;
+    font-size:8.8px!important;
+    line-height:1.5!important;
+  }
+  #msPrintRoot .page .seal{
+    display:block!important;
+    width:15mm!important;
+    height:15mm!important;
+    line-height:15mm!important;
+  }
+}
+</style>
+
+
+<style id="ms-v20-printer-safe-layout">
+/* v20: v2のデザイン・帯・文字サイズは変更せず、印刷時の縦方向だけ整理 */
+@media print{
+  /* 注文書・注文請書：文字サイズはそのまま。各ブロックの余白だけ少し詰める */
+  #msPrintRoot .page:not(.terms){
+    padding:20mm 14mm 14mm!important;
+  }
+  #msPrintRoot .page:not(.terms) .party{margin-top:5mm!important;}
+  #msPrintRoot .page:not(.terms) .moneyhero{margin:5mm 0 4mm!important;}
+  #msPrintRoot .page:not(.terms) .cards{gap:3mm!important;margin-top:3mm!important;}
+  #msPrintRoot .page:not(.terms) .rows{padding:1.2mm 3mm!important;}
+  #msPrintRoot .page:not(.terms) .row{padding:1.05mm 0!important;}
+  #msPrintRoot .page:not(.terms) .section{margin:3.5mm 0 1.5mm!important;}
+  #msPrintRoot .page:not(.terms) .detail th,
+  #msPrintRoot .page:not(.terms) .detail td{padding:1.45mm 2mm!important;}
+  #msPrintRoot .page:not(.terms) .notes{margin-top:2.5mm!important;padding-top:1.5mm!important;}
+  #msPrintRoot .page:not(.terms) .notes.notice-list .ni{padding:.42mm 0!important;}
+
+  /* フッターは実機プリンターの下端から離す */
+  #msPrintRoot .page:not(.terms) .foot{bottom:11mm!important;}
+
+  /* 請書の押印欄：大きさ・文字はv2を維持し、上の余白だけ詰めて安全圏へ */
+  #msPrintRoot .page:not(.terms) .signbox{
+    margin:3mm 0 0 auto!important;
+    width:84mm!important;
+    min-height:35mm!important;
+    padding:4mm!important;
+    font-size:9.5px!important;
+    line-height:1.7!important;
+  }
+  #msPrintRoot .page:not(.terms) .seal{
+    width:16mm!important;height:16mm!important;line-height:16mm!important;
+  }
+
+  /* 約款：v2の文字サイズを維持。上余白20mm、下側に安全余白を確保 */
+  #msPrintRoot .terms{
+    padding:20mm 9mm 12mm!important;
+  }
+  #msPrintRoot .terms .foot{bottom:9mm!important;}
+}
+</style>
+
+<style id="ms-v21-accept-only-final">
+/* v21: 注文書・約款はv4のまま。注文請書だけ下端を安全圏へ収める */
+@media print{
+  /* 2枚目（注文請書）だけ、文字サイズ・帯・横寸法を変えず縦間隔を詰める */
+  #msPrintRoot .print-sheet:nth-child(2) .party{margin-top:4mm!important;}
+  #msPrintRoot .print-sheet:nth-child(2) .moneyhero{margin:4mm 0 3mm!important;}
+  #msPrintRoot .print-sheet:nth-child(2) .cards{margin-top:2mm!important;}
+  #msPrintRoot .print-sheet:nth-child(2) .section{margin:2.5mm 0 1mm!important;}
+  #msPrintRoot .print-sheet:nth-child(2) .notes{margin-top:1.5mm!important;padding-top:1mm!important;}
+  #msPrintRoot .print-sheet:nth-child(2) .notes.notice-list .ni{padding:.30mm 0!important;}
+  #msPrintRoot .print-sheet:nth-child(2) .signbox{margin:1.5mm 0 0 auto!important;}
+}
+</style>
+
+<style id="ms-v22-accept-signbox-clear-footer">
+/* v22: 注文書・約款は変更しない。請書の署名枠とページ番号の重なりだけ解消 */
+@media print{
+  /* 2枚目の署名枠だけ少し上へ。文字サイズ・枠サイズ・帯は変更しない */
+  #msPrintRoot .print-sheet:nth-child(2) .signbox{
+    position:relative!important;
+    transform:translateY(-6mm)!important;
+    margin-bottom:6mm!important;
+  }
+  /* 2枚目のフッターは署名枠より下、ただし印刷安全域内に固定 */
+  #msPrintRoot .print-sheet:nth-child(2) .foot{
+    bottom:7mm!important;
+    z-index:2!important;
+  }
+}
+</style>
+
+<style id="ms-v23-accept-page-number-only">
+/* v23: v6を維持し、注文請書のページ番号だけ署名枠から離す */
+@media print{
+  #msPrintRoot .print-sheet:nth-child(2) .foot{
+    left:14mm!important;
+    right:14mm!important;
+    bottom:7mm!important;
+  }
+  #msPrintRoot .print-sheet:nth-child(2) .foot span:last-child{
+    position:absolute!important;
+    right:0!important;
+    bottom:0!important;
+    transform:translateX(0)!important;
+  }
+}
+</style>
+
+<style id="ms-v24-accept-signbox-height-only">
+/* v24: 注文書・約款は変更しない。注文請書の署名枠だけ上下余白を縮める */
+@media print{
+  #msPrintRoot .print-sheet:nth-child(2) .signbox{
+    min-height:29mm!important;
+    padding:2mm 4mm!important;
+    font-size:9.5px!important;
+    line-height:1.7!important;
+  }
+}
+</style>
+
+<style id="ms-v25-readable-text-only">
+/* v25: v8の3ページ配置を固定したまま、主要情報の文字だけ拡大。
+   施工・現場注意事項、署名枠、約款、帯、余白、各枠寸法は変更しない。 */
+#orderFront .row, #acceptFront .row{font-size:11.2px!important;}
+#orderFront .detail, #acceptFront .detail{font-size:11px!important;}
+#orderFront .issuer, #acceptFront .issuer{font-size:10.2px!important;}
+#orderFront .cap, #acceptFront .cap{font-size:9.2px!important;}
+#orderFront .partyname, #acceptFront .partyname{font-size:17px!important;}
+
+@media print{
+  /* 印刷専用コピーにも同じ文字拡大だけを適用 */
+  #msPrintRoot .print-sheet:nth-child(1) .row,
+  #msPrintRoot .print-sheet:nth-child(2) .row{font-size:11.2px!important;}
+  #msPrintRoot .print-sheet:nth-child(1) .detail,
+  #msPrintRoot .print-sheet:nth-child(2) .detail{font-size:11px!important;}
+  #msPrintRoot .print-sheet:nth-child(1) .issuer,
+  #msPrintRoot .print-sheet:nth-child(2) .issuer{font-size:10.2px!important;}
+  #msPrintRoot .print-sheet:nth-child(1) .cap,
+  #msPrintRoot .print-sheet:nth-child(2) .cap{font-size:9.2px!important;}
+  #msPrintRoot .print-sheet:nth-child(1) .partyname,
+  #msPrintRoot .print-sheet:nth-child(2) .partyname{font-size:17px!important;}
+
+  /* 注意事項はv8の大きさを明示的に維持 */
+  #msPrintRoot .print-sheet:nth-child(1) .notes.notice-list,
+  #msPrintRoot .print-sheet:nth-child(2) .notes.notice-list{font-size:8.2px!important;line-height:1.30!important;}
+  /* 署名欄もv8のまま */
+  #msPrintRoot .print-sheet:nth-child(2) .signbox{font-size:9.5px!important;line-height:1.7!important;}
+}
+</style>
+
+<style id="ms-v26-detail-text-black-only">
+/* v26: v9の寸法・文字サイズ・3ページ配置はそのまま。
+   工事概要・支払条件・発注内訳・個別契約条件の明細文字だけ黒にする。 */
+#orderFront .cards .row,
+#acceptFront .cards .row,
+#orderFront .cards .row .k,
+#acceptFront .cards .row .k,
+#orderFront .detail,
+#acceptFront .detail,
+#orderFront .detail th,
+#acceptFront .detail th,
+#orderFront .detail td,
+#acceptFront .detail td{
+  color:#000!important;
+}
+@media print{
+  #msPrintRoot .print-sheet:nth-child(1) .cards .row,
+  #msPrintRoot .print-sheet:nth-child(2) .cards .row,
+  #msPrintRoot .print-sheet:nth-child(1) .cards .row .k,
+  #msPrintRoot .print-sheet:nth-child(2) .cards .row .k,
+  #msPrintRoot .print-sheet:nth-child(1) .detail,
+  #msPrintRoot .print-sheet:nth-child(2) .detail,
+  #msPrintRoot .print-sheet:nth-child(1) .detail th,
+  #msPrintRoot .print-sheet:nth-child(2) .detail th,
+  #msPrintRoot .print-sheet:nth-child(1) .detail td,
+  #msPrintRoot .print-sheet:nth-child(2) .detail td{
+    color:#000!important;
+  }
+}
+</style>
+
+<style id="ms-v27-three-detail-rows-only">
+/* v27: 発注内訳が3行以上のときだけ、その表の上下余白を詰める。
+   その他の文字サイズ・枠・注意事項・署名欄・約款は変更しない。 */
+#orderFront.detail-compact .detail th,#orderFront.detail-compact .detail td,
+#acceptFront.detail-compact .detail th,#acceptFront.detail-compact .detail td{padding:.45mm 2mm!important;}
+@media print{
+  #msPrintRoot .page.detail-compact .detail th,
+  #msPrintRoot .page.detail-compact .detail td{padding:.45mm 2mm!important;}
+}
+</style>

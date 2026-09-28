@@ -1,0 +1,7 @@
+# Runtime / business data
+shared_data/
+initial_data/
+
+# Local backups / exported data
+*.zip
+*.json

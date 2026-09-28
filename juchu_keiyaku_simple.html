@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<script src="ms_password.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>簡易工事請負契約書｜MS建設管理システム</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#e9eef1;color:#25313a;font-family:"Yu Gothic","Meiryo",sans-serif}
+.toolbar{position:sticky;top:0;z-index:10;background:white;padding:10px 16px;border-bottom:1px solid #ccd5da;display:flex;gap:8px;align-items:center}
+.toolbar b{margin-right:auto;color:#315c72}
+button{border:0;border-radius:6px;padding:8px 15px;font-weight:bold;cursor:pointer}
+.pri{background:#315c72;color:white} .sub{background:#e5ecef}
+.note{max-width:210mm;margin:10px auto;padding:10px 14px;background:white;border-left:4px solid #315c72;font-size:12px}
+.page{width:210mm;height:297mm;margin:10px auto;background:white;padding:20mm 20mm 13mm;position:relative;overflow:hidden;box-shadow:0 1px 8px #aab4ba}
+.band{display:block;width:auto;height:1.1mm;background:#315c72;margin:0 0 7mm;border-radius:.25mm}
+h1{margin:0;font-size:27px;letter-spacing:.12em}
+.top{display:flex;justify-content:space-between;align-items:flex-end}
+.meta{font-size:9px;text-align:right;line-height:1.7;color:#6e7c86}
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:7mm;margin-top:7mm}
+.cap{font-size:9px;color:#6e7c86;font-weight:bold}
+.party{font-size:16px;font-weight:bold;border-bottom:1px solid #25313a;padding:2mm 0;margin-bottom:2mm}
+.addr{font-size:10px;min-height:8mm}
+.money{margin:6mm 0 5mm;background:#d5dfe4;border-left:5px solid #315c72;padding:4mm 5mm;display:flex;justify-content:space-between;align-items:center;font-weight:bold}
+.money span{font-size:15px;color:#25313a} .money strong{font-size:28px;color:#000;font-weight:900}
+.section{font-size:15px;font-weight:bold;color:#315c72;margin:4mm 0 2mm}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid #d3dce1;padding:2.2mm 2.7mm;text-align:left}
+th{width:40mm;background:#d5dfe4;font-size:14px;font-weight:900} td{font-size:14px}
+.pay{border:1.5px solid #9eacb4;border-radius:6px;overflow:hidden}
+.payrow{display:grid;grid-template-columns:27mm 1fr 1.3fr;min-height:12mm;align-items:center;border-bottom:1px solid #d7e0e4;font-size:14px}
+.payrow:last-child{border:0}
+.payrow b{height:100%;display:flex;align-items:center;padding:0 3mm;background:#d5dfe4;color:#25313a;font-size:14px}
+.payrow span{padding:0 3mm;font-size:14px} .payrow span+span{border-left:1px solid #d7e0e4}
+.small{font-size:11.5px;line-height:1.5;margin-top:2mm}
+.special{border:1px solid #d3dce1;border-radius:5px;min-height:15mm;padding:3mm;background:#eef2f4;font-size:13.5px;line-height:1.5}
+.signs{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-top:5mm}
+.sign{border:1px solid #d3dce1;border-radius:5px;min-height:29mm;padding:3mm 4mm;font-size:11.5px;line-height:1.5}
+.seal{float:right;border:1px solid #aaa;border-radius:50%;width:14mm;height:14mm;text-align:center;line-height:14mm}
+.foot{position:absolute;bottom:6mm;left:20mm;right:20mm;display:flex;justify-content:space-between;font-size:7px;color:#87939a}
+
+/* 簡易約款 1ページ・2列 */
+.simple-terms{padding:17mm 16mm 10mm}
+.simple-terms .band{margin-bottom:2.5mm}
+.simple-terms h1{text-align:center;font-size:21px;letter-spacing:.04em;line-height:1.1;margin:0}
+.simple-terms .lead{text-align:center;font-size:9px;color:#6e7c86;margin:1mm 0 3mm}
+.terms-columns{display:grid;grid-template-columns:1fr 1fr;gap:7mm;align-items:start}
+.terms-col:first-child{padding-right:3.5mm;border-right:1px solid #cfd8dd}
+.terms-col:last-child{padding-left:0}
+.simple-terms .clause{margin:0 0 1.25mm;padding:0 0 .85mm;border-bottom:1px solid #e2e7ea;break-inside:avoid}
+.simple-terms .clause h3{font-size:8.2px;line-height:1.18;color:#315c72;margin:0 0 .25mm;font-weight:900}
+.simple-terms .clause p{font-size:7.25px;line-height:1.36;margin:0;text-align:justify}
+.simple-terms .foot{left:16mm;right:16mm}
+
+@page{size:A4 portrait;margin:0}
+@media print{
+ html,body{margin:0!important;padding:0!important;background:#fff!important}
+ .toolbar,.note{display:none!important}
+ .page{width:210mm!important;height:297mm!important;margin:0!important;box-shadow:none!important;overflow:hidden!important;page-break-after:always!important;break-after:page!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+ .page:last-of-type{page-break-after:auto!important;break-after:auto!important}
+}
+</style>
+<script src="shared_storage.js"></script>
+<script src="ms_data.js"></script>
+
+
+<style id="ms-simple-terms-balanced-20260926">
+/* 簡易約款：下余白を減らし、A4 2列を読みやすく使い切る */
+.simple-terms{
+  padding-top:17mm !important;
+  padding-left:16mm !important;
+  padding-right:16mm !important;
+  padding-bottom:8mm !important;
+}
+.simple-terms .band{
+  margin-bottom:2.8mm !important;
+}
+.simple-terms h1{
+  font-size:22px !important;
+  line-height:1.12 !important;
+  margin:0 !important;
+}
+.simple-terms .lead{
+  font-size:9.5px !important;
+  line-height:1.25 !important;
+  margin:1.2mm 0 3.5mm !important;
+}
+.terms-columns{
+  gap:7mm !important;
+}
+.simple-terms .clause{
+  margin:0 0 1.65mm !important;
+  padding:0 0 1.05mm !important;
+}
+.simple-terms .clause h3{
+  font-size:9.3px !important;
+  line-height:1.25 !important;
+  margin:0 0 .4mm !important;
+}
+.simple-terms .clause p{
+  font-size:8.35px !important;
+  line-height:1.48 !important;
+  margin:0 !important;
+  text-align:justify !important;
+}
+.simple-terms .foot{
+  bottom:5mm !important;
+}
+
+@media print{
+  .simple-terms{
+    padding-top:17mm !important;
+    padding-left:16mm !important;
+    padding-right:16mm !important;
+    padding-bottom:8mm !important;
+  }
+}
+</style>
+
+
+<style id="ms-simple-terms-balanced-larger-20260926">
+/* 簡易約款：残っている下余白を使ってさらに拡大 */
+.simple-terms{
+  padding-top:16mm !important;
+  padding-left:15mm !important;
+  padding-right:15mm !important;
+  padding-bottom:6mm !important;
+}
+.simple-terms .band{
+  margin-bottom:2.5mm !important;
+}
+.simple-terms h1{
+  font-size:23px !important;
+  line-height:1.12 !important;
+}
+.simple-terms .lead{
+  font-size:10px !important;
+  line-height:1.25 !important;
+  margin:1mm 0 3mm !important;
+}
+.terms-columns{
+  gap:6.5mm !important;
+}
+.terms-col:first-child{
+  padding-right:3mm !important;
+}
+.simple-terms .clause{
+  margin:0 0 1.8mm !important;
+  padding:0 0 1.15mm !important;
+}
+.simple-terms .clause h3{
+  font-size:10px !important;
+  line-height:1.28 !important;
+  margin:0 0 .45mm !important;
+}
+.simple-terms .clause p{
+  font-size:9px !important;
+  line-height:1.52 !important;
+  margin:0 !important;
+  text-align:justify !important;
+}
+.simple-terms .foot{
+  left:15mm !important;
+  right:15mm !important;
+  bottom:4mm !important;
+}
+@media print{
+  .simple-terms{
+    padding-top:16mm !important;
+    padding-left:15mm !important;
+    padding-right:15mm !important;
+    padding-bottom:6mm !important;
+  }
+}
+</style>
+
+
+<style id="ms-simple-terms-top30-20260926">
+/* 簡易約款：上余白25mm */
+.simple-terms{
+  padding-top:25mm !important;
+}
+@media print{
+  .simple-terms{
+    padding-top:25mm !important;
+  }
+}
+</style>
+
+</head>
+<body>
+<div class="toolbar"><b>簡易工事請負契約書　2ページ</b><button class="sub">通常契約書へ戻る</button><button class="pri" onclick="window.print()">印刷</button></div>
+<div class="note">表紙は通常契約書と同じです。約款27条を2ページ目の左右2列にまとめた簡易版です。</div>
+<section class="page"><div class="band"></div><div class="top"><h1>工事請負契約書</h1><div class="meta">契約番号　<span data-v="contractNo">―</span><br>契約日　<span data-v="contractDate">―</span></div></div>
+<div class="parties"><div><div class="cap">発注者</div><div class="party"><span data-v="ownerName">発注者</span> 様</div><div class="addr" data-v="ownerAddress">―</div></div><div><div class="cap">受注者</div><div class="party" data-v="contractorName">MSランドスケープ</div><div class="addr" data-v="contractorAddress">―</div></div></div>
+<div class="money"><span>請負代金（税込）</span><strong data-v="totalAmount">―</strong></div>
+<div class="section">工事概要</div><table><tr><th>工事名</th><td data-v="projectName">―</td></tr><tr><th>工事場所</th><td data-v="projectAddress">―</td></tr><tr><th>工期</th><td><span data-v="startDate">―</span> ～ <span data-v="endDate">―</span></td></tr><tr><th>引渡予定日</th><td data-v="handoverDate">―</td></tr><tr><th>うち消費税等</th><td data-v="taxAmount">―</td></tr></table>
+<div class="section">お支払い条件</div><div class="pay"><div class="payrow"><b>前　金</b><span data-v="advance">―</span><span data-v="advanceWhen">支払時期 ―</span></div><div class="payrow"><b>中間金</b><span data-v="interim">―</span><span data-v="interimWhen">支払時期 ―</span></div><div class="payrow"><b>最終支払</b><span data-v="finalPayment">―</span><span data-v="finalWhen">支払時期 ―</span></div></div>
+<div class="small">支払額・支払時期は上記条件によります。追加・変更工事がある場合は、双方で確認した変更額を最終精算に反映します。</div>
+<div class="section">特約・工事固有条件</div><div class="special" data-v="special">特になし</div>
+<div class="signs"><div class="sign"><b>発注者</b><span class="seal">印</span><br><br>住所　<span data-v="ownerAddress">―</span><br>氏名　<span data-v="ownerName">―</span></div><div class="sign"><b>受注者</b><span class="seal">印</span><br><br>住所　<span data-v="contractorAddress">―</span><br>氏名　<span data-v="contractorName">MSランドスケープ</span></div></div><div class="foot"><span>MS建設管理システム</span><span>1 / 4</span></div></section>
+<section class="page simple-terms">
+  <div class="band"></div>
+  <h1>工事請負契約約款</h1>
+  <div class="lead">簡易契約書用　｜　第1条～第27条</div>
+  <div class="terms-columns">
+    <div class="terms-col"><div class="clause"><h3>第1条　総則</h3><p>発注者及び受注者は、契約書、設計図書、見積書、個別契約条件及び本約款に基づき、対等な立場で信義に従い誠実に契約を履行します。</p></div>
+<div class="clause"><h3>第2条　契約書類</h3><p>契約書及び個別契約条件を基本とし、設計図書、見積書その他の契約書類に疑義又は不一致がある場合は、双方で協議して確認します。</p></div>
+<div class="clause"><h3>第3条　施工体制・法令遵守</h3><p>受注者は工事内容に応じて必要な施工体制を整え、当該工事に適用される関係法令を遵守して施工します。</p></div>
+<div class="clause"><h3>第4条　材料・支給品</h3><p>受注者は契約内容に適合する材料・機器を使用します。発注者の支給品等については受領時に確認し、適切に保管・使用します。</p></div>
+<div class="clause"><h3>第5条　施工条件の相違</h3><p>設計図書と現場状態の不一致、地下埋設物、地質その他予期しにくい施工条件を発見した場合、受注者は速やかに発注者へ通知し、必要な対応を協議します。</p></div>
+<div class="clause"><h3>第6条　工事の変更・追加・減額</h3><p>工事内容、数量又は仕様を変更する場合は、原則として変更内容、金額及び工期への影響を事前に協議します。追加・減額工事も可能な限り施工前に確認します。</p></div>
+<div class="clause"><h3>第7条　工期の変更</h3><p>天候、不可抗力、発注者側の事情、施工条件の変更、資材供給その他受注者の責めに帰すことができない事情により工期内完成が困難な場合は、双方で工期変更を協議します。</p></div>
+<div class="clause"><h3>第8条　価格等の変動</h3><p>資材価格、労務費その他請負代金に影響する事情が生じ、契約時の条件によることが著しく不適当となった場合は、双方で請負代金又は工期の変更を協議します。</p></div>
+<div class="clause"><h3>第9条　工事の中止</h3><p>工事の全部又は一部を中止する場合は、出来形、手配済材料、現場維持費その他必要な費用及び工期への影響を確認します。</p></div>
+<div class="clause"><h3>第10条　損害・不可抗力</h3><p>工事に関して損害又は不可抗力による被害が生じた場合は、原因、責任範囲及び被害状況を確認し、必要な対応、工期及び費用負担を協議します。</p></div>
+<div class="clause"><h3>第11条　完成・検査・引渡し</h3><p>受注者は工事完成後に発注者へ通知します。発注者は完成確認を行い、確認後、双方が定めた方法により工事目的物を引き渡します。</p></div>
+<div class="clause"><h3>第12条　請負代金の支払</h3><p>請負代金は契約書表面の支払条件に従い、前金、中間金及び最終支払として支払うことができます。各支払の金額又は割合、時期及び条件は表面記載のとおりとします。</p></div>
+<div class="clause"><h3>第13条　前金</h3><p>前金を定めた場合、発注者は表面記載の金額及び時期に従って支払います。</p></div>
+<div class="clause"><h3>第14条　中間金</h3><p>中間金を定めた場合、工程の到達、出来高、指定日その他表面記載の条件を満たした時点で支払います。工程等を変更した場合は必要に応じて支払条件を協議します。</p></div></div>
+    <div class="terms-col"><div class="clause"><h3>第15条　最終支払</h3><p>最終支払は、完成確認、引渡しその他表面記載の条件に従って行います。追加・減額工事その他精算事項がある場合は、合意した変更額を反映して精算します。</p></div>
+<div class="clause"><h3>第16条　契約不適合</h3><p>引き渡された工事目的物が契約内容に適合しない場合は、契約書、個別契約条件及び関係法令に従い必要な対応を行います。責任期間その他の条件は個別契約条件によります。</p></div>
+<div class="clause"><h3>第17条　履行遅滞・支払遅延</h3><p>工事完成又は請負代金の支払に遅延が生じた場合は、その原因、責任範囲、個別契約条件及び関係法令に従って処理します。</p></div>
+<div class="clause"><h3>第18条　契約の解除</h3><p>相手方に重大な契約違反があり、相当期間を定めて是正を求めても履行されない場合その他法令上解除が認められる場合は、契約を解除することができます。</p></div>
+<div class="clause"><h3>第19条　解除後の精算</h3><p>契約解除時は、出来形、搬入・手配済材料、既払金、撤去・片付け費その他必要な事項を確認し、責任範囲に応じて精算します。</p></div>
+<div class="clause"><h3>第20条　第三者への損害</h3><p>施工により第三者への損害又は紛争が生じた場合は、事実関係と責任範囲を確認し、双方が協力して対応します。</p></div>
+<div class="clause"><h3>第21条　反社会的勢力の排除</h3><p>双方は反社会的勢力に該当せず、これらを利用しないことを確認します。</p></div>
+<div class="clause"><h3>第22条　建設副産物等</h3><p>建設副産物、産業廃棄物、発生土等は関係法令及び契約条件に従って適正に処理します。</p></div>
+<div class="clause"><h3>第23条　設計図書・見積書等の保管</h3><p>契約の基礎となる設計図書、見積書、仕様書、打合せ記録その他重要な資料は、双方が確認できる状態で保管し、変更が生じた場合は変更内容が分かるよう記録します。</p></div>
+<div class="clause"><h3>第24条　工事写真・施工記録</h3><p>受注者は、完成後に確認することが困難となる部分その他必要な箇所について、工事内容に応じて写真、測定記録その他の施工記録を残します。</p></div>
+<div class="clause"><h3>第25条　保険等</h3><p>工事の種類、規模及び施工条件に応じて必要となる保険その他の補償については、契約条件及び関係法令に従い取り扱います。必要がある場合は、その加入内容を双方で確認します。</p></div>
+<div class="clause"><h3>第26条　添付書類</h3><p>本契約書に添付する見積書、設計図、仕様書、工程表、変更合意書その他双方が契約内容として確認した書類は、本契約を構成する書類として取り扱います。</p></div>
+<div class="clause"><h3>第27条　協議・紛争解決</h3><p>本契約に定めのない事項又は疑義が生じた事項は双方が誠意をもって協議します。協議で解決しない場合は、建設工事紛争審査会その他双方が合意する手続の利用を検討します。</p></div></div>
+  </div>
+  <div class="foot"><span>工事請負契約約款（簡易版）</span><span>2 / 2</span></div>
+</section>
+<script>
+
+(function(){
+ const q=new URLSearchParams(location.search),id=q.get('id')||'';
+ if(!id||!window.MSData){alert('工事データを読み込めません。受注・契約画面から開いてください。');return}
+ const p=MSData.get('projects',id);if(!p){alert('工事データが見つかりません。');return}
+ const oc=p.orderContract||{},pay=oc.payment||{},f=p.legacyFinancials||{};
+ const our=(MSData.all('companySettings')||[]).find(x=>x.status!=='inactive')||{};
+ const amount=Number(oc.currentContractAmount??p.contractAmount??f.finalContractAmount??f.contractAmount??0)||0;
+ const tax=Math.round(amount*10/110);
+ const money=v=>{const n=Number(v)||0;return n?'￥'+Math.round(n).toLocaleString('ja-JP'):'―'};
+ const jp=v=>{if(!v)return'―';const a=String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);return a?`${+a[1]}年${+a[2]}月${+a[3]}日`:String(v)};
+ const d={contractNo:p.legacyProjectNo||p.no||'―',contractDate:oc.contractDocDate||oc.orderDate||p.registeredDate||'',
+ projectName:p.name||'―',projectAddress:p.address||'―',ownerName:p.clientName||'―',
+ ownerAddress:p.clientAddress||p.ownerAddress||'―',contractorName:our.companyName||p.contractorName||'MSランドスケープ',
+ contractorAddress:our.address||'―',startDate:p.startDate||'',endDate:p.endDate||'',handoverDate:p.endDate||'',
+ totalAmount:amount,taxAmount:tax,advance:pay.advance,advanceWhen:pay.advanceWhen||'―',
+ interim:pay.interim,interimWhen:pay.interimWhen||'―',finalPayment:pay.final,finalWhen:pay.finalWhen||'―',
+ special:oc.contractSpecial||oc.note||'特になし'};
+ document.querySelectorAll('[data-v]').forEach(e=>{const z=e.dataset.v;let v=d[z];
+ if(['totalAmount','taxAmount','advance','interim','finalPayment'].includes(z))v=money(v);
+ if(['contractDate','startDate','endDate','handoverDate'].includes(z))v=jp(v);
+ e.textContent=(v===undefined||v===null||v==='')?'―':v;});
+ const back=document.querySelector('.toolbar .sub');if(back)back.onclick=()=>location.href='kouji_keiyakusho.html?id='+encodeURIComponent(id);
+ document.title=(p.name||'工事')+'｜工事請負契約書';
+})();
+
+</script>
+</body>
+</html>
