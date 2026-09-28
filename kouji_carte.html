@@ -187,7 +187,7 @@ if(x){
    const salesInvShown=liveSalesInvoices.length?salesInvoiceTotal:Number(f.invoiceAmount||0);
    const salesRecShown=liveSalesReceipts.length?salesReceiptTotal:Number(f.paymentAmount||0);
    const canBill=Math.max(0,Number(contractNow||0)-salesInvShown);
-   const canOrder=budgetTotal!==null?Math.max(0,budgetTotal-orderShown):null;
+   const canOrder=orderableBudgetTotal!==null?Math.max(0,orderableBudgetTotal-orderShown):null;
    const supplierWaiting=Math.max(0,orderShown-supplierShown);
    const unpaid=Math.max(0,salesInvShown-salesRecShown);
    metrics[0].textContent=yenOr(canBill);
