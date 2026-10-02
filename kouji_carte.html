@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ja">
 <head>
+<script src="ms_password.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>工事カルテ｜MS建設管理システム</title>
@@ -163,7 +164,9 @@ if(x){
  const dd=document.querySelectorAll('.info-grid dd'); const vals=[no,fmtDate(x.registeredDate),val(x.name),val(x.workCategory),val(x.clientName),val(x.clientContact),'—',val(x.contractorName),'—',val(x.address),term,val(x.salesPerson),val(x.projectPerson),val(x.sitePerson),val(x.estimatePerson),val(x.designPerson)]; dd.forEach((e,i)=>{if(i<vals.length)e.textContent=vals[i]});
  const f=x.legacyFinancials||{};
  const oc=x.orderContract||{};
- const eb=x.executionBudget||{};
+ const latestBudget=MSData.all('budgets').filter(b=>String(b.projectId)===String(id)&&b.status!=='inactive').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')))[0];
+ const eb=latestBudget?{totalAmount:latestBudget.totalAmount??((latestBudget.items||[]).reduce((q,it)=>q+(Number(it.amount)||0),0)+(Number(latestBudget.reserveAmount)||0))}:x.executionBudget||{};
+ if(eb.totalAmount!==undefined&&MSData.contractValue(x)!==null){eb.profitAmount=Number(MSData.contractValue(x))-Number(eb.totalAmount);eb.profitRate=Number(MSData.contractValue(x))>0?eb.profitAmount/Number(MSData.contractValue(x))*100:null;}
  const liveOrders=(MSData.all('orders')||[]).filter(o=>String(o.projectId)===String(id)&&o.status!=='inactive');
  const liveSupplierInvoices=(MSData.all('supplierInvoices')||[]).filter(i=>String(i.projectId)===String(id)&&i.status!=='inactive');
  let salesBilling={};
@@ -176,7 +179,7 @@ if(x){
  const salesInvoiceTotal=liveSalesInvoices.reduce((s,i)=>s+(Number(i.amount)||0),0);
  const salesReceiptTotal=liveSalesReceipts.reduce((s,r)=>s+(Number(r.amount)||0),0);
 
- const contractNow=(oc.currentContractAmount!==undefined&&oc.currentContractAmount!==null&&oc.currentContractAmount!=='')?oc.currentContractAmount:(f.finalContractAmount??f.contractAmount??x.contractAmount);
+ const contractNow=MSData.contractValue(x);
  function yenOr(v,empty='未登録'){if(v===undefined||v===null||v==='')return empty;const n=Number(v);return Number.isFinite(n)?n.toLocaleString('ja-JP')+'円':empty;}
  const metrics=document.querySelectorAll('.metric .value');
  if(metrics.length>=8){
@@ -201,21 +204,24 @@ if(x){
      }
    }catch(e){}
    const canOrder=orderableBudgetTotal!==null?Math.max(0,orderableBudgetTotal-orderShown):null;
-   const supplierWaiting=Math.max(0,orderShown-supplierShown);
+   const unlinked=liveSupplierInvoices.filter(i=>!liveOrders.some(o=>o.id===i.orderId));
+   const linkedAmount=liveSupplierInvoices.filter(i=>liveOrders.some(o=>o.id===i.orderId)).reduce((q,i)=>q+(Number(i.amount)||0),0);
+   const unallocated=liveOrders.some(o=>!o.allocations?.length);
+   const supplierWaiting=Math.max(0,orderShown-linkedAmount);
    const unpaid=Math.max(0,salesInvShown-salesRecShown);
    metrics[0].textContent=yenOr(canBill);
-   metrics[1].textContent=canOrder!==null?yenOr(canOrder):'未作成';
-   metrics[2].textContent=yenOr(supplierWaiting);
+   metrics[1].textContent=canOrder!==null?(unallocated?'予算との対応未確認':yenOr(canOrder)):'予算未登録';
+   metrics[2].textContent=yenOr(supplierWaiting)+(unlinked.length?'（発注未確認 '+unlinked.length+'件）':'');
    metrics[3].textContent=yenOr(unpaid);
    metrics[4].textContent=yenOr(contractNow);
    metrics[5].textContent=yenOr(orderShown);
    metrics[6].textContent=yenOr(salesInvShown);
-   metrics[7].textContent=(eb.profitAmount!==undefined&&eb.profitAmount!==null)?(yenOr(eb.profitAmount)+' / '+Number(eb.profitRate||0).toFixed(1)+'%'):'未作成';
+   metrics[7].textContent=(eb.profitAmount!==undefined&&eb.profitAmount!==null)?(yenOr(eb.profitAmount)+' / '+(eb.profitRate===null?'未算定':Number(eb.profitRate||0).toFixed(1)+'%')):'未算定（予算未登録）';
  }
  const rows=document.querySelectorAll('.progress-row');
  if(rows.length>=4){
    rows[0].children[1].textContent='受注金額 '+yenOr(contractNow); rows[0].children[2].textContent=(x.legacyFinancials&&!x.orderContract?'旧データ':(x.orderContract?'登録済':'未登録'));
-   if(eb.totalAmount!==undefined&&eb.totalAmount!==null){rows[1].children[1].textContent='実行予算 '+yenOr(eb.totalAmount)+'　予定利益 '+yenOr(eb.profitAmount);rows[1].children[2].textContent='作成済';}else{rows[1].children[1].textContent='旧システムには実行予算なし';rows[1].children[2].textContent='未作成';}
+   if(eb.totalAmount!==undefined&&eb.totalAmount!==null){rows[1].children[1].textContent='実行予算 '+yenOr(eb.totalAmount)+'　予定利益 '+yenOr(eb.profitAmount);rows[1].children[2].textContent='作成済';}else{rows[1].children[1].textContent='今ある発注・請求は予算なしでも登録できます';rows[1].children[2].textContent='予算未登録';}
    rows[2].children[1].textContent='発注金額 '+(liveOrders.length?yenOr(orderTotal):yenOr(f.budgetOrderAmount))+'　下請請求 '+(liveSupplierInvoices.length?yenOr(supplierInvoiceTotal):'未登録');
    rows[2].children[2].textContent=liveOrders.length?'登録済':(x.legacyFinancials?'旧データ':'未登録');
    const clientInvText=liveSalesInvoices.length?yenOr(salesInvoiceTotal):yenOr(f.invoiceAmount);
@@ -224,6 +230,14 @@ if(x){
    rows[3].children[2].textContent=(liveSalesInvoices.length||liveSalesReceipts.length)?'登録済':(x.legacyFinancials?'旧データ':'未登録');
  }
  const notices=document.querySelectorAll('.notice');
+ const pending=liveSupplierInvoices.filter(i=>!liveOrders.some(o=>o.id===i.orderId)).length;
+ const unmapped=liveOrders.filter(o=>!o.allocations?.length).length;
+ if(pending||unmapped||eb.totalAmount===undefined){
+   const note=document.createElement('div');note.className='notice';
+   note.textContent=[eb.totalAmount===undefined?'予算未登録：概算から追加できます。':'',pending?'発注未確認の請求書 '+pending+'件：発注・下請請求で確認してください。':'',unmapped?'予算との対応未確認の発注 '+unmapped+'件：後から予算明細に結び付けられます。':''].filter(Boolean).join(' ');
+   const parent=notices[0]?.parentElement;if(parent)parent.prepend(note);
+ }
+
  if(notices.length>=3){
    notices[0].innerHTML='<b>旧データ移行</b>受注・発注・請求・入金は旧工事データを表示します。実行予算は新システムで新規作成する項目です。';
    notices[1].innerHTML='<b>発注金額</b>旧データの「予算発注金額」を暫定的に発注金額として表示しています。意味を確認後に正式確定します。';

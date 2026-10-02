@@ -1,47 +1,9 @@
-<!doctype html><html lang="ja"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>共有データサーバー設定｜MS建設管理システム</title>
-<style>
-:root{--blue:#174d78;--line:#cbdbe6;--bg:#f3f7fa;--text:#263f50}
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic","Meiryo",sans-serif;color:var(--text);background:var(--bg)}
-header{background:#fff;border-bottom:1px solid var(--line)}.top{max-width:1000px;margin:auto;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
-.brand{font-size:22px;font-weight:900;color:var(--blue)}button{border:0;border-radius:8px;background:var(--blue);color:#fff;padding:10px 17px;font-weight:800;cursor:pointer}
-main{max-width:820px;margin:auto;padding:28px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px}
-h1{margin:0 0 8px;color:var(--blue)}p{color:#607583;line-height:1.7;font-size:13px}
-label{display:block;margin:20px 0 7px;font-weight:800}input{width:100%;padding:12px;font-size:18px;border:1px solid #aebbc4;border-radius:7px}
-.row{display:flex;gap:10px;margin-top:14px}.sub{background:#667b87}.status{margin-top:16px;padding:13px;border-radius:8px;background:#eef3f6;font-weight:800}
-.ok{background:#e8f5ec;color:#27633d}.ng{background:#fff0ed;color:#9a3d31}.note{margin-top:18px;padding:13px;border:1px solid #dce6ec;border-radius:8px;background:#f7fafc;font-size:12px;line-height:1.8}
-</style>
-<script src="shared_storage.js"></script></head><body>
-<header><div class="top"><div class="brand">MS建設管理システム ／ 管理者設定</div><button onclick="location.href='kanri_settei.html'">管理・設定へ戻る</button></div></header>
-<main><div class="card"><h1>共有データサーバー設定</h1>
-<p>導入時またはサーバー移設時に管理者が設定します。通常の社員は変更しません。</p>
-<label>共有データサーバー アドレス</label>
-<input id="api" placeholder="例：http://192.168.1.5:8766">
-<div class="row"><button id="save">保存して接続テスト</button><button id="test" class="sub">接続テストのみ</button></div>
-<div id="status" class="status">未確認</div>
-<div class="note">現在の試験環境は http://192.168.1.5:8766 です。将来専用サーバーへ移行した場合は、ここで接続先だけを変更する設計です。</div>
-</div></main>
-<script>
-const input=document.getElementById('api'),statusEl=document.getElementById('status');
-const current=MSShared.apiBase ? MSShared.apiBase() : 'http://192.168.1.5:8766';
-input.value=current;
-function show(ok,msg){statusEl.className='status '+(ok?'ok':'ng');statusEl.textContent=msg}
-async function probe(base){
-  base=String(base||'').trim().replace(/\/+$/,'');
-  try{
-    const r=await fetch(base+'/api/storage/all',{cache:'no-store'});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    await r.json(); show(true,'接続成功：'+base); return true;
-  }catch(e){show(false,'接続できません：'+base); return false}
-}
-document.getElementById('test').onclick=()=>probe(input.value); // test only; does not save
-document.getElementById('save').onclick=async()=>{
-  const base=String(input.value||'').trim().replace(/\/+$/,'');
-  if(!/^https?:\/\//i.test(base)){show(false,'http:// または https:// から入力してください。');return}
-  if(await probe(base)){
-    try{ MSShared.setApiBase(base); show(true,'保存・接続成功：'+base); }
-    catch(e){show(false,'保存できません：'+e.message)}
-  }
-};
-</script></body></html>
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ネットワーク接続設定</title><style>*{box-sizing:border-box}body{margin:0;font:14px 'Yu Gothic',Meiryo,sans-serif;color:#263f50;background:#edf6fc}header{background:#173f6b;color:white;padding:16px 24px;font-size:22px;font-weight:bold}main{max-width:850px;margin:20px auto;padding:0 16px}.box{background:white;border:1px solid #c9dbe8;border-radius:8px;padding:18px;margin:12px 0}h1{font-size:22px}h2{font-size:16px;color:#173f6b}label{display:block;margin:12px 0 5px}input{padding:7px;width:100%;border:1px solid #adc6d7;border-radius:4px;font:inherit}button,a.btn{display:inline-block;background:#176fa8;color:white;border:0;border-radius:5px;padding:8px 12px;margin:8px 6px 0 0;font:inherit;text-decoration:none;cursor:pointer}button:disabled{opacity:.5;cursor:default}.muted{color:#476174;font-size:12px;line-height:1.7}.status{padding:10px;background:#eef8f2;white-space:pre-line;overflow-wrap:anywhere}.error{background:#fff0ed;color:#9b3333}#links a{display:block;margin:8px 0;overflow-wrap:anywhere}.row{display:grid;grid-template-columns:1fr 130px;gap:10px}</style><header>MS建設管理システム</header><main><h1>ネットワーク接続設定</h1><button onclick="location.href='kanri_settei.html'">管理・設定へ戻る</button><section class="box"><h2>現在の接続</h2><div id="state" class="status">接続を確認しています…</div><button id="check">接続テスト</button><h2>社員のパソコンで開くURL</h2><div id="links"></div><button id="copy">接続URLをコピー</button><p class="muted">社員のパソコンではサーバーを起動せず、このURLをブラウザで開きます。localhost はサーバー役のパソコン自身を指すため、社員用には使いません。</p></section><section class="box"><h2>別のサーバーへ接続する</h2><div class="row"><div><label for="host">サーバーのIPアドレス または名前</label><input id="host" placeholder="例：192.168.1.5"></div><div><label for="port">ポート番号</label><input id="port" type="number" min="1024" max="65535"></div></div><button id="open">接続先を開いて確認</button><p class="muted">接続先の設定画面を開き、そこで接続テストを行います。データは移動・コピーしません。会社のサーバーへ移すときは、先にプログラムと共有データを移してください。</p></section><section class="box"><h2>サーバー役のパソコンのポート設定</h2><p id="admin" class="muted"></p><label for="serverPort">次回起動時のポート番号</label><input id="serverPort" type="number" min="1024" max="65535"><button id="save" disabled>ポート設定を保存</button><div id="saveState" role="status"></div><p class="muted">変更後は黒いサーバー画面で Ctrl＋C を押して停止し、start_server.bat で再起動してください。再起動後は新しいポートのURLを開きます。</p></section></main><script>
+const $=id=>document.getElementById(id);let info,copyUrl='';$('host').value=location.hostname;$('port').value=location.port|| (location.protocol==='https:'?443:80);
+async function request(path,options){const r=await fetch(path,{cache:'no-store',signal:AbortSignal.timeout(5000),...options});const d=await r.json();if(!r.ok)throw Error(d.error||'接続できません');return d}
+async function check(){try{info=await request('/api/network');if(!info.ok||!Number.isInteger(info.runningPort))throw Error('対応するサーバーではありません。サーバーの更新を確認してください。');$('state').className='status';$('state').textContent='接続成功：'+location.origin+'\n運用モード：'+(info.mode==='trial'?'試作モード':info.mode==='production'?'本番運用':'未確認')+'\n共有データ：'+info.dataFile;$('links').replaceChildren();const urls=info.addresses.length?info.addresses:[location.origin];for(const base of urls){const a=document.createElement('a');a.href=base+'/index.html';a.textContent=a.href;$('links').append(a)}copyUrl=urls[0]+'/index.html';$('serverPort').value=info.savedPort;$('save').disabled=!info.localAdmin;$('admin').textContent=info.localAdmin?'このパソコンからポート設定を変更できます。':'変更はサーバー役のパソコンで http://localhost:'+info.runningPort+'/network_settings.html を開いて行ってください。';}catch(e){$('state').className='status error';$('state').textContent='接続できません。サーバーが起動しているか確認してください。\n'+e.message;$('save').disabled=true;copyUrl='';}}
+$('check').onclick=check;
+$('copy').onclick=async()=>{if(!copyUrl)return;try{await navigator.clipboard.writeText(copyUrl);$('copy').textContent='コピーしました'}catch{prompt('次のURLをコピーしてください',copyUrl)}};
+$('open').onclick=()=>{try{const h=$('host').value.trim(),p=Number($('port').value);if(!h||/[\s\/@?#]/.test(h)||!Number.isInteger(p)||p<1024||p>65535)throw Error('サーバー名と1024〜65535のポート番号を入力してください。');const u=new URL('http://'+h+':'+p+'/network_settings.html');location.href=u.href;}catch(e){alert(e.message)}};
+$('save').onclick=async()=>{try{const p=Number($('serverPort').value);if(!Number.isInteger(p)||p<1024||p>65535)throw Error('1024〜65535の整数を入力してください。');const d=await request('/api/network/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({port:p})});$('saveState').textContent=d.restartRequired?'保存しました。再起動後のURL：http://'+location.hostname+':'+p+'/network_settings.html':'保存しました。現在と同じポートです。';}catch(e){$('saveState').textContent=e.message}};check();
+</script></html>

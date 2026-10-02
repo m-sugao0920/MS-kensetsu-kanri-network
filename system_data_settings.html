@@ -37,7 +37,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px
 <tr><td>請求</td><td>Q000001</td><td id="pInvoice"></td><td>UUID</td><td>請求登録時に自動採番</td></tr>
 <tr><td>支払</td><td>P000001</td><td id="pPayment"></td><td>UUID</td><td>支払登録時に自動採番</td></tr>
 </tbody></table></div></section>
-<section class="box"><h2>保存場所の段階</h2><div class="body"><b>現在の試作版：</b>ブラウザ内の共通データ領域。<br><b>次段階：</b>Windows上の管理プログラム＋SQLite。<br><b>将来：</b>サーバーAPI＋データベース。PC・iPad・スマートフォンはブラウザから同じデータへ接続します。<div class="warn" style="margin-top:9px">共有フォルダ上のSQLiteを複数PCから直接開く方式にはしません。同時登録時の採番競合やネットワーク切断に強くするため、採番・保存は将来サーバー側で一元管理します。</div></div></section>
+<section class="box"><h2>保存場所の段階</h2><div class="body"><b>現在の試作版：</b>サーバー上の shared_data/storage.json。複数台から同じサーバーの画面を開きます。<br><b>次段階：</b>Windows上の管理プログラム＋SQLite。<br><b>将来：</b>サーバーAPI＋データベース。PC・iPad・スマートフォンはブラウザから同じデータへ接続します。<div class="warn" style="margin-top:9px">共有フォルダ上のSQLiteを複数PCから直接開く方式にはしません。同時登録時の採番競合やネットワーク切断に強くするため、採番・保存は将来サーバー側で一元管理します。</div></div></section>
 <section class="box"><h2>データ更新・削除ルール</h2><div class="body">工事名や会社名を変更しても内部IDは変更しません。番号も原則変更しません。発注・請求などの履歴があるデータは物理削除せず、<b>完了・休止・退職・取消・無効</b>などの状態で保持します。番号を欠番にしても再利用しません。</div></section>
 <section class="box"><h2>試作データをリセットして本番開始</h2><div class="body">
 <div class="warn"><b>本番開始時に消すもの</b><br>取引先・社員・工事・実行予算・発注・請求・支払、およびそれらの試作番号。</div>
@@ -47,16 +47,17 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px
 <p style="font-size:12px;color:#6f818e">本番開始後、このボタンは使用できません。本番データは通常の「無効・取消・完了」で履歴を残します。</p>
 </div></section>
 <section class="box"><h2>旧版PCデータの共有版への移行</h2><div class="body"><p>これまでPC①のブラウザ内に保存していたデータを、複数台共有データへ移すための初回移行です。</p><div class="actions"><button onclick="location.href='import_old_data.html'">旧版データを取り込む</button></div></div></section>
-
+<section class="box"><h2>バックアップ・復元</h2><div class="body"><p>現在の共通データをJSON形式で書き出せます。アプリのバージョンアップ前と本番開始前にはバックアップを作成してください。</p><div class="actions"><button onclick="MSData.downloadBackup()">バックアップを書き出す</button><button class="sub" onclick="document.getElementById('restore').click()">バックアップを復元</button><input class="file" id="restore" type="file" accept=".json,application/json"></div><p>データ形式：<span class="mono" id="schema"></span> ／ データバージョン：<b id="dv"></b></p></div></section>
 </main><script src="shared_storage.js"></script>
 <script src="ms_data.js"></script><script>
 function refresh(){
-pProject.textContent=MSData.peekNo('projects');pPartner.textContent=MSData.peekNo('partners');pEmployee.textContent=MSData.peekNo('employees');pOrder.textContent=MSData.peekNo('orders');pInvoice.textContent=MSData.peekNo('invoices');pPayment.textContent=MSData.peekNo('payments');
+pProject.textContent=MSData.peekNo('projects');pPartner.textContent=MSData.peekNo('partners');pEmployee.textContent=MSData.peekNo('employees');pOrder.textContent=MSData.peekNo('orders');pInvoice.textContent=MSData.peekNo('invoices');pPayment.textContent=MSData.peekNo('payments');schema.textContent=MSData.APP_SCHEMA;dv.textContent=MSData.DATA_VERSION;
 const trial=MSData.getMode()==='trial';
 modeText.textContent=trial?'試作モード':'本番運用';
 modeHelp.textContent=trial?'現在はテストデータを自由に登録できます。完成時に業務データをリセットして番号を1番から本番開始できます。':'本番開始済みです。試作リセットは使用できません。';
 productionBtn.disabled=!trial; productionBtn.style.opacity=trial?'1':'.45';
 }
+restore.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;if(!confirm('現在の試作データをバックアップ内容で置き換えます。よろしいですか？'))return;try{await MSData.restoreFile(f);alert('復元しました。');refresh()}catch(err){alert('復元できませんでした。\\n'+err.message)}e.target.value=''});
 function startProduction(){
 if(MSData.getMode()!=='trial'){alert('すでに本番運用です。');return}
 if(!confirm('【1回目の確認】\n試作の取引先・社員・工事・実行予算・発注・請求・支払を削除し、業務番号を1番から開始します。\n\n続けますか？'))return;

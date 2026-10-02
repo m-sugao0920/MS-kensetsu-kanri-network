@@ -14,7 +14,8 @@
     workTypes: NS+":workTypes", projectTypes: NS+":projectTypes", partnerTypes: NS+":partnerTypes",
     budgets: NS+":budgets", orders: NS+":orders", contracts: NS+":contracts",
     supplierInvoices: NS+":supplierInvoices", supplierPayments: NS+":supplierPayments",
-    invoices: NS+":invoices", payments: NS+":payments"
+    invoices: NS+":invoices", payments: NS+":payments",
+    clientInvoices: NS+":invoices", clientReceipts: NS+":payments"
   };
   const defs = {
     projects:{prefix:"K",digits:6,seq:"project"},
@@ -26,7 +27,8 @@
     partnerTypes:{prefix:"R",digits:4,seq:"partnerType"},
     orders:{prefix:"H",digits:6,seq:"order"},
     invoices:{prefix:"Q",digits:6,seq:"invoice"},
-    payments:{prefix:"P",digits:6,seq:"payment"}
+    payments:{prefix:"P",digits:6,seq:"payment"},
+    clientInvoices:{prefix:"Q",digits:6,seq:"invoice"}, clientReceipts:{prefix:"P",digits:6,seq:"payment"}
   };
   function parse(k,fallback){try{const v=MSShared.getItem(k);return v?JSON.parse(v):fallback}catch(e){return fallback}}
   function put(k,v){MSShared.setItem(k,JSON.stringify(v))}
@@ -37,22 +39,16 @@
       const r=Math.random()*16|0,v=c==="x"?r:(r&3|8); return v.toString(16);
     });
   }
-  let ensured=false;
   function ensure(){
-    if(ensured) return;
-    const metaRaw=MSShared.getItem(keys.meta);
-    if(!metaRaw){
-      put(keys.meta,{schema:APP_SCHEMA,dataVersion:DATA_VERSION,mode:"trial",createdAt:now(),updatedAt:now()});
-    }else{
+    if(!MSShared.getItem(keys.meta)) put(keys.meta,{schema:APP_SCHEMA,dataVersion:DATA_VERSION,mode:"trial",createdAt:now(),updatedAt:now()});
+    else {
       const m=parse(keys.meta,{});
-      let changed=false;
-      if(!m.mode){m.mode="trial";changed=true}
-      if(!m.dataVersion || m.dataVersion<DATA_VERSION){m.dataVersion=DATA_VERSION;changed=true}
-      if(changed) put(keys.meta,m);
+      if(!m.mode) m.mode="trial";
+      if(!m.dataVersion || m.dataVersion<DATA_VERSION) m.dataVersion=DATA_VERSION;
+      put(keys.meta,m);
     }
     if(!MSShared.getItem(keys.seq)) put(keys.seq,{project:0,partner:0,employee:0,worker:0,workType:0,projectType:0,partnerType:0,order:0,invoice:0,payment:0});
     Object.entries(keys).forEach(([name,k])=>{ if(!["meta","seq"].includes(name) && !MSShared.getItem(k)) put(k,[]) });
-    ensured=true;
   }
   function all(entity){ensure(); return parse(keys[entity],[])}
   function nextNo(entity){
@@ -64,6 +60,23 @@
     ensure(); const d=defs[entity]; const seq=parse(keys.seq,{});
     return d.prefix+String((Number(seq[d.seq])||0)+1).padStart(d.digits,"0");
   }
+  function audited(entity,base,obj,t){
+    if(!['budgets','orders','supplierInvoices'].includes(entity))return obj;
+    function clean(v){
+      if(Array.isArray(v))return v.map(clean);
+      if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).filter(([k])=>!['history','initialSnapshot','updatedAt','createdAt','orderedAmount'].includes(k)).map(([k,x])=>[k,clean(x)]));
+      return v;
+    }
+    const before=clean(base),after=clean(obj);
+    obj.initialSnapshot=base.initialSnapshot||(base.id?before:after);
+    obj.history=Array.isArray(base.history)?base.history.slice():[];
+    if(JSON.stringify(before)!==JSON.stringify(after))obj.history.push({at:t,action:base.id?'変更':'登録',before:base.id?before:null,after});
+    return obj;
+  }
+  function contractValue(project){
+    const oc=project.orderContract||{},f=project.legacyFinancials||{};
+    return [oc.currentContractAmount,f.finalContractAmount,f.contractAmount,project.contractCurrent,project.currentContractAmount,project.finalContractAmount,project.contractAmount].find(v=>v!==undefined&&v!==null&&v!=='')??null;
+  }
   function save(entity, rec){
     ensure(); const rows=all(entity), t=now(); let idx=-1;
     if(rec.id) idx=rows.findIndex(x=>x.id===rec.id);
@@ -73,10 +86,40 @@
     if(!obj.no && defs[entity]) obj.no=nextNo(entity);
     if(!obj.createdAt) obj.createdAt=t;
     obj.updatedAt=t; if(!obj.status) obj.status="active";
+    audited(entity,base,obj,t);
     if(idx>=0) rows[idx]=obj; else rows.push(obj);
     put(keys[entity],rows);
     const meta=parse(keys.meta,{}); meta.updatedAt=t; put(keys.meta,meta);
     return obj;
+  }
+  function saveMany(entity, records){
+    ensure();
+    if(!Array.isArray(records)) throw new Error("一括保存データが配列ではありません。");
+    const rows=all(entity), t=now(), d=defs[entity];
+    const seq=parse(keys.seq,{});
+    let seqChanged=false;
+    const saved=[];
+    records.forEach(rec=>{
+      let idx=-1;
+      if(rec.id) idx=rows.findIndex(x=>x.id===rec.id);
+      const base=idx>=0?rows[idx]:{};
+      const obj=Object.assign({},base,rec);
+      if(!obj.id) obj.id=uuid();
+      if(!obj.no && d){
+        seq[d.seq]=(Number(seq[d.seq])||0)+1;
+        obj.no=d.prefix+String(seq[d.seq]).padStart(d.digits,"0");
+        seqChanged=true;
+      }
+      if(!obj.createdAt) obj.createdAt=t;
+      obj.updatedAt=t; if(!obj.status) obj.status="active";
+      audited(entity,base,obj,t);
+      if(idx>=0) rows[idx]=obj; else rows.push(obj);
+      saved.push(obj);
+    });
+    put(keys[entity],rows);
+    if(seqChanged) put(keys.seq,seq);
+    const meta=parse(keys.meta,{}); meta.updatedAt=t; put(keys.meta,meta);
+    return saved;
   }
   function get(entity,id){return all(entity).find(x=>x.id===id)||null}
   function deactivate(entity,id,status="inactive"){
@@ -134,5 +177,5 @@
     Object.values(keys).forEach(k=>MSShared.removeItem(k)); ensure();
   }
   ensure();
-  global.MSData={DATA_VERSION,APP_SCHEMA,keys,defs,all,get,save,nextNo,peekNo,deactivate,exportData,downloadBackup,restoreData,restoreFile,getMode,setMode,productionStartReset,resetAll,uuid};
+  global.MSData={contractValue,DATA_VERSION,APP_SCHEMA,keys,defs,all,get,save,saveMany,nextNo,peekNo,deactivate,exportData,downloadBackup,restoreData,restoreFile,getMode,setMode,productionStartReset,resetAll,uuid};
 })(window);

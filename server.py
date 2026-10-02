@@ -2,7 +2,7 @@
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, quote
-import json, threading, os, socket, subprocess, time, shutil, uuid, re
+import json, threading, os, socket, subprocess, time, shutil, uuid, re, hashlib
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / 'shared_data'
@@ -14,7 +14,23 @@ DOCUMENTS_DIR = DATA_DIR / 'documents'
 DOCUMENTS_INDEX = DOCUMENTS_DIR / 'index.json'
 MAX_PDF_SIZE = 100 * 1024 * 1024
 LOCK = threading.RLock()
-HOST='0.0.0.0'; PORT=8766
+CONFIG_FILE = ROOT / 'server_config.json'
+def read_config():
+    if not CONFIG_FILE.exists(): return {'port':8766}
+    c=json.loads(CONFIG_FILE.read_text(encoding='utf-8-sig'))
+    port=c.get('port',8766)
+    if isinstance(port,bool) or not isinstance(port,int) or not 1024<=port<=65535: raise ValueError('Port must be 1024..65535')
+    return {'port':port}
+HOST='0.0.0.0'; PORT=read_config()['port']
+def version_of(value):
+    return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True).encode('utf-8')).hexdigest()
+def versions_of(d): return {k:version_of(v) for k,v in d.items()}
+def network_info():
+    d=load_store()
+    try: mode=json.loads(d.get('mscm:v1:meta','{}')).get('mode','trial')
+    except Exception: mode='unknown'
+    return {'ok':True,'runningPort':PORT,'savedPort':read_config()['port'],'addresses':['http://%s:%d'%(ip,PORT) for ip in local_ips()], 'mode':mode,'dataFile':str(DATA_FILE),'localAdmin':False}
+
 
 def valid_store(path):
     try:
@@ -88,7 +104,11 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         u=urlparse(self.path); path=u.path; q=parse_qs(u.query)
         if path=='/api/ping': return self.send_json({'ok':True,'dataFile':str(DATA_FILE),'documentsDir':str(DOCUMENTS_DIR)})
-        if path=='/api/storage/all': return self.send_json({'data':load_store()})
+        if path=='/api/network':
+            info=network_info(); info['localAdmin']=self.client_address[0] in ('127.0.0.1','::1')
+            return self.send_json(info)
+        if path=='/api/storage/all':
+            d=load_store(); return self.send_json({'data':d,'versions':versions_of(d)})
         if path=='/api/documents/list':
             project_id=(q.get('projectId') or [''])[0]
             with LOCK: rows=[r for r in load_documents() if r.get('projectId')==project_id]
@@ -98,6 +118,22 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         u=urlparse(self.path); path=u.path
         try:
+            if path=='/api/network/config':
+                if self.client_address[0] not in ('127.0.0.1','::1'): return self.send_json({'error':'サーバー役のパソコンで localhost から設定してください。'},403)
+                origin=self.headers.get('Origin'); expected='http://'+self.headers.get('Host','')
+                if origin and origin!=expected: return self.send_json({'error':'接続元が一致しません。'},403)
+                if not self.headers.get('Content-Type','').startswith('application/json'): return self.send_json({'error':'JSON required'},400)
+                n=int(self.headers.get('Content-Length','0'))
+                if not 0<n<=1024: return self.send_json({'error':'invalid size'},400)
+                body=json.loads(self.rfile.read(n)); port=body.get('port')
+                if isinstance(port,bool) or not isinstance(port,int) or not 1024<=port<=65535: return self.send_json({'error':'ポートは1024〜65535の整数で入力してください。'},400)
+                if port!=PORT:
+                    with socket.socket() as probe:
+                        try: probe.bind((HOST,port))
+                        except OSError: return self.send_json({'error':'そのポートは使用中です。別の番号を入力してください。'},409)
+                with LOCK:
+                    tmp=CONFIG_FILE.with_suffix('.tmp'); tmp.write_text(json.dumps({'port':port}),encoding='utf-8'); os.replace(tmp,CONFIG_FILE)
+                return self.send_json({'ok':True,'restartRequired':port!=PORT})
             if path=='/api/documents/upload':
                 n=int(self.headers.get('Content-Length','0'))
                 if n<=0 or n>MAX_PDF_SIZE: return self.send_json({'error':'PDF size is invalid or too large.'},400)
@@ -133,8 +169,11 @@ class Handler(SimpleHTTPRequestHandler):
             with LOCK:
                 d=load_store()
                 if path.endswith('/get'): return self.send_json({'value':d.get(key)})
-                if path.endswith('/set'): d[key]=body.get('value'); save_store(d); return self.send_json({'ok':True})
-                if path.endswith('/remove'): d.pop(key,None); save_store(d); return self.send_json({'ok':True})
+                if path.endswith('/set') or path.endswith('/remove'):
+                    if body.get('expectedVersion')!=(version_of(d[key]) if key in d else None): return self.send_json({'error':'ほかの画面でデータが変更されました。入力内容を控えてから画面を再読み込みし、最新の内容を確認してください。'},409)
+                    if path.endswith('/set'): d[key]=body.get('value')
+                    else: d.pop(key,None)
+                    save_store(d); return self.send_json({'ok':True,'version':version_of(d[key]) if key in d else None})
             return self.send_json({'error':'not found'},404)
         except Exception as e: return self.send_json({'error':str(e)},500)
 
@@ -146,7 +185,7 @@ if __name__=='__main__':
     for ip in local_ips(): print(' Other PC: http://%s:%d/index.html'%(ip,PORT))
     print('='*70)
     try: srv=ThreadingHTTPServer((HOST,PORT),Handler)
-    except OSError as e: print('SERVER START ERROR:',e); print('Close the previous server window using port 8766.'); input('Press Enter to close...'); raise SystemExit(2)
+    except OSError as e: print('SERVER START ERROR:',e); print('Check the configured port:',PORT); input('Press Enter to close...'); raise SystemExit(2)
     threading.Thread(target=lambda:(time.sleep(1),open_chrome('http://localhost:%d/index.html'%PORT)),daemon=True).start()
     try: srv.serve_forever()
     except KeyboardInterrupt: pass
