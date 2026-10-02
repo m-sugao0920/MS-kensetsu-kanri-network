@@ -55,7 +55,7 @@ main{max-width:1380px;margin:auto;padding:20px 26px 40px}h1{font-size:27px;color
  </div>
 </section>
 <datalist id="items"></datalist><datalist id="vendors"></datalist><datalist id="companies"></datalist>
-</main><script src="shared_storage.js"></script><script src="ms_data.js"></script><script>
+</main><script src="shared_storage.js?v=20261003"></script><script src="ms_data.js"></script><script>
 const KEY='mscm:gifts:v1',$=x=>document.getElementById(x),now=new Date(),CY=now.getFullYear();let ps=[],rs=[],its=[],vs=[],masters=[];
 ['sy','oy','hy'].forEach(x=>$(x).value=CY);$('sd').value=$('rd').value=now.toISOString().slice(0,10);
 function e(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function m(n){return Number(n||0).toLocaleString('ja-JP')+'円'}

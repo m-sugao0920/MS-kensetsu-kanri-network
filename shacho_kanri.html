@@ -42,7 +42,7 @@
 <section id="profit" class="page"><div class="asof" id="profitAsOf"></div><div class="cards report-cards" id="profitSummary"></div><div class="panel"><div class="ph">工事採算　工事別内訳<span class="note">受注額－実行予算を予定粗利として表示</span></div><div class="wrap"><table><thead><tr><th>工事番号</th><th>工事名</th><th>発注者</th><th>営業担当</th><th class="num">受注額</th><th class="num">実行予算</th><th class="num">予定粗利</th><th class="num">粗利率</th><th class="num">発注済</th><th class="num">下請請求</th></tr></thead><tbody id="profitBody"></tbody></table></div></div></section>
 <section id="collect" class="page"><div class="asof" id="collectAsOf"></div><div class="cards report-cards" id="collectSummary"></div><div class="panel"><div class="ph">未請求・未入金　残高内訳</div><div class="wrap"><table><thead><tr><th>工事番号</th><th>工事名</th><th>発注者</th><th class="num">受注額</th><th class="num">請求累計</th><th class="num">未請求</th><th class="num">入金累計</th><th class="num">未入金</th><th>最終入金日</th></tr></thead><tbody id="collectBody"></tbody></table></div></div></section>
 <section id="cash" class="page"><div class="cash-note"><b>資金繰り資料（第1段階）</b>　入金は元請請求・入金管理の実績を使用します。出金側は現在「下請請求」を支払必要額の基礎として表示します。実際の支払日・出金実績を正確に管理するには、次段階で支払登録を接続します。</div><div class="cards" id="cashCards"></div><div class="panel"><div class="ph">対象月の入出金内訳</div><div class="wrap"><table><thead><tr><th>区分</th><th>日付</th><th>相手先</th><th>工事</th><th class="num">金額</th><th>備考</th></tr></thead><tbody id="cashBody"></tbody></table></div></div></section>
-</main><script src="shared_storage.js"></script><script src="ms_data.js"></script><script>
+</main><script src="shared_storage.js?v=20261003"></script><script src="ms_data.js"></script><script>
 (()=>{
 const $=id=>document.getElementById(id),
  n=v=>Number(String(v??'').replace(/[^\d.-]/g,''))||0,

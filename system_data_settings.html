@@ -48,7 +48,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px
 </div></section>
 <section class="box"><h2>旧版PCデータの共有版への移行</h2><div class="body"><p>これまでPC①のブラウザ内に保存していたデータを、複数台共有データへ移すための初回移行です。</p><div class="actions"><button onclick="location.href='import_old_data.html'">旧版データを取り込む</button></div></div></section>
 <section class="box"><h2>バックアップ・復元</h2><div class="body"><p>現在の共通データをJSON形式で書き出せます。アプリのバージョンアップ前と本番開始前にはバックアップを作成してください。</p><div class="actions"><button onclick="MSData.downloadBackup()">バックアップを書き出す</button><button class="sub" onclick="document.getElementById('restore').click()">バックアップを復元</button><input class="file" id="restore" type="file" accept=".json,application/json"></div><p>データ形式：<span class="mono" id="schema"></span> ／ データバージョン：<b id="dv"></b></p></div></section>
-</main><script src="shared_storage.js"></script>
+</main><script src="shared_storage.js?v=20261003"></script>
 <script src="ms_data.js"></script><script>
 function refresh(){
 pProject.textContent=MSData.peekNo('projects');pPartner.textContent=MSData.peekNo('partners');pEmployee.textContent=MSData.peekNo('employees');pOrder.textContent=MSData.peekNo('orders');pInvoice.textContent=MSData.peekNo('invoices');pPayment.textContent=MSData.peekNo('payments');schema.textContent=MSData.APP_SCHEMA;dv.textContent=MSData.DATA_VERSION;

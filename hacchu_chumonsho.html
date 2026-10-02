@@ -105,7 +105,7 @@ window.addEventListener('load',function(){
 </div><div class="signbox"><span class="seal">印</span>上記事項及び工事下請基本契約条件を承諾し、この工事を請け負います。<br>請書日　　年　　月　　日<br><b data-v="supplierName"></b>　代表者 <span data-v="supplierRep"></span></div>
 <div class="foot"><span>MS建設管理システム</span><span>1 / 2</span></div></section>
 
-<script src="shared_storage.js"></script><script src="ms_data.js"></script>
+<script src="shared_storage.js?v=20261003"></script><script src="ms_data.js"></script>
 <script>
 (()=>{const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),oid=q.get('orderId')||q.get('id')||sessionStorage.getItem('mscm:selectedOrderId')||'';
 const yen=v=>'¥'+Number(v||0).toLocaleString('ja-JP'),fmt=v=>{if(!v)return'';let a=String(v).slice(0,10).split('-');return a.length===3?`${a[0]}年${+a[1]}月${+a[2]}日`:v};
